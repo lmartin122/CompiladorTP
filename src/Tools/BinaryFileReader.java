@@ -1,3 +1,5 @@
+package Tools;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -5,7 +7,7 @@ import java.util.ArrayList;
 
 public class BinaryFileReader {
 
-    public static ArrayList<ArrayList<Character>> read(String fileName) {
+    public static ArrayList<ArrayList<Character>> read(String fileName, String pathFile) {
         if (fileName.length() <= 1) {
             System.out.println("No ingreso el nombre del archivo correctamente.");
             return null;
@@ -14,7 +16,7 @@ public class BinaryFileReader {
         String path = System.getProperty("user.dir");
 
         try {
-            File file = new File(path + "/archivos/" + fileName);
+            File file = new File(path + "/" + pathFile + "/" + fileName);
 
             if (!file.exists()) {
                 System.out.println("El archivo no existe.");

@@ -1,6 +1,6 @@
 package Lexico;
 
-import util.Tupla;
+import Tools.Tupla;
 
 public class MatrizTransicion {
 
@@ -10,7 +10,7 @@ public class MatrizTransicion {
         this.matriz = new Tupla[estados][simbolos];
     }
 
-    public Integer convertir(char simbolo) {
+    private Integer convertir(char simbolo) {
         return switch (simbolo) {
             case ' ' -> 0;
             case '\t' -> 1;
@@ -55,7 +55,8 @@ public class MatrizTransicion {
         return matriz[estado][col].getEstado();
     };
 
-    public AccionSemantica accionSemantica(Integer estado, int simbolo) {
+    public AccionSemantica accionSemantica(Integer estado, char simbolo) {
+        int col = convertir(simbolo);
         return matriz[estado][simbolo].getAs();
     };
 

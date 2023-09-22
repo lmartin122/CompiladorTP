@@ -31,23 +31,22 @@ public class Compilador {
         String input = scanner.nextLine();
         scanner.close();
 
-        ArrayList<ArrayList<Character>> program = BinaryFileReader.read(input);
+        ArrayList<ArrayList<Character>> program = BinaryFileReader.read(input, "archivos");
 
         if (program == null)
             return;
 
         AnalizadorLexico aLexico = new AnalizadorLexico(program);
         AnalizadorSintactico aSintactico = new AnalizadorSintactico();
-        Logger logger = new Logger();
 
         // while (!aLexico.hasFinishedTokenizer()) {
         // aSintactico.getNextToken(aLexico);
         // }
 
-        logger.logError(1, "Este es un error.");
-        logger.logWarning(2, "Esta es una advertencia.");
+        Logger.logError(1, "Este es un error.");
+        Logger.logWarning(2, "Esta es una advertencia.");
 
-        logger.dumpLog();
+        Logger.dumpLog();
         System.out.println(programToString(program));
 
     }
