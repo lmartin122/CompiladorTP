@@ -1,8 +1,9 @@
-package util;
+package Tools;
 
-public class Tupla<t1,t2> {
+public class Tupla<t1, t2> {
     private t1 estado;
     private t2 as;
+
     public Tupla(t1 first, t2 second) {
         this.estado = first;
         this.as = second;

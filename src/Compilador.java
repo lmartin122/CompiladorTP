@@ -3,6 +3,8 @@ import java.util.Scanner;
 
 import Lexico.AnalizadorLexico;
 import Sintactico.AnalizadorSintactico;
+import Tools.BinaryFileReader;
+import Tools.Logger;
 
 public class Compilador {
 
@@ -36,12 +38,16 @@ public class Compilador {
 
         AnalizadorLexico aLexico = new AnalizadorLexico(program);
         AnalizadorSintactico aSintactico = new AnalizadorSintactico();
-        ArrayList<Error> errores = null;
+        Logger logger = new Logger();
 
         // while (!aLexico.hasFinishedTokenizer()) {
         // aSintactico.getNextToken(aLexico);
         // }
 
+        logger.logError(1, "Este es un error.");
+        logger.logWarning(2, "Esta es una advertencia.");
+
+        logger.dumpLog();
         System.out.println(programToString(program));
 
     }
