@@ -1,10 +1,12 @@
 package Lexico;
 
 import java.lang.reflect.InvocationTargetException;
+import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import Lexico.AccionesSemanticas.AccionSemantica;
 import Tokenizer.Token;
 import Tools.BinaryFileReader;
 
@@ -21,23 +23,16 @@ public class AnalizadorLexico {
         cargarMatriz();
     }
 
-    // inicbuffer
     private AccionSemantica toAccionSemantica(String acc) {
         if (acc.equals("null"))
             return null;
 
         try {
             // Obtener la clase a partir del nombre
-            Class<?> clase = Class.forName(acc);
+            Class<?> clase = Class.forName("Lexico.AccionesSemanticas." + acc);
 
             // Crear una instancia de la clase
-            Object instancia = clase.getDeclaredConstructor().newInstance();
-
-            if (instancia instanceof AccionSemantica) {
-                AccionSemantica obj = (AccionSemantica) instancia;
-
-                return obj;
-            }
+            return (AccionSemantica) clase.getDeclaredConstructor().newInstance();
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException
                 | InvocationTargetException e) {
             e.printStackTrace();
@@ -50,7 +45,6 @@ public class AnalizadorLexico {
 
         ArrayList<ArrayList<Character>> data = BinaryFileReader.read("matrizTransicion.txt", "data");
 
-        // 0;0;0;null
         int e0 = -1;
         int e1 = -1;
         int e2 = -1;
@@ -59,6 +53,7 @@ public class AnalizadorLexico {
         for (ArrayList<Character> l : data) {
             String linea[] = l.stream().map(Object::toString).collect(Collectors.joining("")).split("\\s*;\\s*");
 
+            // for (ArrayList<Character> l : data) {
             // for (String s : linea) {
             // System.out.println(s);
             // }
@@ -77,12 +72,6 @@ public class AnalizadorLexico {
                     toAccionSemantica(acc));
         }
 
-        /*
-         * cargar cada posicion con el siguiente estado y la accion semantica a ejecutar
-         * ej matriz.addEstado(0,1,1,inicBuffer) => si estoy en el
-         * estado 0 me viene el simbolo 1(blanco) voy al estado 1 ejecutando inicBuffer
-         */
-
     }
 
     public Token generateToken() {
@@ -90,8 +79,10 @@ public class AnalizadorLexico {
         if (hasFinishedTokenizer())
             return null;
 
+        // Variables
         int estado = 0;
         AccionSemantica as = null;
+        int token = 0;
 
         ArrayList<Character> linea = this.program.get(ln);
 
@@ -106,10 +97,9 @@ public class AnalizadorLexico {
             if (as != null) {
                 as.run(s);
             }
+
             col++;
         }
-
-        // como iterar sobre las lineas
 
         return null;
     }
