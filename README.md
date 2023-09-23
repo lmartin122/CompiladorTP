@@ -1,18 +1,58 @@
-## Getting Started
+Este es un proyecto de compilador que demuestra la construcción de un compilador simple capaz de realizar análisis léxico, sintáctico, semántico y generar código intermedio utilizando tercetos. Este compilador se ha desarrollado como una herramienta educativa para comprender los conceptos fundamentales detrás de la compilación de programas.
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+Contenido
+Introducción
+Requisitos
+Cómo usar
+Estructura del proyecto
+Contribución
+Licencia
+Introducción
+Un compilador es una herramienta esencial en el mundo de la programación que traduce el código fuente de un lenguaje de alto nivel a un lenguaje de máquina o código intermedio. Este proyecto se enfoca en los siguientes aspectos de la compilación:
 
-## Folder Structure
+Análisis Léxico: Identifica los tokens (palabras clave, identificadores, operadores, etc.) en el código fuente.
 
-The workspace contains two folders by default, where:
+Análisis Sintáctico: Verifica que la estructura del código cumpla con la gramática del lenguaje fuente.
 
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
+Análisis Semántico: Realiza comprobaciones de significado y semántica en el código fuente para garantizar que sea coherente y correcto.
 
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
+Generación de Código Intermedio: Crea tercetos como representación intermedia del programa para su posterior optimización y generación de código final.
 
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
+Requisitos
+Python 3.x
+Librerías adicionales (se especifican en el archivo requirements.txt)
+Cómo usar
+Clona el repositorio en tu máquina local:
 
-## Dependency Management
+bash
+Copy code
+git clone https://github.com/tu-usuario/compilador-ejemplo.git
+Instala las dependencias requeridas:
 
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
+Copy code
+pip install -r requirements.txt
+Ejecuta el compilador:
+
+bash
+Copy code
+python compiler.py archivo_fuente.txt
+Asegúrate de reemplazar archivo_fuente.txt con el nombre de tu archivo de código fuente.
+
+Estructura del proyecto
+El proyecto se organiza de la siguiente manera:
+
+src/: Contiene el código fuente del compilador.
+examples/: Incluye ejemplos de código fuente para probar el compilador.
+tests/: Contiene pruebas unitarias para garantizar el funcionamiento correcto.
+docs/: Documentación adicional y recursos.
+LICENSE: Licencia del proyecto.
+README.md: Este archivo.
+Contribución
+¡Las contribuciones son bienvenidas! Si deseas contribuir a este proyecto, por favor sigue los pasos:
+
+Haz un fork del repositorio.
+Crea una rama para tus cambios.
+Realiza tus modificaciones y asegúrate de que las pruebas pasen.
+Envía un pull request.
+Licencia
+Este proyecto se encuentra bajo la Licencia MIT. Consulta el archivo LICENSE para obtener más detalles
