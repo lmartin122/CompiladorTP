@@ -29,7 +29,6 @@ Copy code
 git clone https://github.com/tu-usuario/compilador-ejemplo.git
 Instala las dependencias requeridas:
 
-bash
 Copy code
 pip install -r requirements.txt
 Ejecuta el compilador:

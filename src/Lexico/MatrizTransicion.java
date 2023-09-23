@@ -1,5 +1,6 @@
 package Lexico;
 
+import Lexico.AccionesSemanticas.AccionSemantica;
 import Tools.Tupla;
 
 public class MatrizTransicion {
