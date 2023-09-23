@@ -9,15 +9,15 @@ public class TablaSimbolos {
     public static final String valorLexema = "lexema";
     private static int identifierNumber = 0;
 
-    public static void addSymbol(String new_symbol){
+    public static void addSymbol(String new_symbol) {
         Map<String, String> values = new HashMap<>();
         values.put(valorLexema, new_symbol);
         tablaSimbolos.put(identifierNumber, values);
         identifierNumber += 1;
     }
 
-    public static int getSymbol(String lex){
-        for (Map.Entry<Integer, Map<String, String>> m: tablaSimbolos.entrySet()){
+    public static int getSymbol(String lex) {
+        for (Map.Entry<Integer, Map<String, String>> m : tablaSimbolos.entrySet()) {
             String i = m.getValue().get(lex);
             if (i == lex) {
                 int ref = m.getKey();
@@ -25,21 +25,20 @@ public class TablaSimbolos {
             }
         }
         return -1;
-        
+
     }
 
-    public static void printTable(){
+    public static void printTable() {
         System.out.println("Tabla de símbolos: ");
 
-        for(Map.Entry<Integer, Map<String,String>> m: tablaSimbolos.entrySet()){
+        for (Map.Entry<Integer, Map<String, String>> m : tablaSimbolos.entrySet()) {
             Map<String, String> values = m.getValue();
             System.out.print(m.getKey() + ": ");
-            for (Map.Entry<String, String> v: values.entrySet()) {
+            for (Map.Entry<String, String> v : values.entrySet()) {
                 System.out.print("(" + v.getKey() + ": " + v.getValue() + ") ");
             }
             System.out.println();
         }
     }
-    
 
 }

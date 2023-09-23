@@ -1,12 +1,12 @@
 package Lexico.AccionesSemanticas;
 
+import Tools.ProgramReader;
+
 public class ASIniciarBuffer implements AccionSemantica {
 
     @Override
-    public int run(char simbolo) {
-        buffer.setLength(0);
+    public int run(char simbolo, ProgramReader reader) {
         buffer.append(simbolo);
-
         return 0;
     }
 }

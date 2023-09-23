@@ -7,19 +7,19 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import Lexico.AccionesSemanticas.AccionSemantica;
-import Tokenizer.Token;
 import Tools.BinaryFileReader;
+import Tools.ProgramReader;
 
 public class AnalizadorLexico {
     private final int ESTADOS = 19; // osea 20 estados 0 a 19
     private final int SIMBOLOS = 27; // el 27 seria el simbolo "otros"
+
     MatrizTransicion matrizTransicion;
-    private ArrayList<ArrayList<Character>> program;
     private Map<String, Integer> palabrasReservadas;
-    private int ln, col = 0;
+    private ProgramReader reader;
 
     public AnalizadorLexico(ArrayList<ArrayList<Character>> p) {
-        this.program = p;
+        this.reader = new ProgramReader(p);
         cargarMatriz();
     }
 
@@ -74,42 +74,40 @@ public class AnalizadorLexico {
 
     }
 
-    public Token generateToken() {
+    public int generateToken() {
 
         if (hasFinishedTokenizer())
-            return null;
+            return -1;
 
         // Variables
         int estado = 0;
+        boolean error = false;
         AccionSemantica as = null;
         int token = 0;
 
-        ArrayList<Character> linea = this.program.get(ln);
+        while (reader.next()) {
 
-        for (int i = col; i < linea.size(); i++) {
+            char s = reader.character();
 
-            char s = (char) linea.get(i);
+            estado = matrizTransicion.nextEstado(estado, s);
 
-            estado = matrizTransicion.nextEstado(0, s);
-
-            as = matrizTransicion.accionSemantica(0, s);
+            as = matrizTransicion.accionSemantica(estado, s);
 
             if (as != null) {
-                as.run(s);
+                token = as.run(s, reader);
+                if (token < 0) {
+                    error = true;
+                }
             }
 
-            col++;
         }
 
-        return null;
+        return token;
+
     }
 
     public boolean hasFinishedTokenizer() {
-        return this.ln > getNumberOfLines();
-    }
-
-    public int getNumberOfLines() {
-        return this.program.size();
+        return reader.hasFinished();
     }
 
 }
