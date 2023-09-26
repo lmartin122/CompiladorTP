@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import Lexico.AccionesSemanticas.AccionSemantica;
+import Tokenizer.TablaSimbolos;
 import Tools.BinaryFileReader;
 import Tools.ProgramReader;
 

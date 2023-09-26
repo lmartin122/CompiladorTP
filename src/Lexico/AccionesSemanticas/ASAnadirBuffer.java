@@ -2,7 +2,7 @@ package Lexico.AccionesSemanticas;
 
 import Tools.ProgramReader;
 
-public class ASIniciarBuffer implements AccionSemantica {
+public class ASAnadirBuffer implements AccionSemantica {
 
     @Override
     public int run(char simbolo, ProgramReader reader) {
