@@ -10,5 +10,7 @@ public class PalabrasReservadasTabla {
         this.palabrasReservadas = palabrasReservadas;
     };
 
-
+    public Map<String, Integer> getPalabrasReservadas(){
+        return this.palabrasReservadas; //cambiar después 
+    }
 }
