@@ -1,7 +1,6 @@
 package Lexico;
 
 import java.lang.reflect.InvocationTargetException;
-import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -18,9 +17,10 @@ public class AnalizadorLexico {
     private Map<String, Integer> palabrasReservadas;
     private ProgramReader reader;
 
-    public AnalizadorLexico(ArrayList<ArrayList<Character>> p) {
+    public AnalizadorLexico(String p) {
         this.reader = new ProgramReader(p);
         cargarMatriz();
+
     }
 
     private AccionSemantica toAccionSemantica(String acc) {
@@ -110,4 +110,11 @@ public class AnalizadorLexico {
         return reader.hasFinished();
     }
 
+    public boolean hasReadWell() {
+        return this.reader.hasProgram();
+    }
+
+    public String getProgram() {
+        return reader.programToString();
+    }
 }

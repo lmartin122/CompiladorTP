@@ -1,0 +1,9 @@
+VOID f1 (INT b){
+    FLOAT a,
+    a = b,
+    IF(a > 0.0) *{ pregunto para despues imprimir }*
+    	PRINT(%es positivo%);
+    ELSE
+    	PRINT(%es negativo%);
+    END_IF	 ,
+}	

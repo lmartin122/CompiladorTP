@@ -7,8 +7,8 @@ public class ProgramReader {
     private int currentLine;
     private int currentColumn;
 
-    public ProgramReader(ArrayList<ArrayList<Character>> program) {
-        this.program = program;
+    public ProgramReader(String p) {
+        this.program = BinaryFileReader.read(p, "sample_programs");
         this.currentLine = 0;
         this.currentColumn = -1;
     }
@@ -32,6 +32,26 @@ public class ProgramReader {
         }
 
         return true;
+    }
+
+    public String programToString() {
+        String out = "";
+        int linea = 1;
+
+        for (ArrayList<Character> l : this.program) {
+            out += "[" + linea + "]: ";
+            for (Character c : l) {
+                out += c;
+            }
+            out += "\n";
+            linea++;
+        }
+
+        return out;
+    }
+
+    public boolean hasProgram() {
+        return this.program != null;
     }
 
     public void returnCharacter() {

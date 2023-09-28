@@ -1,13 +1,13 @@
 package Lexico.AccionesSemanticas;
 
 import Lexico.TablaTipos;
-import Tokenizer.TablaSimbolos;
 import Tools.Logger;
 import Tools.ProgramReader;
+import Tools.TablaSimbolos;
 
 import java.util.HashMap;
 
-public class AsRangoEnteroLargo implements AccionSemantica {
+public class ASRangoEnteroLargo implements AccionSemantica {
 
     @Override
     public int run(char simbolo, ProgramReader reader) {
@@ -20,20 +20,20 @@ public class AsRangoEnteroLargo implements AccionSemantica {
             error = true;
         }
 
-        if ( !error && numero <= (int) Math.pow(2,31)){
+        if (!error && numero <= (int) Math.pow(2, 31)) {
 
-            if(!TablaSimbolos.tablaSimbolos.containsKey(String.valueOf(numero))){ //si la constante no está
-                HashMap<String, String> auxMap = new HashMap<String,String>();
+            if (!TablaSimbolos.tablaSimbolos.containsKey(String.valueOf(numero))) { // si la constante no está
+                HashMap<String, String> auxMap = new HashMap<String, String>();
                 auxMap.put("tipo", TablaTipos.LONG_TYPE);
 
-                TablaSimbolos.tablaSimbolos.put(String.valueOf(numero),auxMap);
+                TablaSimbolos.tablaSimbolos.put(String.valueOf(numero), auxMap);
             }
         } else {
-            Logger.logError(reader.getCurrentLine(),"Entero long fuera de rango");
-            //Hacer algo con yylval ??
+            Logger.logError(reader.getCurrentLine(), "Entero long fuera de rango");
+            // Hacer algo con yylval ??
         }
 
-        //yylval = numero ??
+        // yylval = numero ??
         this.buffer.setLength(0);
         return 0;
     }
