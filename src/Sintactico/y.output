@@ -1,0 +1,3564 @@
+   0  $accept : program $end
+
+   1  program : type_declarations
+   2          | type_declaration
+
+   3  type_declarations : type_declaration
+   4                    | type_declarations type_declaration
+
+   5  type_declaration : class_declaration
+   6                   | function_declaration
+   7                   | interface_declaration
+   8                   | implement_for_declaration
+
+   9  class_declaration : CLASS ID class_body
+  10                    | CLASS ID interfaces class_body
+
+  11  class_body : '{' class_body_declarations '}'
+
+  12  class_body_declarations : class_body_declaration
+  13                          | class_body_declarations class_body_declaration
+
+  14  class_body_declaration : class_member_declaration
+  15                         | constructor_declaration
+
+  16  class_member_declaration : field_declaration
+  17                           | method_declaration
+
+  18  field_declaration : type variable_declarators ','
+
+  19  variable_declarators : variable_declarator
+  20                       | variable_declarators ';' variable_declarator
+
+  21  variable_declarator : variable_declarator_id
+  22                      | variable_declarator_id '=' variable_initializer
+
+  23  variable_declarator_id : ID
+
+  24  variable_initializer : expression
+
+  25  method_declaration : method_header method_body
+
+  26  method_header : result_type method_declarator
+
+  27  result_type : type
+  28              | VOID
+
+  29  method_declarator : ID '(' formal_parameter ')'
+  30                    | ID '(' ')'
+
+  31  method_body : block
+  32              | ','
+
+  33  formal_parameter : type variable_declarator_id
+
+  34  real_parameter : right_hand_side
+
+  35  constructor_declaration : simple_type_name formal_parameter
+
+  36  simple_type_name : ID
+
+  37  interfaces : IMPLEMENT interface_type_list
+
+  38  interface_type_list : interface_type
+  39                      | interface_type_list ';' interface_type
+
+  40  interface_declaration : INTERFACE ID interface_body
+
+  41  interface_body : '{' interface_member_declaration '}'
+  42                 | '{' '}' ','
+
+  43  interface_member_declaration : interface_method_declaration
+  44                               | interface_member_declaration interface_method_declaration
+
+  45  interface_method_declaration : result_type method_declarator
+
+  46  function_declaration : FUNC function_header function_body
+  47                       | FUNC function_header
+
+  48  function_header : result_type function_declarator
+
+  49  function_declarator : ID '(' formal_parameter ')'
+  50                      | ID '(' ')'
+
+  51  function_body : function_block
+
+  52  implement_for_declaration : IMPL FOR reference_type ':' implement_for_body
+  53                            | IMPL FOR reference_type ':'
+
+  54  implement_for_body : '{' implement_for_body_declarations '}'
+
+  55  implement_for_body_declarations : implement_for_body_declaration
+  56                                  | implement_for_body_declarations implement_for_body_declaration
+
+  57  implement_for_body_declaration : implement_for_method_declaration
+
+  58  implement_for_method_declaration : method_header implement_for_method_body
+
+  59  implement_for_method_body : method_body
+
+  60  expression : assignment
+
+  61  assignment : left_hand_side assignment_operator right_hand_side
+
+  62  left_hand_side : expression_name
+  63                 | field_access
+
+  64  right_hand_side : equality_expression
+
+  65  equality_expression : relational_expression
+  66                      | equality_expression EQUAL_OPERATOR relational_expression
+  67                      | equality_expression NOT_EQUAL_OPERATOR relational_expression
+
+  68  relational_expression : additive_expression
+  69                        | relational_expression '<' additive_expression
+  70                        | relational_expression '>' additive_expression
+  71                        | relational_expression GREATER_THAN_OR_EQUAL_OPERATOR additive_expression
+  72                        | relational_expression LESS_THAN_OR_EQUAL_OPERATOR additive_expression
+
+  73  additive_expression : multiplicative_expression
+  74                      | additive_expression '+' multiplicative_expression
+  75                      | additive_expression '-' multiplicative_expression
+
+  76  multiplicative_expression : unary_expression
+  77                            | TOD '(' unary_expression ')'
+  78                            | multiplicative_expression '*' unary_expression
+  79                            | multiplicative_expression '/' unary_expression
+  80                            | multiplicative_expression '%' unary_expression
+
+  81  unary_expression : term
+  82                   | expression_name
+
+  83  term : factor
+  84       | '(' right_hand_side ')'
+
+  85  factor : CTE
+
+  86  expression_name : ID
+
+  87  field_access : primary '.' ID
+  88               | SUPER '.' ID
+
+  89  assignment_operator : '='
+  90                      | MINUS_ASSIGN
+
+  91  primary : THIS
+  92          | class_instance_creation_expression
+  93          | field_access
+
+  94  literal : CTE
+
+  95  class_instance_creation_expression : NEW class_type '(' real_parameter ')'
+  96                                     | NEW class_type '(' ')'
+  97                                     | NEW class_type
+
+  98  method_invocation : ID '(' real_parameter ')' invocation_end
+  99                    | ID '(' ')' invocation_end
+ 100                    | primary '.' ID '(' real_parameter ')' invocation_end
+ 101                    | primary '.' ID '(' ')' invocation_end
+ 102                    | SUPER '.' ID '(' real_parameter ')' invocation_end
+ 103                    | SUPER '.' ID '(' ')' invocation_end
+
+ 104  invocation_end : ','
+ 105                 |
+
+ 106  function_invocation : ID '(' real_parameter ')' invocation_end
+ 107                      | ID '(' ')' invocation_end
+
+ 108  type : primitive_type
+ 109       | reference_type
+
+ 110  primitive_type : numeric_type
+ 111                 | BOOLEAN
+
+ 112  reference_type : class_type
+ 113                 | interface_type
+
+ 114  class_type : type_name
+
+ 115  interface_type : type_name
+
+ 116  numeric_type : integral_type
+ 117               | floating_type
+
+ 118  integral_type : UINT
+ 119                | LONG
+
+ 120  floating_type : DOUBLE
+
+ 121  type_name : ID
+
+ 122  block : '{' block_statements '}'
+ 123        | '{' '}'
+
+ 124  function_block : '{' block_statements return_statement '}'
+ 125                 | return_statement
+ 126                 | '{' block_statements '}'
+
+ 127  block_statements : block_statement
+ 128                   | block_statements block_statement
+
+ 129  block_statement : local_variable_declaration_statement
+ 130                  | statement
+
+ 131  local_variable_declaration_statement : local_variable_declaration invocation_end
+
+ 132  local_variable_declaration : type variable_declarators
+
+ 133  statement : statement_without_trailing_substatement
+ 134            | if_then_statement
+ 135            | if_then_else_statement
+ 136            | for_in_range_statement
+ 137            | method_declaration
+ 138            | print_statement
+
+ 139  statement_without_trailing_substatement : block
+ 140                                          | empty_statement
+ 141                                          | expression_statement
+ 142                                          | return_statement
+
+ 143  expression_statement : statement_expression
+
+ 144  statement_expression : assignment
+ 145                       | method_invocation
+ 146                       | function_invocation
+
+ 147  empty_statement : ','
+
+ 148  if_then_statement : IF '(' expression ')' statement END_IF invocation_end
+
+ 149  if_then_else_statement : IF '(' expression ')' statement ELSE statement END_IF invocation_end
+
+ 150  for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update ')' statement invocation_end
+
+ 151  for_variable : ID
+
+ 152  for_init : CTE
+
+ 153  for_update : CTE
+
+ 154  for_end : CTE
+
+ 155  statement_expression_list : statement_expression
+ 156                            | statement_expression_list ';' statement_expression
+
+ 157  print_statement : PRINT CADENA invocation_end
+ 158                  | PRINT
+
+ 159  return_statement : RETURN ','
+
+state 0
+	$accept : . program $end  (0)
+
+	CLASS  shift 1
+	INTERFACE  shift 2
+	FUNC  shift 3
+	IMPL  shift 4
+	.  error
+
+	program  goto 5
+	type_declarations  goto 6
+	type_declaration  goto 7
+	class_declaration  goto 8
+	function_declaration  goto 9
+	interface_declaration  goto 10
+	implement_for_declaration  goto 11
+
+
+state 1
+	class_declaration : CLASS . ID class_body  (9)
+	class_declaration : CLASS . ID interfaces class_body  (10)
+
+	ID  shift 12
+	.  error
+
+
+state 2
+	interface_declaration : INTERFACE . ID interface_body  (40)
+
+	ID  shift 13
+	.  error
+
+
+state 3
+	function_declaration : FUNC . function_header function_body  (46)
+	function_declaration : FUNC . function_header  (47)
+
+	VOID  shift 14
+	LONG  shift 15
+	UINT  shift 16
+	DOUBLE  shift 17
+	BOOLEAN  shift 18
+	ID  shift 19
+	.  error
+
+	type  goto 20
+	result_type  goto 21
+	interface_type  goto 22
+	function_header  goto 23
+	reference_type  goto 24
+	class_type  goto 25
+	primitive_type  goto 26
+	numeric_type  goto 27
+	type_name  goto 28
+	integral_type  goto 29
+	floating_type  goto 30
+
+
+state 4
+	implement_for_declaration : IMPL . FOR reference_type ':' implement_for_body  (52)
+	implement_for_declaration : IMPL . FOR reference_type ':'  (53)
+
+	FOR  shift 31
+	.  error
+
+
+state 5
+	$accept : program . $end  (0)
+
+	$end  accept
+
+
+state 6
+	program : type_declarations .  (1)
+	type_declarations : type_declarations . type_declaration  (4)
+
+	CLASS  shift 1
+	INTERFACE  shift 2
+	FUNC  shift 3
+	IMPL  shift 4
+	$end  reduce 1
+
+	type_declaration  goto 32
+	class_declaration  goto 8
+	function_declaration  goto 9
+	interface_declaration  goto 10
+	implement_for_declaration  goto 11
+
+
+7: reduce/reduce conflict (reduce 2, reduce 3) on $end
+state 7
+	program : type_declaration .  (2)
+	type_declarations : type_declaration .  (3)
+
+	$end  reduce 2
+	CLASS  reduce 3
+	INTERFACE  reduce 3
+	FUNC  reduce 3
+	IMPL  reduce 3
+
+
+state 8
+	type_declaration : class_declaration .  (5)
+
+	.  reduce 5
+
+
+state 9
+	type_declaration : function_declaration .  (6)
+
+	.  reduce 6
+
+
+state 10
+	type_declaration : interface_declaration .  (7)
+
+	.  reduce 7
+
+
+state 11
+	type_declaration : implement_for_declaration .  (8)
+
+	.  reduce 8
+
+
+state 12
+	class_declaration : CLASS ID . class_body  (9)
+	class_declaration : CLASS ID . interfaces class_body  (10)
+
+	IMPLEMENT  shift 33
+	'{'  shift 34
+	.  error
+
+	class_body  goto 35
+	interfaces  goto 36
+
+
+state 13
+	interface_declaration : INTERFACE ID . interface_body  (40)
+
+	'{'  shift 37
+	.  error
+
+	interface_body  goto 38
+
+
+state 14
+	result_type : VOID .  (28)
+
+	.  reduce 28
+
+
+state 15
+	integral_type : LONG .  (119)
+
+	.  reduce 119
+
+
+state 16
+	integral_type : UINT .  (118)
+
+	.  reduce 118
+
+
+state 17
+	floating_type : DOUBLE .  (120)
+
+	.  reduce 120
+
+
+state 18
+	primitive_type : BOOLEAN .  (111)
+
+	.  reduce 111
+
+
+state 19
+	type_name : ID .  (121)
+
+	.  reduce 121
+
+
+state 20
+	result_type : type .  (27)
+
+	.  reduce 27
+
+
+state 21
+	function_header : result_type . function_declarator  (48)
+
+	ID  shift 39
+	.  error
+
+	function_declarator  goto 40
+
+
+state 22
+	reference_type : interface_type .  (113)
+
+	.  reduce 113
+
+
+state 23
+	function_declaration : FUNC function_header . function_body  (46)
+	function_declaration : FUNC function_header .  (47)
+
+	RETURN  shift 41
+	'{'  shift 42
+	$end  reduce 47
+	CLASS  reduce 47
+	INTERFACE  reduce 47
+	FUNC  reduce 47
+	IMPL  reduce 47
+
+	function_body  goto 43
+	function_block  goto 44
+	return_statement  goto 45
+
+
+state 24
+	type : reference_type .  (109)
+
+	.  reduce 109
+
+
+state 25
+	reference_type : class_type .  (112)
+
+	.  reduce 112
+
+
+state 26
+	type : primitive_type .  (108)
+
+	.  reduce 108
+
+
+state 27
+	primitive_type : numeric_type .  (110)
+
+	.  reduce 110
+
+
+28: reduce/reduce conflict (reduce 114, reduce 115) on ID
+28: reduce/reduce conflict (reduce 114, reduce 115) on ':'
+state 28
+	class_type : type_name .  (114)
+	interface_type : type_name .  (115)
+
+	.  reduce 114
+
+
+state 29
+	numeric_type : integral_type .  (116)
+
+	.  reduce 116
+
+
+state 30
+	numeric_type : floating_type .  (117)
+
+	.  reduce 117
+
+
+state 31
+	implement_for_declaration : IMPL FOR . reference_type ':' implement_for_body  (52)
+	implement_for_declaration : IMPL FOR . reference_type ':'  (53)
+
+	ID  shift 19
+	.  error
+
+	interface_type  goto 22
+	reference_type  goto 46
+	class_type  goto 25
+	type_name  goto 28
+
+
+state 32
+	type_declarations : type_declarations type_declaration .  (4)
+
+	.  reduce 4
+
+
+state 33
+	interfaces : IMPLEMENT . interface_type_list  (37)
+
+	ID  shift 19
+	.  error
+
+	interface_type_list  goto 47
+	interface_type  goto 48
+	type_name  goto 49
+
+
+state 34
+	class_body : '{' . class_body_declarations '}'  (11)
+
+	VOID  shift 14
+	LONG  shift 15
+	UINT  shift 16
+	DOUBLE  shift 17
+	BOOLEAN  shift 18
+	ID  shift 50
+	.  error
+
+	class_body_declarations  goto 51
+	class_body_declaration  goto 52
+	class_member_declaration  goto 53
+	constructor_declaration  goto 54
+	field_declaration  goto 55
+	method_declaration  goto 56
+	type  goto 57
+	method_header  goto 58
+	result_type  goto 59
+	simple_type_name  goto 60
+	interface_type  goto 22
+	reference_type  goto 24
+	class_type  goto 25
+	primitive_type  goto 26
+	numeric_type  goto 27
+	type_name  goto 28
+	integral_type  goto 29
+	floating_type  goto 30
+
+
+state 35
+	class_declaration : CLASS ID class_body .  (9)
+
+	.  reduce 9
+
+
+state 36
+	class_declaration : CLASS ID interfaces . class_body  (10)
+
+	'{'  shift 34
+	.  error
+
+	class_body  goto 61
+
+
+state 37
+	interface_body : '{' . interface_member_declaration '}'  (41)
+	interface_body : '{' . '}' ','  (42)
+
+	VOID  shift 14
+	LONG  shift 15
+	UINT  shift 16
+	DOUBLE  shift 17
+	BOOLEAN  shift 18
+	ID  shift 19
+	'}'  shift 62
+	.  error
+
+	type  goto 20
+	result_type  goto 63
+	interface_type  goto 22
+	interface_member_declaration  goto 64
+	interface_method_declaration  goto 65
+	reference_type  goto 24
+	class_type  goto 25
+	primitive_type  goto 26
+	numeric_type  goto 27
+	type_name  goto 28
+	integral_type  goto 29
+	floating_type  goto 30
+
+
+state 38
+	interface_declaration : INTERFACE ID interface_body .  (40)
+
+	.  reduce 40
+
+
+state 39
+	function_declarator : ID . '(' formal_parameter ')'  (49)
+	function_declarator : ID . '(' ')'  (50)
+
+	'('  shift 66
+	.  error
+
+
+state 40
+	function_header : result_type function_declarator .  (48)
+
+	.  reduce 48
+
+
+state 41
+	return_statement : RETURN . ','  (159)
+
+	','  shift 67
+	.  error
+
+
+state 42
+	function_block : '{' . block_statements return_statement '}'  (124)
+	function_block : '{' . block_statements '}'  (126)
+
+	NEW  shift 68
+	SUPER  shift 69
+	THIS  shift 70
+	RETURN  shift 41
+	IF  shift 71
+	FOR  shift 72
+	PRINT  shift 73
+	VOID  shift 14
+	LONG  shift 15
+	UINT  shift 16
+	DOUBLE  shift 17
+	BOOLEAN  shift 18
+	ID  shift 74
+	'{'  shift 75
+	','  shift 76
+	.  error
+
+	method_declaration  goto 77
+	type  goto 78
+	method_header  goto 58
+	result_type  goto 59
+	block  goto 79
+	interface_type  goto 22
+	reference_type  goto 24
+	assignment  goto 80
+	left_hand_side  goto 81
+	expression_name  goto 82
+	field_access  goto 83
+	primary  goto 84
+	class_instance_creation_expression  goto 85
+	class_type  goto 25
+	method_invocation  goto 86
+	function_invocation  goto 87
+	primitive_type  goto 26
+	numeric_type  goto 27
+	type_name  goto 28
+	integral_type  goto 29
+	floating_type  goto 30
+	block_statements  goto 88
+	return_statement  goto 89
+	block_statement  goto 90
+	local_variable_declaration_statement  goto 91
+	statement  goto 92
+	local_variable_declaration  goto 93
+	statement_without_trailing_substatement  goto 94
+	if_then_statement  goto 95
+	if_then_else_statement  goto 96
+	for_in_range_statement  goto 97
+	print_statement  goto 98
+	empty_statement  goto 99
+	expression_statement  goto 100
+	statement_expression  goto 101
+
+
+state 43
+	function_declaration : FUNC function_header function_body .  (46)
+
+	.  reduce 46
+
+
+state 44
+	function_body : function_block .  (51)
+
+	.  reduce 51
+
+
+state 45
+	function_block : return_statement .  (125)
+
+	.  reduce 125
+
+
+state 46
+	implement_for_declaration : IMPL FOR reference_type . ':' implement_for_body  (52)
+	implement_for_declaration : IMPL FOR reference_type . ':'  (53)
+
+	':'  shift 102
+	.  error
+
+
+state 47
+	interfaces : IMPLEMENT interface_type_list .  (37)
+	interface_type_list : interface_type_list . ';' interface_type  (39)
+
+	';'  shift 103
+	'{'  reduce 37
+
+
+state 48
+	interface_type_list : interface_type .  (38)
+
+	.  reduce 38
+
+
+state 49
+	interface_type : type_name .  (115)
+
+	.  reduce 115
+
+
+50: reduce/reduce conflict (reduce 36, reduce 121) on ID
+state 50
+	simple_type_name : ID .  (36)
+	type_name : ID .  (121)
+
+	.  reduce 36
+
+
+state 51
+	class_body : '{' class_body_declarations . '}'  (11)
+	class_body_declarations : class_body_declarations . class_body_declaration  (13)
+
+	VOID  shift 14
+	LONG  shift 15
+	UINT  shift 16
+	DOUBLE  shift 17
+	BOOLEAN  shift 18
+	ID  shift 50
+	'}'  shift 104
+	.  error
+
+	class_body_declaration  goto 105
+	class_member_declaration  goto 53
+	constructor_declaration  goto 54
+	field_declaration  goto 55
+	method_declaration  goto 56
+	type  goto 57
+	method_header  goto 58
+	result_type  goto 59
+	simple_type_name  goto 60
+	interface_type  goto 22
+	reference_type  goto 24
+	class_type  goto 25
+	primitive_type  goto 26
+	numeric_type  goto 27
+	type_name  goto 28
+	integral_type  goto 29
+	floating_type  goto 30
+
+
+state 52
+	class_body_declarations : class_body_declaration .  (12)
+
+	.  reduce 12
+
+
+state 53
+	class_body_declaration : class_member_declaration .  (14)
+
+	.  reduce 14
+
+
+state 54
+	class_body_declaration : constructor_declaration .  (15)
+
+	.  reduce 15
+
+
+state 55
+	class_member_declaration : field_declaration .  (16)
+
+	.  reduce 16
+
+
+state 56
+	class_member_declaration : method_declaration .  (17)
+
+	.  reduce 17
+
+
+57: shift/reduce conflict (shift 106, reduce 27) on ID
+state 57
+	field_declaration : type . variable_declarators ','  (18)
+	result_type : type .  (27)
+
+	ID  shift 106
+
+	variable_declarators  goto 107
+	variable_declarator  goto 108
+	variable_declarator_id  goto 109
+
+
+state 58
+	method_declaration : method_header . method_body  (25)
+
+	'{'  shift 75
+	','  shift 110
+	.  error
+
+	method_body  goto 111
+	block  goto 112
+
+
+state 59
+	method_header : result_type . method_declarator  (26)
+
+	ID  shift 113
+	.  error
+
+	method_declarator  goto 114
+
+
+state 60
+	constructor_declaration : simple_type_name . formal_parameter  (35)
+
+	LONG  shift 15
+	UINT  shift 16
+	DOUBLE  shift 17
+	BOOLEAN  shift 18
+	ID  shift 19
+	.  error
+
+	type  goto 115
+	formal_parameter  goto 116
+	interface_type  goto 22
+	reference_type  goto 24
+	class_type  goto 25
+	primitive_type  goto 26
+	numeric_type  goto 27
+	type_name  goto 28
+	integral_type  goto 29
+	floating_type  goto 30
+
+
+state 61
+	class_declaration : CLASS ID interfaces class_body .  (10)
+
+	.  reduce 10
+
+
+state 62
+	interface_body : '{' '}' . ','  (42)
+
+	','  shift 117
+	.  error
+
+
+state 63
+	interface_method_declaration : result_type . method_declarator  (45)
+
+	ID  shift 113
+	.  error
+
+	method_declarator  goto 118
+
+
+state 64
+	interface_body : '{' interface_member_declaration . '}'  (41)
+	interface_member_declaration : interface_member_declaration . interface_method_declaration  (44)
+
+	VOID  shift 14
+	LONG  shift 15
+	UINT  shift 16
+	DOUBLE  shift 17
+	BOOLEAN  shift 18
+	ID  shift 19
+	'}'  shift 119
+	.  error
+
+	type  goto 20
+	result_type  goto 63
+	interface_type  goto 22
+	interface_method_declaration  goto 120
+	reference_type  goto 24
+	class_type  goto 25
+	primitive_type  goto 26
+	numeric_type  goto 27
+	type_name  goto 28
+	integral_type  goto 29
+	floating_type  goto 30
+
+
+state 65
+	interface_member_declaration : interface_method_declaration .  (43)
+
+	.  reduce 43
+
+
+state 66
+	function_declarator : ID '(' . formal_parameter ')'  (49)
+	function_declarator : ID '(' . ')'  (50)
+
+	LONG  shift 15
+	UINT  shift 16
+	DOUBLE  shift 17
+	BOOLEAN  shift 18
+	ID  shift 19
+	')'  shift 121
+	.  error
+
+	type  goto 115
+	formal_parameter  goto 122
+	interface_type  goto 22
+	reference_type  goto 24
+	class_type  goto 25
+	primitive_type  goto 26
+	numeric_type  goto 27
+	type_name  goto 28
+	integral_type  goto 29
+	floating_type  goto 30
+
+
+state 67
+	return_statement : RETURN ',' .  (159)
+
+	.  reduce 159
+
+
+state 68
+	class_instance_creation_expression : NEW . class_type '(' real_parameter ')'  (95)
+	class_instance_creation_expression : NEW . class_type '(' ')'  (96)
+	class_instance_creation_expression : NEW . class_type  (97)
+
+	ID  shift 19
+	.  error
+
+	class_type  goto 123
+	type_name  goto 124
+
+
+state 69
+	field_access : SUPER . '.' ID  (88)
+	method_invocation : SUPER . '.' ID '(' real_parameter ')' invocation_end  (102)
+	method_invocation : SUPER . '.' ID '(' ')' invocation_end  (103)
+
+	'.'  shift 125
+	.  error
+
+
+state 70
+	primary : THIS .  (91)
+
+	.  reduce 91
+
+
+state 71
+	if_then_statement : IF . '(' expression ')' statement END_IF invocation_end  (148)
+	if_then_else_statement : IF . '(' expression ')' statement ELSE statement END_IF invocation_end  (149)
+
+	'('  shift 126
+	.  error
+
+
+state 72
+	for_in_range_statement : FOR . for_variable IN RANGE '(' for_init for_end for_update ')' statement invocation_end  (150)
+
+	ID  shift 127
+	.  error
+
+	for_variable  goto 128
+
+
+state 73
+	print_statement : PRINT . CADENA invocation_end  (157)
+	print_statement : PRINT .  (158)
+
+	CADENA  shift 129
+	NEW  reduce 158
+	SUPER  reduce 158
+	THIS  reduce 158
+	RETURN  reduce 158
+	IF  reduce 158
+	ELSE  reduce 158
+	END_IF  reduce 158
+	FOR  reduce 158
+	PRINT  reduce 158
+	VOID  reduce 158
+	LONG  reduce 158
+	UINT  reduce 158
+	DOUBLE  reduce 158
+	BOOLEAN  reduce 158
+	ID  reduce 158
+	'{'  reduce 158
+	'}'  reduce 158
+	','  reduce 158
+
+
+state 74
+	expression_name : ID .  (86)
+	method_invocation : ID . '(' real_parameter ')' invocation_end  (98)
+	method_invocation : ID . '(' ')' invocation_end  (99)
+	function_invocation : ID . '(' real_parameter ')' invocation_end  (106)
+	function_invocation : ID . '(' ')' invocation_end  (107)
+	type_name : ID .  (121)
+
+	'('  shift 130
+	MINUS_ASSIGN  reduce 86
+	ID  reduce 121
+	'='  reduce 86
+
+
+state 75
+	block : '{' . block_statements '}'  (122)
+	block : '{' . '}'  (123)
+
+	NEW  shift 68
+	SUPER  shift 69
+	THIS  shift 70
+	RETURN  shift 41
+	IF  shift 71
+	FOR  shift 72
+	PRINT  shift 73
+	VOID  shift 14
+	LONG  shift 15
+	UINT  shift 16
+	DOUBLE  shift 17
+	BOOLEAN  shift 18
+	ID  shift 74
+	'{'  shift 75
+	'}'  shift 131
+	','  shift 76
+	.  error
+
+	method_declaration  goto 77
+	type  goto 78
+	method_header  goto 58
+	result_type  goto 59
+	block  goto 79
+	interface_type  goto 22
+	reference_type  goto 24
+	assignment  goto 80
+	left_hand_side  goto 81
+	expression_name  goto 82
+	field_access  goto 83
+	primary  goto 84
+	class_instance_creation_expression  goto 85
+	class_type  goto 25
+	method_invocation  goto 86
+	function_invocation  goto 87
+	primitive_type  goto 26
+	numeric_type  goto 27
+	type_name  goto 28
+	integral_type  goto 29
+	floating_type  goto 30
+	block_statements  goto 132
+	return_statement  goto 89
+	block_statement  goto 90
+	local_variable_declaration_statement  goto 91
+	statement  goto 92
+	local_variable_declaration  goto 93
+	statement_without_trailing_substatement  goto 94
+	if_then_statement  goto 95
+	if_then_else_statement  goto 96
+	for_in_range_statement  goto 97
+	print_statement  goto 98
+	empty_statement  goto 99
+	expression_statement  goto 100
+	statement_expression  goto 101
+
+
+state 76
+	empty_statement : ',' .  (147)
+
+	.  reduce 147
+
+
+state 77
+	statement : method_declaration .  (137)
+
+	.  reduce 137
+
+
+78: shift/reduce conflict (shift 106, reduce 27) on ID
+state 78
+	result_type : type .  (27)
+	local_variable_declaration : type . variable_declarators  (132)
+
+	ID  shift 106
+
+	variable_declarators  goto 133
+	variable_declarator  goto 108
+	variable_declarator_id  goto 109
+
+
+state 79
+	statement_without_trailing_substatement : block .  (139)
+
+	.  reduce 139
+
+
+state 80
+	statement_expression : assignment .  (144)
+
+	.  reduce 144
+
+
+state 81
+	assignment : left_hand_side . assignment_operator right_hand_side  (61)
+
+	MINUS_ASSIGN  shift 134
+	'='  shift 135
+	.  error
+
+	assignment_operator  goto 136
+
+
+state 82
+	left_hand_side : expression_name .  (62)
+
+	.  reduce 62
+
+
+state 83
+	left_hand_side : field_access .  (63)
+	primary : field_access .  (93)
+
+	MINUS_ASSIGN  reduce 63
+	'='  reduce 63
+	'.'  reduce 93
+
+
+state 84
+	field_access : primary . '.' ID  (87)
+	method_invocation : primary . '.' ID '(' real_parameter ')' invocation_end  (100)
+	method_invocation : primary . '.' ID '(' ')' invocation_end  (101)
+
+	'.'  shift 137
+	.  error
+
+
+state 85
+	primary : class_instance_creation_expression .  (92)
+
+	.  reduce 92
+
+
+state 86
+	statement_expression : method_invocation .  (145)
+
+	.  reduce 145
+
+
+state 87
+	statement_expression : function_invocation .  (146)
+
+	.  reduce 146
+
+
+state 88
+	function_block : '{' block_statements . return_statement '}'  (124)
+	function_block : '{' block_statements . '}'  (126)
+	block_statements : block_statements . block_statement  (128)
+
+	NEW  shift 68
+	SUPER  shift 69
+	THIS  shift 70
+	RETURN  shift 41
+	IF  shift 71
+	FOR  shift 72
+	PRINT  shift 73
+	VOID  shift 14
+	LONG  shift 15
+	UINT  shift 16
+	DOUBLE  shift 17
+	BOOLEAN  shift 18
+	ID  shift 74
+	'{'  shift 75
+	'}'  shift 138
+	','  shift 76
+	.  error
+
+	method_declaration  goto 77
+	type  goto 78
+	method_header  goto 58
+	result_type  goto 59
+	block  goto 79
+	interface_type  goto 22
+	reference_type  goto 24
+	assignment  goto 80
+	left_hand_side  goto 81
+	expression_name  goto 82
+	field_access  goto 83
+	primary  goto 84
+	class_instance_creation_expression  goto 85
+	class_type  goto 25
+	method_invocation  goto 86
+	function_invocation  goto 87
+	primitive_type  goto 26
+	numeric_type  goto 27
+	type_name  goto 28
+	integral_type  goto 29
+	floating_type  goto 30
+	return_statement  goto 139
+	block_statement  goto 140
+	local_variable_declaration_statement  goto 91
+	statement  goto 92
+	local_variable_declaration  goto 93
+	statement_without_trailing_substatement  goto 94
+	if_then_statement  goto 95
+	if_then_else_statement  goto 96
+	for_in_range_statement  goto 97
+	print_statement  goto 98
+	empty_statement  goto 99
+	expression_statement  goto 100
+	statement_expression  goto 101
+
+
+state 89
+	statement_without_trailing_substatement : return_statement .  (142)
+
+	.  reduce 142
+
+
+state 90
+	block_statements : block_statement .  (127)
+
+	.  reduce 127
+
+
+state 91
+	block_statement : local_variable_declaration_statement .  (129)
+
+	.  reduce 129
+
+
+state 92
+	block_statement : statement .  (130)
+
+	.  reduce 130
+
+
+93: shift/reduce conflict (shift 141, reduce 105) on ','
+state 93
+	local_variable_declaration_statement : local_variable_declaration . invocation_end  (131)
+	invocation_end : .  (105)
+
+	','  shift 141
+	NEW  reduce 105
+	SUPER  reduce 105
+	THIS  reduce 105
+	RETURN  reduce 105
+	IF  reduce 105
+	FOR  reduce 105
+	PRINT  reduce 105
+	VOID  reduce 105
+	LONG  reduce 105
+	UINT  reduce 105
+	DOUBLE  reduce 105
+	BOOLEAN  reduce 105
+	ID  reduce 105
+	'{'  reduce 105
+	'}'  reduce 105
+
+	invocation_end  goto 142
+
+
+state 94
+	statement : statement_without_trailing_substatement .  (133)
+
+	.  reduce 133
+
+
+state 95
+	statement : if_then_statement .  (134)
+
+	.  reduce 134
+
+
+state 96
+	statement : if_then_else_statement .  (135)
+
+	.  reduce 135
+
+
+state 97
+	statement : for_in_range_statement .  (136)
+
+	.  reduce 136
+
+
+state 98
+	statement : print_statement .  (138)
+
+	.  reduce 138
+
+
+state 99
+	statement_without_trailing_substatement : empty_statement .  (140)
+
+	.  reduce 140
+
+
+state 100
+	statement_without_trailing_substatement : expression_statement .  (141)
+
+	.  reduce 141
+
+
+state 101
+	expression_statement : statement_expression .  (143)
+
+	.  reduce 143
+
+
+state 102
+	implement_for_declaration : IMPL FOR reference_type ':' . implement_for_body  (52)
+	implement_for_declaration : IMPL FOR reference_type ':' .  (53)
+
+	'{'  shift 143
+	$end  reduce 53
+	CLASS  reduce 53
+	INTERFACE  reduce 53
+	FUNC  reduce 53
+	IMPL  reduce 53
+
+	implement_for_body  goto 144
+
+
+state 103
+	interface_type_list : interface_type_list ';' . interface_type  (39)
+
+	ID  shift 19
+	.  error
+
+	interface_type  goto 145
+	type_name  goto 49
+
+
+state 104
+	class_body : '{' class_body_declarations '}' .  (11)
+
+	.  reduce 11
+
+
+state 105
+	class_body_declarations : class_body_declarations class_body_declaration .  (13)
+
+	.  reduce 13
+
+
+state 106
+	variable_declarator_id : ID .  (23)
+
+	.  reduce 23
+
+
+state 107
+	field_declaration : type variable_declarators . ','  (18)
+	variable_declarators : variable_declarators . ';' variable_declarator  (20)
+
+	','  shift 146
+	';'  shift 147
+	.  error
+
+
+state 108
+	variable_declarators : variable_declarator .  (19)
+
+	.  reduce 19
+
+
+state 109
+	variable_declarator : variable_declarator_id .  (21)
+	variable_declarator : variable_declarator_id . '=' variable_initializer  (22)
+
+	'='  shift 148
+	NEW  reduce 21
+	SUPER  reduce 21
+	THIS  reduce 21
+	RETURN  reduce 21
+	IF  reduce 21
+	FOR  reduce 21
+	PRINT  reduce 21
+	VOID  reduce 21
+	LONG  reduce 21
+	UINT  reduce 21
+	DOUBLE  reduce 21
+	BOOLEAN  reduce 21
+	ID  reduce 21
+	'{'  reduce 21
+	'}'  reduce 21
+	','  reduce 21
+	';'  reduce 21
+
+
+state 110
+	method_body : ',' .  (32)
+
+	.  reduce 32
+
+
+state 111
+	method_declaration : method_header method_body .  (25)
+
+	.  reduce 25
+
+
+state 112
+	method_body : block .  (31)
+
+	.  reduce 31
+
+
+state 113
+	method_declarator : ID . '(' formal_parameter ')'  (29)
+	method_declarator : ID . '(' ')'  (30)
+
+	'('  shift 149
+	.  error
+
+
+state 114
+	method_header : result_type method_declarator .  (26)
+
+	.  reduce 26
+
+
+state 115
+	formal_parameter : type . variable_declarator_id  (33)
+
+	ID  shift 106
+	.  error
+
+	variable_declarator_id  goto 150
+
+
+state 116
+	constructor_declaration : simple_type_name formal_parameter .  (35)
+
+	.  reduce 35
+
+
+state 117
+	interface_body : '{' '}' ',' .  (42)
+
+	.  reduce 42
+
+
+state 118
+	interface_method_declaration : result_type method_declarator .  (45)
+
+	.  reduce 45
+
+
+state 119
+	interface_body : '{' interface_member_declaration '}' .  (41)
+
+	.  reduce 41
+
+
+state 120
+	interface_member_declaration : interface_member_declaration interface_method_declaration .  (44)
+
+	.  reduce 44
+
+
+state 121
+	function_declarator : ID '(' ')' .  (50)
+
+	.  reduce 50
+
+
+state 122
+	function_declarator : ID '(' formal_parameter . ')'  (49)
+
+	')'  shift 151
+	.  error
+
+
+state 123
+	class_instance_creation_expression : NEW class_type . '(' real_parameter ')'  (95)
+	class_instance_creation_expression : NEW class_type . '(' ')'  (96)
+	class_instance_creation_expression : NEW class_type .  (97)
+
+	'('  shift 152
+	'.'  reduce 97
+
+
+state 124
+	class_type : type_name .  (114)
+
+	.  reduce 114
+
+
+state 125
+	field_access : SUPER '.' . ID  (88)
+	method_invocation : SUPER '.' . ID '(' real_parameter ')' invocation_end  (102)
+	method_invocation : SUPER '.' . ID '(' ')' invocation_end  (103)
+
+	ID  shift 153
+	.  error
+
+
+state 126
+	if_then_statement : IF '(' . expression ')' statement END_IF invocation_end  (148)
+	if_then_else_statement : IF '(' . expression ')' statement ELSE statement END_IF invocation_end  (149)
+
+	NEW  shift 68
+	SUPER  shift 154
+	THIS  shift 70
+	ID  shift 155
+	.  error
+
+	expression  goto 156
+	assignment  goto 157
+	left_hand_side  goto 81
+	expression_name  goto 82
+	field_access  goto 83
+	primary  goto 158
+	class_instance_creation_expression  goto 85
+
+
+state 127
+	for_variable : ID .  (151)
+
+	.  reduce 151
+
+
+state 128
+	for_in_range_statement : FOR for_variable . IN RANGE '(' for_init for_end for_update ')' statement invocation_end  (150)
+
+	IN  shift 159
+	.  error
+
+
+129: shift/reduce conflict (shift 141, reduce 105) on ','
+state 129
+	print_statement : PRINT CADENA . invocation_end  (157)
+	invocation_end : .  (105)
+
+	','  shift 141
+	NEW  reduce 105
+	SUPER  reduce 105
+	THIS  reduce 105
+	RETURN  reduce 105
+	IF  reduce 105
+	ELSE  reduce 105
+	END_IF  reduce 105
+	FOR  reduce 105
+	PRINT  reduce 105
+	VOID  reduce 105
+	LONG  reduce 105
+	UINT  reduce 105
+	DOUBLE  reduce 105
+	BOOLEAN  reduce 105
+	ID  reduce 105
+	'{'  reduce 105
+	'}'  reduce 105
+
+	invocation_end  goto 160
+
+
+state 130
+	method_invocation : ID '(' . real_parameter ')' invocation_end  (98)
+	method_invocation : ID '(' . ')' invocation_end  (99)
+	function_invocation : ID '(' . real_parameter ')' invocation_end  (106)
+	function_invocation : ID '(' . ')' invocation_end  (107)
+
+	TOD  shift 161
+	ID  shift 155
+	CTE  shift 162
+	'('  shift 163
+	')'  shift 164
+	.  error
+
+	real_parameter  goto 165
+	right_hand_side  goto 166
+	expression_name  goto 167
+	equality_expression  goto 168
+	relational_expression  goto 169
+	additive_expression  goto 170
+	multiplicative_expression  goto 171
+	unary_expression  goto 172
+	term  goto 173
+	factor  goto 174
+
+
+state 131
+	block : '{' '}' .  (123)
+
+	.  reduce 123
+
+
+state 132
+	block : '{' block_statements . '}'  (122)
+	block_statements : block_statements . block_statement  (128)
+
+	NEW  shift 68
+	SUPER  shift 69
+	THIS  shift 70
+	RETURN  shift 41
+	IF  shift 71
+	FOR  shift 72
+	PRINT  shift 73
+	VOID  shift 14
+	LONG  shift 15
+	UINT  shift 16
+	DOUBLE  shift 17
+	BOOLEAN  shift 18
+	ID  shift 74
+	'{'  shift 75
+	'}'  shift 175
+	','  shift 76
+	.  error
+
+	method_declaration  goto 77
+	type  goto 78
+	method_header  goto 58
+	result_type  goto 59
+	block  goto 79
+	interface_type  goto 22
+	reference_type  goto 24
+	assignment  goto 80
+	left_hand_side  goto 81
+	expression_name  goto 82
+	field_access  goto 83
+	primary  goto 84
+	class_instance_creation_expression  goto 85
+	class_type  goto 25
+	method_invocation  goto 86
+	function_invocation  goto 87
+	primitive_type  goto 26
+	numeric_type  goto 27
+	type_name  goto 28
+	integral_type  goto 29
+	floating_type  goto 30
+	return_statement  goto 89
+	block_statement  goto 140
+	local_variable_declaration_statement  goto 91
+	statement  goto 92
+	local_variable_declaration  goto 93
+	statement_without_trailing_substatement  goto 94
+	if_then_statement  goto 95
+	if_then_else_statement  goto 96
+	for_in_range_statement  goto 97
+	print_statement  goto 98
+	empty_statement  goto 99
+	expression_statement  goto 100
+	statement_expression  goto 101
+
+
+state 133
+	variable_declarators : variable_declarators . ';' variable_declarator  (20)
+	local_variable_declaration : type variable_declarators .  (132)
+
+	';'  shift 147
+	NEW  reduce 132
+	SUPER  reduce 132
+	THIS  reduce 132
+	RETURN  reduce 132
+	IF  reduce 132
+	FOR  reduce 132
+	PRINT  reduce 132
+	VOID  reduce 132
+	LONG  reduce 132
+	UINT  reduce 132
+	DOUBLE  reduce 132
+	BOOLEAN  reduce 132
+	ID  reduce 132
+	'{'  reduce 132
+	'}'  reduce 132
+	','  reduce 132
+
+
+state 134
+	assignment_operator : MINUS_ASSIGN .  (90)
+
+	.  reduce 90
+
+
+state 135
+	assignment_operator : '=' .  (89)
+
+	.  reduce 89
+
+
+state 136
+	assignment : left_hand_side assignment_operator . right_hand_side  (61)
+
+	TOD  shift 161
+	ID  shift 155
+	CTE  shift 162
+	'('  shift 163
+	.  error
+
+	right_hand_side  goto 176
+	expression_name  goto 167
+	equality_expression  goto 168
+	relational_expression  goto 169
+	additive_expression  goto 170
+	multiplicative_expression  goto 171
+	unary_expression  goto 172
+	term  goto 173
+	factor  goto 174
+
+
+state 137
+	field_access : primary '.' . ID  (87)
+	method_invocation : primary '.' . ID '(' real_parameter ')' invocation_end  (100)
+	method_invocation : primary '.' . ID '(' ')' invocation_end  (101)
+
+	ID  shift 177
+	.  error
+
+
+state 138
+	function_block : '{' block_statements '}' .  (126)
+
+	.  reduce 126
+
+
+139: shift/reduce conflict (shift 178, reduce 142) on '}'
+state 139
+	function_block : '{' block_statements return_statement . '}'  (124)
+	statement_without_trailing_substatement : return_statement .  (142)
+
+	'}'  shift 178
+	NEW  reduce 142
+	SUPER  reduce 142
+	THIS  reduce 142
+	RETURN  reduce 142
+	IF  reduce 142
+	FOR  reduce 142
+	PRINT  reduce 142
+	VOID  reduce 142
+	LONG  reduce 142
+	UINT  reduce 142
+	DOUBLE  reduce 142
+	BOOLEAN  reduce 142
+	ID  reduce 142
+	'{'  reduce 142
+	','  reduce 142
+
+
+state 140
+	block_statements : block_statements block_statement .  (128)
+
+	.  reduce 128
+
+
+state 141
+	invocation_end : ',' .  (104)
+
+	.  reduce 104
+
+
+state 142
+	local_variable_declaration_statement : local_variable_declaration invocation_end .  (131)
+
+	.  reduce 131
+
+
+state 143
+	implement_for_body : '{' . implement_for_body_declarations '}'  (54)
+
+	VOID  shift 14
+	LONG  shift 15
+	UINT  shift 16
+	DOUBLE  shift 17
+	BOOLEAN  shift 18
+	ID  shift 19
+	.  error
+
+	type  goto 20
+	method_header  goto 179
+	result_type  goto 59
+	interface_type  goto 22
+	reference_type  goto 24
+	implement_for_body_declarations  goto 180
+	implement_for_body_declaration  goto 181
+	implement_for_method_declaration  goto 182
+	class_type  goto 25
+	primitive_type  goto 26
+	numeric_type  goto 27
+	type_name  goto 28
+	integral_type  goto 29
+	floating_type  goto 30
+
+
+state 144
+	implement_for_declaration : IMPL FOR reference_type ':' implement_for_body .  (52)
+
+	.  reduce 52
+
+
+state 145
+	interface_type_list : interface_type_list ';' interface_type .  (39)
+
+	.  reduce 39
+
+
+state 146
+	field_declaration : type variable_declarators ',' .  (18)
+
+	.  reduce 18
+
+
+state 147
+	variable_declarators : variable_declarators ';' . variable_declarator  (20)
+
+	ID  shift 106
+	.  error
+
+	variable_declarator  goto 183
+	variable_declarator_id  goto 109
+
+
+state 148
+	variable_declarator : variable_declarator_id '=' . variable_initializer  (22)
+
+	NEW  shift 68
+	SUPER  shift 154
+	THIS  shift 70
+	ID  shift 155
+	.  error
+
+	variable_initializer  goto 184
+	expression  goto 185
+	assignment  goto 157
+	left_hand_side  goto 81
+	expression_name  goto 82
+	field_access  goto 83
+	primary  goto 158
+	class_instance_creation_expression  goto 85
+
+
+state 149
+	method_declarator : ID '(' . formal_parameter ')'  (29)
+	method_declarator : ID '(' . ')'  (30)
+
+	LONG  shift 15
+	UINT  shift 16
+	DOUBLE  shift 17
+	BOOLEAN  shift 18
+	ID  shift 19
+	')'  shift 186
+	.  error
+
+	type  goto 115
+	formal_parameter  goto 187
+	interface_type  goto 22
+	reference_type  goto 24
+	class_type  goto 25
+	primitive_type  goto 26
+	numeric_type  goto 27
+	type_name  goto 28
+	integral_type  goto 29
+	floating_type  goto 30
+
+
+state 150
+	formal_parameter : type variable_declarator_id .  (33)
+
+	.  reduce 33
+
+
+state 151
+	function_declarator : ID '(' formal_parameter ')' .  (49)
+
+	.  reduce 49
+
+
+state 152
+	class_instance_creation_expression : NEW class_type '(' . real_parameter ')'  (95)
+	class_instance_creation_expression : NEW class_type '(' . ')'  (96)
+
+	TOD  shift 161
+	ID  shift 155
+	CTE  shift 162
+	'('  shift 163
+	')'  shift 188
+	.  error
+
+	real_parameter  goto 189
+	right_hand_side  goto 166
+	expression_name  goto 167
+	equality_expression  goto 168
+	relational_expression  goto 169
+	additive_expression  goto 170
+	multiplicative_expression  goto 171
+	unary_expression  goto 172
+	term  goto 173
+	factor  goto 174
+
+
+state 153
+	field_access : SUPER '.' ID .  (88)
+	method_invocation : SUPER '.' ID . '(' real_parameter ')' invocation_end  (102)
+	method_invocation : SUPER '.' ID . '(' ')' invocation_end  (103)
+
+	'('  shift 190
+	MINUS_ASSIGN  reduce 88
+	'='  reduce 88
+	'.'  reduce 88
+
+
+state 154
+	field_access : SUPER . '.' ID  (88)
+
+	'.'  shift 191
+	.  error
+
+
+state 155
+	expression_name : ID .  (86)
+
+	.  reduce 86
+
+
+state 156
+	if_then_statement : IF '(' expression . ')' statement END_IF invocation_end  (148)
+	if_then_else_statement : IF '(' expression . ')' statement ELSE statement END_IF invocation_end  (149)
+
+	')'  shift 192
+	.  error
+
+
+state 157
+	expression : assignment .  (60)
+
+	.  reduce 60
+
+
+state 158
+	field_access : primary . '.' ID  (87)
+
+	'.'  shift 193
+	.  error
+
+
+state 159
+	for_in_range_statement : FOR for_variable IN . RANGE '(' for_init for_end for_update ')' statement invocation_end  (150)
+
+	RANGE  shift 194
+	.  error
+
+
+state 160
+	print_statement : PRINT CADENA invocation_end .  (157)
+
+	.  reduce 157
+
+
+state 161
+	multiplicative_expression : TOD . '(' unary_expression ')'  (77)
+
+	'('  shift 195
+	.  error
+
+
+state 162
+	factor : CTE .  (85)
+
+	.  reduce 85
+
+
+state 163
+	term : '(' . right_hand_side ')'  (84)
+
+	TOD  shift 161
+	ID  shift 155
+	CTE  shift 162
+	'('  shift 163
+	.  error
+
+	right_hand_side  goto 196
+	expression_name  goto 167
+	equality_expression  goto 168
+	relational_expression  goto 169
+	additive_expression  goto 170
+	multiplicative_expression  goto 171
+	unary_expression  goto 172
+	term  goto 173
+	factor  goto 174
+
+
+164: shift/reduce conflict (shift 141, reduce 105) on ','
+state 164
+	method_invocation : ID '(' ')' . invocation_end  (99)
+	function_invocation : ID '(' ')' . invocation_end  (107)
+	invocation_end : .  (105)
+
+	','  shift 141
+	NEW  reduce 105
+	SUPER  reduce 105
+	THIS  reduce 105
+	RETURN  reduce 105
+	IF  reduce 105
+	ELSE  reduce 105
+	END_IF  reduce 105
+	FOR  reduce 105
+	PRINT  reduce 105
+	VOID  reduce 105
+	LONG  reduce 105
+	UINT  reduce 105
+	DOUBLE  reduce 105
+	BOOLEAN  reduce 105
+	ID  reduce 105
+	'{'  reduce 105
+	'}'  reduce 105
+
+	invocation_end  goto 197
+
+
+state 165
+	method_invocation : ID '(' real_parameter . ')' invocation_end  (98)
+	function_invocation : ID '(' real_parameter . ')' invocation_end  (106)
+
+	')'  shift 198
+	.  error
+
+
+state 166
+	real_parameter : right_hand_side .  (34)
+
+	.  reduce 34
+
+
+state 167
+	unary_expression : expression_name .  (82)
+
+	.  reduce 82
+
+
+state 168
+	right_hand_side : equality_expression .  (64)
+	equality_expression : equality_expression . EQUAL_OPERATOR relational_expression  (66)
+	equality_expression : equality_expression . NOT_EQUAL_OPERATOR relational_expression  (67)
+
+	EQUAL_OPERATOR  shift 199
+	NOT_EQUAL_OPERATOR  shift 200
+	NEW  reduce 64
+	SUPER  reduce 64
+	THIS  reduce 64
+	RETURN  reduce 64
+	IF  reduce 64
+	ELSE  reduce 64
+	END_IF  reduce 64
+	FOR  reduce 64
+	PRINT  reduce 64
+	VOID  reduce 64
+	LONG  reduce 64
+	UINT  reduce 64
+	DOUBLE  reduce 64
+	BOOLEAN  reduce 64
+	ID  reduce 64
+	'{'  reduce 64
+	'}'  reduce 64
+	','  reduce 64
+	';'  reduce 64
+	')'  reduce 64
+
+
+state 169
+	equality_expression : relational_expression .  (65)
+	relational_expression : relational_expression . '<' additive_expression  (69)
+	relational_expression : relational_expression . '>' additive_expression  (70)
+	relational_expression : relational_expression . GREATER_THAN_OR_EQUAL_OPERATOR additive_expression  (71)
+	relational_expression : relational_expression . LESS_THAN_OR_EQUAL_OPERATOR additive_expression  (72)
+
+	GREATER_THAN_OR_EQUAL_OPERATOR  shift 201
+	LESS_THAN_OR_EQUAL_OPERATOR  shift 202
+	'<'  shift 203
+	'>'  shift 204
+	NEW  reduce 65
+	SUPER  reduce 65
+	THIS  reduce 65
+	RETURN  reduce 65
+	IF  reduce 65
+	ELSE  reduce 65
+	END_IF  reduce 65
+	FOR  reduce 65
+	PRINT  reduce 65
+	EQUAL_OPERATOR  reduce 65
+	NOT_EQUAL_OPERATOR  reduce 65
+	VOID  reduce 65
+	LONG  reduce 65
+	UINT  reduce 65
+	DOUBLE  reduce 65
+	BOOLEAN  reduce 65
+	ID  reduce 65
+	'{'  reduce 65
+	'}'  reduce 65
+	','  reduce 65
+	';'  reduce 65
+	')'  reduce 65
+
+
+state 170
+	relational_expression : additive_expression .  (68)
+	additive_expression : additive_expression . '+' multiplicative_expression  (74)
+	additive_expression : additive_expression . '-' multiplicative_expression  (75)
+
+	'+'  shift 205
+	'-'  shift 206
+	NEW  reduce 68
+	SUPER  reduce 68
+	THIS  reduce 68
+	RETURN  reduce 68
+	IF  reduce 68
+	ELSE  reduce 68
+	END_IF  reduce 68
+	FOR  reduce 68
+	PRINT  reduce 68
+	EQUAL_OPERATOR  reduce 68
+	NOT_EQUAL_OPERATOR  reduce 68
+	GREATER_THAN_OR_EQUAL_OPERATOR  reduce 68
+	LESS_THAN_OR_EQUAL_OPERATOR  reduce 68
+	VOID  reduce 68
+	LONG  reduce 68
+	UINT  reduce 68
+	DOUBLE  reduce 68
+	BOOLEAN  reduce 68
+	ID  reduce 68
+	'{'  reduce 68
+	'}'  reduce 68
+	','  reduce 68
+	';'  reduce 68
+	')'  reduce 68
+	'<'  reduce 68
+	'>'  reduce 68
+
+
+state 171
+	additive_expression : multiplicative_expression .  (73)
+	multiplicative_expression : multiplicative_expression . '*' unary_expression  (78)
+	multiplicative_expression : multiplicative_expression . '/' unary_expression  (79)
+	multiplicative_expression : multiplicative_expression . '%' unary_expression  (80)
+
+	'*'  shift 207
+	'/'  shift 208
+	'%'  shift 209
+	NEW  reduce 73
+	SUPER  reduce 73
+	THIS  reduce 73
+	RETURN  reduce 73
+	IF  reduce 73
+	ELSE  reduce 73
+	END_IF  reduce 73
+	FOR  reduce 73
+	PRINT  reduce 73
+	EQUAL_OPERATOR  reduce 73
+	NOT_EQUAL_OPERATOR  reduce 73
+	GREATER_THAN_OR_EQUAL_OPERATOR  reduce 73
+	LESS_THAN_OR_EQUAL_OPERATOR  reduce 73
+	VOID  reduce 73
+	LONG  reduce 73
+	UINT  reduce 73
+	DOUBLE  reduce 73
+	BOOLEAN  reduce 73
+	ID  reduce 73
+	'{'  reduce 73
+	'}'  reduce 73
+	','  reduce 73
+	';'  reduce 73
+	')'  reduce 73
+	'<'  reduce 73
+	'>'  reduce 73
+	'+'  reduce 73
+	'-'  reduce 73
+
+
+state 172
+	multiplicative_expression : unary_expression .  (76)
+
+	.  reduce 76
+
+
+state 173
+	unary_expression : term .  (81)
+
+	.  reduce 81
+
+
+state 174
+	term : factor .  (83)
+
+	.  reduce 83
+
+
+state 175
+	block : '{' block_statements '}' .  (122)
+
+	.  reduce 122
+
+
+state 176
+	assignment : left_hand_side assignment_operator right_hand_side .  (61)
+
+	.  reduce 61
+
+
+state 177
+	field_access : primary '.' ID .  (87)
+	method_invocation : primary '.' ID . '(' real_parameter ')' invocation_end  (100)
+	method_invocation : primary '.' ID . '(' ')' invocation_end  (101)
+
+	'('  shift 210
+	MINUS_ASSIGN  reduce 87
+	'='  reduce 87
+	'.'  reduce 87
+
+
+state 178
+	function_block : '{' block_statements return_statement '}' .  (124)
+
+	.  reduce 124
+
+
+state 179
+	implement_for_method_declaration : method_header . implement_for_method_body  (58)
+
+	'{'  shift 75
+	','  shift 110
+	.  error
+
+	method_body  goto 211
+	block  goto 112
+	implement_for_method_body  goto 212
+
+
+state 180
+	implement_for_body : '{' implement_for_body_declarations . '}'  (54)
+	implement_for_body_declarations : implement_for_body_declarations . implement_for_body_declaration  (56)
+
+	VOID  shift 14
+	LONG  shift 15
+	UINT  shift 16
+	DOUBLE  shift 17
+	BOOLEAN  shift 18
+	ID  shift 19
+	'}'  shift 213
+	.  error
+
+	type  goto 20
+	method_header  goto 179
+	result_type  goto 59
+	interface_type  goto 22
+	reference_type  goto 24
+	implement_for_body_declaration  goto 214
+	implement_for_method_declaration  goto 182
+	class_type  goto 25
+	primitive_type  goto 26
+	numeric_type  goto 27
+	type_name  goto 28
+	integral_type  goto 29
+	floating_type  goto 30
+
+
+state 181
+	implement_for_body_declarations : implement_for_body_declaration .  (55)
+
+	.  reduce 55
+
+
+state 182
+	implement_for_body_declaration : implement_for_method_declaration .  (57)
+
+	.  reduce 57
+
+
+state 183
+	variable_declarators : variable_declarators ';' variable_declarator .  (20)
+
+	.  reduce 20
+
+
+state 184
+	variable_declarator : variable_declarator_id '=' variable_initializer .  (22)
+
+	.  reduce 22
+
+
+state 185
+	variable_initializer : expression .  (24)
+
+	.  reduce 24
+
+
+state 186
+	method_declarator : ID '(' ')' .  (30)
+
+	.  reduce 30
+
+
+state 187
+	method_declarator : ID '(' formal_parameter . ')'  (29)
+
+	')'  shift 215
+	.  error
+
+
+state 188
+	class_instance_creation_expression : NEW class_type '(' ')' .  (96)
+
+	.  reduce 96
+
+
+state 189
+	class_instance_creation_expression : NEW class_type '(' real_parameter . ')'  (95)
+
+	')'  shift 216
+	.  error
+
+
+state 190
+	method_invocation : SUPER '.' ID '(' . real_parameter ')' invocation_end  (102)
+	method_invocation : SUPER '.' ID '(' . ')' invocation_end  (103)
+
+	TOD  shift 161
+	ID  shift 155
+	CTE  shift 162
+	'('  shift 163
+	')'  shift 217
+	.  error
+
+	real_parameter  goto 218
+	right_hand_side  goto 166
+	expression_name  goto 167
+	equality_expression  goto 168
+	relational_expression  goto 169
+	additive_expression  goto 170
+	multiplicative_expression  goto 171
+	unary_expression  goto 172
+	term  goto 173
+	factor  goto 174
+
+
+state 191
+	field_access : SUPER '.' . ID  (88)
+
+	ID  shift 219
+	.  error
+
+
+state 192
+	if_then_statement : IF '(' expression ')' . statement END_IF invocation_end  (148)
+	if_then_else_statement : IF '(' expression ')' . statement ELSE statement END_IF invocation_end  (149)
+
+	NEW  shift 68
+	SUPER  shift 69
+	THIS  shift 70
+	RETURN  shift 41
+	IF  shift 71
+	FOR  shift 72
+	PRINT  shift 73
+	VOID  shift 14
+	LONG  shift 15
+	UINT  shift 16
+	DOUBLE  shift 17
+	BOOLEAN  shift 18
+	ID  shift 74
+	'{'  shift 75
+	','  shift 76
+	.  error
+
+	method_declaration  goto 77
+	type  goto 20
+	method_header  goto 58
+	result_type  goto 59
+	block  goto 79
+	interface_type  goto 22
+	reference_type  goto 24
+	assignment  goto 80
+	left_hand_side  goto 81
+	expression_name  goto 82
+	field_access  goto 83
+	primary  goto 84
+	class_instance_creation_expression  goto 85
+	class_type  goto 25
+	method_invocation  goto 86
+	function_invocation  goto 87
+	primitive_type  goto 26
+	numeric_type  goto 27
+	type_name  goto 28
+	integral_type  goto 29
+	floating_type  goto 30
+	return_statement  goto 89
+	statement  goto 220
+	statement_without_trailing_substatement  goto 94
+	if_then_statement  goto 95
+	if_then_else_statement  goto 96
+	for_in_range_statement  goto 97
+	print_statement  goto 98
+	empty_statement  goto 99
+	expression_statement  goto 100
+	statement_expression  goto 101
+
+
+state 193
+	field_access : primary '.' . ID  (87)
+
+	ID  shift 221
+	.  error
+
+
+state 194
+	for_in_range_statement : FOR for_variable IN RANGE . '(' for_init for_end for_update ')' statement invocation_end  (150)
+
+	'('  shift 222
+	.  error
+
+
+state 195
+	multiplicative_expression : TOD '(' . unary_expression ')'  (77)
+
+	ID  shift 155
+	CTE  shift 162
+	'('  shift 163
+	.  error
+
+	expression_name  goto 167
+	unary_expression  goto 223
+	term  goto 173
+	factor  goto 174
+
+
+state 196
+	term : '(' right_hand_side . ')'  (84)
+
+	')'  shift 224
+	.  error
+
+
+197: reduce/reduce conflict (reduce 99, reduce 107) on NEW
+197: reduce/reduce conflict (reduce 99, reduce 107) on SUPER
+197: reduce/reduce conflict (reduce 99, reduce 107) on THIS
+197: reduce/reduce conflict (reduce 99, reduce 107) on RETURN
+197: reduce/reduce conflict (reduce 99, reduce 107) on IF
+197: reduce/reduce conflict (reduce 99, reduce 107) on ELSE
+197: reduce/reduce conflict (reduce 99, reduce 107) on END_IF
+197: reduce/reduce conflict (reduce 99, reduce 107) on FOR
+197: reduce/reduce conflict (reduce 99, reduce 107) on PRINT
+197: reduce/reduce conflict (reduce 99, reduce 107) on VOID
+197: reduce/reduce conflict (reduce 99, reduce 107) on LONG
+197: reduce/reduce conflict (reduce 99, reduce 107) on UINT
+197: reduce/reduce conflict (reduce 99, reduce 107) on DOUBLE
+197: reduce/reduce conflict (reduce 99, reduce 107) on BOOLEAN
+197: reduce/reduce conflict (reduce 99, reduce 107) on ID
+197: reduce/reduce conflict (reduce 99, reduce 107) on '{'
+197: reduce/reduce conflict (reduce 99, reduce 107) on '}'
+197: reduce/reduce conflict (reduce 99, reduce 107) on ','
+state 197
+	method_invocation : ID '(' ')' invocation_end .  (99)
+	function_invocation : ID '(' ')' invocation_end .  (107)
+
+	.  reduce 99
+
+
+198: shift/reduce conflict (shift 141, reduce 105) on ','
+state 198
+	method_invocation : ID '(' real_parameter ')' . invocation_end  (98)
+	function_invocation : ID '(' real_parameter ')' . invocation_end  (106)
+	invocation_end : .  (105)
+
+	','  shift 141
+	NEW  reduce 105
+	SUPER  reduce 105
+	THIS  reduce 105
+	RETURN  reduce 105
+	IF  reduce 105
+	ELSE  reduce 105
+	END_IF  reduce 105
+	FOR  reduce 105
+	PRINT  reduce 105
+	VOID  reduce 105
+	LONG  reduce 105
+	UINT  reduce 105
+	DOUBLE  reduce 105
+	BOOLEAN  reduce 105
+	ID  reduce 105
+	'{'  reduce 105
+	'}'  reduce 105
+
+	invocation_end  goto 225
+
+
+state 199
+	equality_expression : equality_expression EQUAL_OPERATOR . relational_expression  (66)
+
+	TOD  shift 161
+	ID  shift 155
+	CTE  shift 162
+	'('  shift 163
+	.  error
+
+	expression_name  goto 167
+	relational_expression  goto 226
+	additive_expression  goto 170
+	multiplicative_expression  goto 171
+	unary_expression  goto 172
+	term  goto 173
+	factor  goto 174
+
+
+state 200
+	equality_expression : equality_expression NOT_EQUAL_OPERATOR . relational_expression  (67)
+
+	TOD  shift 161
+	ID  shift 155
+	CTE  shift 162
+	'('  shift 163
+	.  error
+
+	expression_name  goto 167
+	relational_expression  goto 227
+	additive_expression  goto 170
+	multiplicative_expression  goto 171
+	unary_expression  goto 172
+	term  goto 173
+	factor  goto 174
+
+
+state 201
+	relational_expression : relational_expression GREATER_THAN_OR_EQUAL_OPERATOR . additive_expression  (71)
+
+	TOD  shift 161
+	ID  shift 155
+	CTE  shift 162
+	'('  shift 163
+	.  error
+
+	expression_name  goto 167
+	additive_expression  goto 228
+	multiplicative_expression  goto 171
+	unary_expression  goto 172
+	term  goto 173
+	factor  goto 174
+
+
+state 202
+	relational_expression : relational_expression LESS_THAN_OR_EQUAL_OPERATOR . additive_expression  (72)
+
+	TOD  shift 161
+	ID  shift 155
+	CTE  shift 162
+	'('  shift 163
+	.  error
+
+	expression_name  goto 167
+	additive_expression  goto 229
+	multiplicative_expression  goto 171
+	unary_expression  goto 172
+	term  goto 173
+	factor  goto 174
+
+
+state 203
+	relational_expression : relational_expression '<' . additive_expression  (69)
+
+	TOD  shift 161
+	ID  shift 155
+	CTE  shift 162
+	'('  shift 163
+	.  error
+
+	expression_name  goto 167
+	additive_expression  goto 230
+	multiplicative_expression  goto 171
+	unary_expression  goto 172
+	term  goto 173
+	factor  goto 174
+
+
+state 204
+	relational_expression : relational_expression '>' . additive_expression  (70)
+
+	TOD  shift 161
+	ID  shift 155
+	CTE  shift 162
+	'('  shift 163
+	.  error
+
+	expression_name  goto 167
+	additive_expression  goto 231
+	multiplicative_expression  goto 171
+	unary_expression  goto 172
+	term  goto 173
+	factor  goto 174
+
+
+state 205
+	additive_expression : additive_expression '+' . multiplicative_expression  (74)
+
+	TOD  shift 161
+	ID  shift 155
+	CTE  shift 162
+	'('  shift 163
+	.  error
+
+	expression_name  goto 167
+	multiplicative_expression  goto 232
+	unary_expression  goto 172
+	term  goto 173
+	factor  goto 174
+
+
+state 206
+	additive_expression : additive_expression '-' . multiplicative_expression  (75)
+
+	TOD  shift 161
+	ID  shift 155
+	CTE  shift 162
+	'('  shift 163
+	.  error
+
+	expression_name  goto 167
+	multiplicative_expression  goto 233
+	unary_expression  goto 172
+	term  goto 173
+	factor  goto 174
+
+
+state 207
+	multiplicative_expression : multiplicative_expression '*' . unary_expression  (78)
+
+	ID  shift 155
+	CTE  shift 162
+	'('  shift 163
+	.  error
+
+	expression_name  goto 167
+	unary_expression  goto 234
+	term  goto 173
+	factor  goto 174
+
+
+state 208
+	multiplicative_expression : multiplicative_expression '/' . unary_expression  (79)
+
+	ID  shift 155
+	CTE  shift 162
+	'('  shift 163
+	.  error
+
+	expression_name  goto 167
+	unary_expression  goto 235
+	term  goto 173
+	factor  goto 174
+
+
+state 209
+	multiplicative_expression : multiplicative_expression '%' . unary_expression  (80)
+
+	ID  shift 155
+	CTE  shift 162
+	'('  shift 163
+	.  error
+
+	expression_name  goto 167
+	unary_expression  goto 236
+	term  goto 173
+	factor  goto 174
+
+
+state 210
+	method_invocation : primary '.' ID '(' . real_parameter ')' invocation_end  (100)
+	method_invocation : primary '.' ID '(' . ')' invocation_end  (101)
+
+	TOD  shift 161
+	ID  shift 155
+	CTE  shift 162
+	'('  shift 163
+	')'  shift 237
+	.  error
+
+	real_parameter  goto 238
+	right_hand_side  goto 166
+	expression_name  goto 167
+	equality_expression  goto 168
+	relational_expression  goto 169
+	additive_expression  goto 170
+	multiplicative_expression  goto 171
+	unary_expression  goto 172
+	term  goto 173
+	factor  goto 174
+
+
+state 211
+	implement_for_method_body : method_body .  (59)
+
+	.  reduce 59
+
+
+state 212
+	implement_for_method_declaration : method_header implement_for_method_body .  (58)
+
+	.  reduce 58
+
+
+state 213
+	implement_for_body : '{' implement_for_body_declarations '}' .  (54)
+
+	.  reduce 54
+
+
+state 214
+	implement_for_body_declarations : implement_for_body_declarations implement_for_body_declaration .  (56)
+
+	.  reduce 56
+
+
+state 215
+	method_declarator : ID '(' formal_parameter ')' .  (29)
+
+	.  reduce 29
+
+
+state 216
+	class_instance_creation_expression : NEW class_type '(' real_parameter ')' .  (95)
+
+	.  reduce 95
+
+
+217: shift/reduce conflict (shift 141, reduce 105) on ','
+state 217
+	method_invocation : SUPER '.' ID '(' ')' . invocation_end  (103)
+	invocation_end : .  (105)
+
+	','  shift 141
+	NEW  reduce 105
+	SUPER  reduce 105
+	THIS  reduce 105
+	RETURN  reduce 105
+	IF  reduce 105
+	ELSE  reduce 105
+	END_IF  reduce 105
+	FOR  reduce 105
+	PRINT  reduce 105
+	VOID  reduce 105
+	LONG  reduce 105
+	UINT  reduce 105
+	DOUBLE  reduce 105
+	BOOLEAN  reduce 105
+	ID  reduce 105
+	'{'  reduce 105
+	'}'  reduce 105
+
+	invocation_end  goto 239
+
+
+state 218
+	method_invocation : SUPER '.' ID '(' real_parameter . ')' invocation_end  (102)
+
+	')'  shift 240
+	.  error
+
+
+state 219
+	field_access : SUPER '.' ID .  (88)
+
+	.  reduce 88
+
+
+state 220
+	if_then_statement : IF '(' expression ')' statement . END_IF invocation_end  (148)
+	if_then_else_statement : IF '(' expression ')' statement . ELSE statement END_IF invocation_end  (149)
+
+	ELSE  shift 241
+	END_IF  shift 242
+	.  error
+
+
+state 221
+	field_access : primary '.' ID .  (87)
+
+	.  reduce 87
+
+
+state 222
+	for_in_range_statement : FOR for_variable IN RANGE '(' . for_init for_end for_update ')' statement invocation_end  (150)
+
+	CTE  shift 243
+	.  error
+
+	for_init  goto 244
+
+
+state 223
+	multiplicative_expression : TOD '(' unary_expression . ')'  (77)
+
+	')'  shift 245
+	.  error
+
+
+state 224
+	term : '(' right_hand_side ')' .  (84)
+
+	.  reduce 84
+
+
+225: reduce/reduce conflict (reduce 98, reduce 106) on NEW
+225: reduce/reduce conflict (reduce 98, reduce 106) on SUPER
+225: reduce/reduce conflict (reduce 98, reduce 106) on THIS
+225: reduce/reduce conflict (reduce 98, reduce 106) on RETURN
+225: reduce/reduce conflict (reduce 98, reduce 106) on IF
+225: reduce/reduce conflict (reduce 98, reduce 106) on ELSE
+225: reduce/reduce conflict (reduce 98, reduce 106) on END_IF
+225: reduce/reduce conflict (reduce 98, reduce 106) on FOR
+225: reduce/reduce conflict (reduce 98, reduce 106) on PRINT
+225: reduce/reduce conflict (reduce 98, reduce 106) on VOID
+225: reduce/reduce conflict (reduce 98, reduce 106) on LONG
+225: reduce/reduce conflict (reduce 98, reduce 106) on UINT
+225: reduce/reduce conflict (reduce 98, reduce 106) on DOUBLE
+225: reduce/reduce conflict (reduce 98, reduce 106) on BOOLEAN
+225: reduce/reduce conflict (reduce 98, reduce 106) on ID
+225: reduce/reduce conflict (reduce 98, reduce 106) on '{'
+225: reduce/reduce conflict (reduce 98, reduce 106) on '}'
+225: reduce/reduce conflict (reduce 98, reduce 106) on ','
+state 225
+	method_invocation : ID '(' real_parameter ')' invocation_end .  (98)
+	function_invocation : ID '(' real_parameter ')' invocation_end .  (106)
+
+	.  reduce 98
+
+
+state 226
+	equality_expression : equality_expression EQUAL_OPERATOR relational_expression .  (66)
+	relational_expression : relational_expression . '<' additive_expression  (69)
+	relational_expression : relational_expression . '>' additive_expression  (70)
+	relational_expression : relational_expression . GREATER_THAN_OR_EQUAL_OPERATOR additive_expression  (71)
+	relational_expression : relational_expression . LESS_THAN_OR_EQUAL_OPERATOR additive_expression  (72)
+
+	GREATER_THAN_OR_EQUAL_OPERATOR  shift 201
+	LESS_THAN_OR_EQUAL_OPERATOR  shift 202
+	'<'  shift 203
+	'>'  shift 204
+	NEW  reduce 66
+	SUPER  reduce 66
+	THIS  reduce 66
+	RETURN  reduce 66
+	IF  reduce 66
+	ELSE  reduce 66
+	END_IF  reduce 66
+	FOR  reduce 66
+	PRINT  reduce 66
+	EQUAL_OPERATOR  reduce 66
+	NOT_EQUAL_OPERATOR  reduce 66
+	VOID  reduce 66
+	LONG  reduce 66
+	UINT  reduce 66
+	DOUBLE  reduce 66
+	BOOLEAN  reduce 66
+	ID  reduce 66
+	'{'  reduce 66
+	'}'  reduce 66
+	','  reduce 66
+	';'  reduce 66
+	')'  reduce 66
+
+
+state 227
+	equality_expression : equality_expression NOT_EQUAL_OPERATOR relational_expression .  (67)
+	relational_expression : relational_expression . '<' additive_expression  (69)
+	relational_expression : relational_expression . '>' additive_expression  (70)
+	relational_expression : relational_expression . GREATER_THAN_OR_EQUAL_OPERATOR additive_expression  (71)
+	relational_expression : relational_expression . LESS_THAN_OR_EQUAL_OPERATOR additive_expression  (72)
+
+	GREATER_THAN_OR_EQUAL_OPERATOR  shift 201
+	LESS_THAN_OR_EQUAL_OPERATOR  shift 202
+	'<'  shift 203
+	'>'  shift 204
+	NEW  reduce 67
+	SUPER  reduce 67
+	THIS  reduce 67
+	RETURN  reduce 67
+	IF  reduce 67
+	ELSE  reduce 67
+	END_IF  reduce 67
+	FOR  reduce 67
+	PRINT  reduce 67
+	EQUAL_OPERATOR  reduce 67
+	NOT_EQUAL_OPERATOR  reduce 67
+	VOID  reduce 67
+	LONG  reduce 67
+	UINT  reduce 67
+	DOUBLE  reduce 67
+	BOOLEAN  reduce 67
+	ID  reduce 67
+	'{'  reduce 67
+	'}'  reduce 67
+	','  reduce 67
+	';'  reduce 67
+	')'  reduce 67
+
+
+state 228
+	relational_expression : relational_expression GREATER_THAN_OR_EQUAL_OPERATOR additive_expression .  (71)
+	additive_expression : additive_expression . '+' multiplicative_expression  (74)
+	additive_expression : additive_expression . '-' multiplicative_expression  (75)
+
+	'+'  shift 205
+	'-'  shift 206
+	NEW  reduce 71
+	SUPER  reduce 71
+	THIS  reduce 71
+	RETURN  reduce 71
+	IF  reduce 71
+	ELSE  reduce 71
+	END_IF  reduce 71
+	FOR  reduce 71
+	PRINT  reduce 71
+	EQUAL_OPERATOR  reduce 71
+	NOT_EQUAL_OPERATOR  reduce 71
+	GREATER_THAN_OR_EQUAL_OPERATOR  reduce 71
+	LESS_THAN_OR_EQUAL_OPERATOR  reduce 71
+	VOID  reduce 71
+	LONG  reduce 71
+	UINT  reduce 71
+	DOUBLE  reduce 71
+	BOOLEAN  reduce 71
+	ID  reduce 71
+	'{'  reduce 71
+	'}'  reduce 71
+	','  reduce 71
+	';'  reduce 71
+	')'  reduce 71
+	'<'  reduce 71
+	'>'  reduce 71
+
+
+state 229
+	relational_expression : relational_expression LESS_THAN_OR_EQUAL_OPERATOR additive_expression .  (72)
+	additive_expression : additive_expression . '+' multiplicative_expression  (74)
+	additive_expression : additive_expression . '-' multiplicative_expression  (75)
+
+	'+'  shift 205
+	'-'  shift 206
+	NEW  reduce 72
+	SUPER  reduce 72
+	THIS  reduce 72
+	RETURN  reduce 72
+	IF  reduce 72
+	ELSE  reduce 72
+	END_IF  reduce 72
+	FOR  reduce 72
+	PRINT  reduce 72
+	EQUAL_OPERATOR  reduce 72
+	NOT_EQUAL_OPERATOR  reduce 72
+	GREATER_THAN_OR_EQUAL_OPERATOR  reduce 72
+	LESS_THAN_OR_EQUAL_OPERATOR  reduce 72
+	VOID  reduce 72
+	LONG  reduce 72
+	UINT  reduce 72
+	DOUBLE  reduce 72
+	BOOLEAN  reduce 72
+	ID  reduce 72
+	'{'  reduce 72
+	'}'  reduce 72
+	','  reduce 72
+	';'  reduce 72
+	')'  reduce 72
+	'<'  reduce 72
+	'>'  reduce 72
+
+
+state 230
+	relational_expression : relational_expression '<' additive_expression .  (69)
+	additive_expression : additive_expression . '+' multiplicative_expression  (74)
+	additive_expression : additive_expression . '-' multiplicative_expression  (75)
+
+	'+'  shift 205
+	'-'  shift 206
+	NEW  reduce 69
+	SUPER  reduce 69
+	THIS  reduce 69
+	RETURN  reduce 69
+	IF  reduce 69
+	ELSE  reduce 69
+	END_IF  reduce 69
+	FOR  reduce 69
+	PRINT  reduce 69
+	EQUAL_OPERATOR  reduce 69
+	NOT_EQUAL_OPERATOR  reduce 69
+	GREATER_THAN_OR_EQUAL_OPERATOR  reduce 69
+	LESS_THAN_OR_EQUAL_OPERATOR  reduce 69
+	VOID  reduce 69
+	LONG  reduce 69
+	UINT  reduce 69
+	DOUBLE  reduce 69
+	BOOLEAN  reduce 69
+	ID  reduce 69
+	'{'  reduce 69
+	'}'  reduce 69
+	','  reduce 69
+	';'  reduce 69
+	')'  reduce 69
+	'<'  reduce 69
+	'>'  reduce 69
+
+
+state 231
+	relational_expression : relational_expression '>' additive_expression .  (70)
+	additive_expression : additive_expression . '+' multiplicative_expression  (74)
+	additive_expression : additive_expression . '-' multiplicative_expression  (75)
+
+	'+'  shift 205
+	'-'  shift 206
+	NEW  reduce 70
+	SUPER  reduce 70
+	THIS  reduce 70
+	RETURN  reduce 70
+	IF  reduce 70
+	ELSE  reduce 70
+	END_IF  reduce 70
+	FOR  reduce 70
+	PRINT  reduce 70
+	EQUAL_OPERATOR  reduce 70
+	NOT_EQUAL_OPERATOR  reduce 70
+	GREATER_THAN_OR_EQUAL_OPERATOR  reduce 70
+	LESS_THAN_OR_EQUAL_OPERATOR  reduce 70
+	VOID  reduce 70
+	LONG  reduce 70
+	UINT  reduce 70
+	DOUBLE  reduce 70
+	BOOLEAN  reduce 70
+	ID  reduce 70
+	'{'  reduce 70
+	'}'  reduce 70
+	','  reduce 70
+	';'  reduce 70
+	')'  reduce 70
+	'<'  reduce 70
+	'>'  reduce 70
+
+
+state 232
+	additive_expression : additive_expression '+' multiplicative_expression .  (74)
+	multiplicative_expression : multiplicative_expression . '*' unary_expression  (78)
+	multiplicative_expression : multiplicative_expression . '/' unary_expression  (79)
+	multiplicative_expression : multiplicative_expression . '%' unary_expression  (80)
+
+	'*'  shift 207
+	'/'  shift 208
+	'%'  shift 209
+	NEW  reduce 74
+	SUPER  reduce 74
+	THIS  reduce 74
+	RETURN  reduce 74
+	IF  reduce 74
+	ELSE  reduce 74
+	END_IF  reduce 74
+	FOR  reduce 74
+	PRINT  reduce 74
+	EQUAL_OPERATOR  reduce 74
+	NOT_EQUAL_OPERATOR  reduce 74
+	GREATER_THAN_OR_EQUAL_OPERATOR  reduce 74
+	LESS_THAN_OR_EQUAL_OPERATOR  reduce 74
+	VOID  reduce 74
+	LONG  reduce 74
+	UINT  reduce 74
+	DOUBLE  reduce 74
+	BOOLEAN  reduce 74
+	ID  reduce 74
+	'{'  reduce 74
+	'}'  reduce 74
+	','  reduce 74
+	';'  reduce 74
+	')'  reduce 74
+	'<'  reduce 74
+	'>'  reduce 74
+	'+'  reduce 74
+	'-'  reduce 74
+
+
+state 233
+	additive_expression : additive_expression '-' multiplicative_expression .  (75)
+	multiplicative_expression : multiplicative_expression . '*' unary_expression  (78)
+	multiplicative_expression : multiplicative_expression . '/' unary_expression  (79)
+	multiplicative_expression : multiplicative_expression . '%' unary_expression  (80)
+
+	'*'  shift 207
+	'/'  shift 208
+	'%'  shift 209
+	NEW  reduce 75
+	SUPER  reduce 75
+	THIS  reduce 75
+	RETURN  reduce 75
+	IF  reduce 75
+	ELSE  reduce 75
+	END_IF  reduce 75
+	FOR  reduce 75
+	PRINT  reduce 75
+	EQUAL_OPERATOR  reduce 75
+	NOT_EQUAL_OPERATOR  reduce 75
+	GREATER_THAN_OR_EQUAL_OPERATOR  reduce 75
+	LESS_THAN_OR_EQUAL_OPERATOR  reduce 75
+	VOID  reduce 75
+	LONG  reduce 75
+	UINT  reduce 75
+	DOUBLE  reduce 75
+	BOOLEAN  reduce 75
+	ID  reduce 75
+	'{'  reduce 75
+	'}'  reduce 75
+	','  reduce 75
+	';'  reduce 75
+	')'  reduce 75
+	'<'  reduce 75
+	'>'  reduce 75
+	'+'  reduce 75
+	'-'  reduce 75
+
+
+state 234
+	multiplicative_expression : multiplicative_expression '*' unary_expression .  (78)
+
+	.  reduce 78
+
+
+state 235
+	multiplicative_expression : multiplicative_expression '/' unary_expression .  (79)
+
+	.  reduce 79
+
+
+state 236
+	multiplicative_expression : multiplicative_expression '%' unary_expression .  (80)
+
+	.  reduce 80
+
+
+237: shift/reduce conflict (shift 141, reduce 105) on ','
+state 237
+	method_invocation : primary '.' ID '(' ')' . invocation_end  (101)
+	invocation_end : .  (105)
+
+	','  shift 141
+	NEW  reduce 105
+	SUPER  reduce 105
+	THIS  reduce 105
+	RETURN  reduce 105
+	IF  reduce 105
+	ELSE  reduce 105
+	END_IF  reduce 105
+	FOR  reduce 105
+	PRINT  reduce 105
+	VOID  reduce 105
+	LONG  reduce 105
+	UINT  reduce 105
+	DOUBLE  reduce 105
+	BOOLEAN  reduce 105
+	ID  reduce 105
+	'{'  reduce 105
+	'}'  reduce 105
+
+	invocation_end  goto 246
+
+
+state 238
+	method_invocation : primary '.' ID '(' real_parameter . ')' invocation_end  (100)
+
+	')'  shift 247
+	.  error
+
+
+state 239
+	method_invocation : SUPER '.' ID '(' ')' invocation_end .  (103)
+
+	.  reduce 103
+
+
+240: shift/reduce conflict (shift 141, reduce 105) on ','
+state 240
+	method_invocation : SUPER '.' ID '(' real_parameter ')' . invocation_end  (102)
+	invocation_end : .  (105)
+
+	','  shift 141
+	NEW  reduce 105
+	SUPER  reduce 105
+	THIS  reduce 105
+	RETURN  reduce 105
+	IF  reduce 105
+	ELSE  reduce 105
+	END_IF  reduce 105
+	FOR  reduce 105
+	PRINT  reduce 105
+	VOID  reduce 105
+	LONG  reduce 105
+	UINT  reduce 105
+	DOUBLE  reduce 105
+	BOOLEAN  reduce 105
+	ID  reduce 105
+	'{'  reduce 105
+	'}'  reduce 105
+
+	invocation_end  goto 248
+
+
+state 241
+	if_then_else_statement : IF '(' expression ')' statement ELSE . statement END_IF invocation_end  (149)
+
+	NEW  shift 68
+	SUPER  shift 69
+	THIS  shift 70
+	RETURN  shift 41
+	IF  shift 71
+	FOR  shift 72
+	PRINT  shift 73
+	VOID  shift 14
+	LONG  shift 15
+	UINT  shift 16
+	DOUBLE  shift 17
+	BOOLEAN  shift 18
+	ID  shift 74
+	'{'  shift 75
+	','  shift 76
+	.  error
+
+	method_declaration  goto 77
+	type  goto 20
+	method_header  goto 58
+	result_type  goto 59
+	block  goto 79
+	interface_type  goto 22
+	reference_type  goto 24
+	assignment  goto 80
+	left_hand_side  goto 81
+	expression_name  goto 82
+	field_access  goto 83
+	primary  goto 84
+	class_instance_creation_expression  goto 85
+	class_type  goto 25
+	method_invocation  goto 86
+	function_invocation  goto 87
+	primitive_type  goto 26
+	numeric_type  goto 27
+	type_name  goto 28
+	integral_type  goto 29
+	floating_type  goto 30
+	return_statement  goto 89
+	statement  goto 249
+	statement_without_trailing_substatement  goto 94
+	if_then_statement  goto 95
+	if_then_else_statement  goto 96
+	for_in_range_statement  goto 97
+	print_statement  goto 98
+	empty_statement  goto 99
+	expression_statement  goto 100
+	statement_expression  goto 101
+
+
+242: shift/reduce conflict (shift 141, reduce 105) on ','
+state 242
+	if_then_statement : IF '(' expression ')' statement END_IF . invocation_end  (148)
+	invocation_end : .  (105)
+
+	','  shift 141
+	NEW  reduce 105
+	SUPER  reduce 105
+	THIS  reduce 105
+	RETURN  reduce 105
+	IF  reduce 105
+	ELSE  reduce 105
+	END_IF  reduce 105
+	FOR  reduce 105
+	PRINT  reduce 105
+	VOID  reduce 105
+	LONG  reduce 105
+	UINT  reduce 105
+	DOUBLE  reduce 105
+	BOOLEAN  reduce 105
+	ID  reduce 105
+	'{'  reduce 105
+	'}'  reduce 105
+
+	invocation_end  goto 250
+
+
+state 243
+	for_init : CTE .  (152)
+
+	.  reduce 152
+
+
+state 244
+	for_in_range_statement : FOR for_variable IN RANGE '(' for_init . for_end for_update ')' statement invocation_end  (150)
+
+	CTE  shift 251
+	.  error
+
+	for_end  goto 252
+
+
+state 245
+	multiplicative_expression : TOD '(' unary_expression ')' .  (77)
+
+	.  reduce 77
+
+
+state 246
+	method_invocation : primary '.' ID '(' ')' invocation_end .  (101)
+
+	.  reduce 101
+
+
+247: shift/reduce conflict (shift 141, reduce 105) on ','
+state 247
+	method_invocation : primary '.' ID '(' real_parameter ')' . invocation_end  (100)
+	invocation_end : .  (105)
+
+	','  shift 141
+	NEW  reduce 105
+	SUPER  reduce 105
+	THIS  reduce 105
+	RETURN  reduce 105
+	IF  reduce 105
+	ELSE  reduce 105
+	END_IF  reduce 105
+	FOR  reduce 105
+	PRINT  reduce 105
+	VOID  reduce 105
+	LONG  reduce 105
+	UINT  reduce 105
+	DOUBLE  reduce 105
+	BOOLEAN  reduce 105
+	ID  reduce 105
+	'{'  reduce 105
+	'}'  reduce 105
+
+	invocation_end  goto 253
+
+
+state 248
+	method_invocation : SUPER '.' ID '(' real_parameter ')' invocation_end .  (102)
+
+	.  reduce 102
+
+
+state 249
+	if_then_else_statement : IF '(' expression ')' statement ELSE statement . END_IF invocation_end  (149)
+
+	END_IF  shift 254
+	.  error
+
+
+state 250
+	if_then_statement : IF '(' expression ')' statement END_IF invocation_end .  (148)
+
+	.  reduce 148
+
+
+state 251
+	for_end : CTE .  (154)
+
+	.  reduce 154
+
+
+state 252
+	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end . for_update ')' statement invocation_end  (150)
+
+	CTE  shift 255
+	.  error
+
+	for_update  goto 256
+
+
+state 253
+	method_invocation : primary '.' ID '(' real_parameter ')' invocation_end .  (100)
+
+	.  reduce 100
+
+
+254: shift/reduce conflict (shift 141, reduce 105) on ','
+state 254
+	if_then_else_statement : IF '(' expression ')' statement ELSE statement END_IF . invocation_end  (149)
+	invocation_end : .  (105)
+
+	','  shift 141
+	NEW  reduce 105
+	SUPER  reduce 105
+	THIS  reduce 105
+	RETURN  reduce 105
+	IF  reduce 105
+	ELSE  reduce 105
+	END_IF  reduce 105
+	FOR  reduce 105
+	PRINT  reduce 105
+	VOID  reduce 105
+	LONG  reduce 105
+	UINT  reduce 105
+	DOUBLE  reduce 105
+	BOOLEAN  reduce 105
+	ID  reduce 105
+	'{'  reduce 105
+	'}'  reduce 105
+
+	invocation_end  goto 257
+
+
+state 255
+	for_update : CTE .  (153)
+
+	.  reduce 153
+
+
+state 256
+	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update . ')' statement invocation_end  (150)
+
+	')'  shift 258
+	.  error
+
+
+state 257
+	if_then_else_statement : IF '(' expression ')' statement ELSE statement END_IF invocation_end .  (149)
+
+	.  reduce 149
+
+
+state 258
+	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update ')' . statement invocation_end  (150)
+
+	NEW  shift 68
+	SUPER  shift 69
+	THIS  shift 70
+	RETURN  shift 41
+	IF  shift 71
+	FOR  shift 72
+	PRINT  shift 73
+	VOID  shift 14
+	LONG  shift 15
+	UINT  shift 16
+	DOUBLE  shift 17
+	BOOLEAN  shift 18
+	ID  shift 74
+	'{'  shift 75
+	','  shift 76
+	.  error
+
+	method_declaration  goto 77
+	type  goto 20
+	method_header  goto 58
+	result_type  goto 59
+	block  goto 79
+	interface_type  goto 22
+	reference_type  goto 24
+	assignment  goto 80
+	left_hand_side  goto 81
+	expression_name  goto 82
+	field_access  goto 83
+	primary  goto 84
+	class_instance_creation_expression  goto 85
+	class_type  goto 25
+	method_invocation  goto 86
+	function_invocation  goto 87
+	primitive_type  goto 26
+	numeric_type  goto 27
+	type_name  goto 28
+	integral_type  goto 29
+	floating_type  goto 30
+	return_statement  goto 89
+	statement  goto 259
+	statement_without_trailing_substatement  goto 94
+	if_then_statement  goto 95
+	if_then_else_statement  goto 96
+	for_in_range_statement  goto 97
+	print_statement  goto 98
+	empty_statement  goto 99
+	expression_statement  goto 100
+	statement_expression  goto 101
+
+
+259: shift/reduce conflict (shift 141, reduce 105) on ','
+state 259
+	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update ')' statement . invocation_end  (150)
+	invocation_end : .  (105)
+
+	','  shift 141
+	NEW  reduce 105
+	SUPER  reduce 105
+	THIS  reduce 105
+	RETURN  reduce 105
+	IF  reduce 105
+	ELSE  reduce 105
+	END_IF  reduce 105
+	FOR  reduce 105
+	PRINT  reduce 105
+	VOID  reduce 105
+	LONG  reduce 105
+	UINT  reduce 105
+	DOUBLE  reduce 105
+	BOOLEAN  reduce 105
+	ID  reduce 105
+	'{'  reduce 105
+	'}'  reduce 105
+
+	invocation_end  goto 260
+
+
+state 260
+	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update ')' statement invocation_end .  (150)
+
+	.  reduce 150
+
+
+Rules never reduced:
+	literal : CTE  (94)
+	function_invocation : ID '(' real_parameter ')' invocation_end  (106)
+	function_invocation : ID '(' ')' invocation_end  (107)
+	statement_expression_list : statement_expression  (155)
+	statement_expression_list : statement_expression_list ';' statement_expression  (156)
+
+
+State 7 contains 1 reduce/reduce conflict.
+State 28 contains 2 reduce/reduce conflicts.
+State 50 contains 1 reduce/reduce conflict.
+State 57 contains 1 shift/reduce conflict.
+State 78 contains 1 shift/reduce conflict.
+State 93 contains 1 shift/reduce conflict.
+State 129 contains 1 shift/reduce conflict.
+State 139 contains 1 shift/reduce conflict.
+State 164 contains 1 shift/reduce conflict.
+State 197 contains 18 reduce/reduce conflicts.
+State 198 contains 1 shift/reduce conflict.
+State 217 contains 1 shift/reduce conflict.
+State 225 contains 18 reduce/reduce conflicts.
+State 237 contains 1 shift/reduce conflict.
+State 240 contains 1 shift/reduce conflict.
+State 242 contains 1 shift/reduce conflict.
+State 247 contains 1 shift/reduce conflict.
+State 254 contains 1 shift/reduce conflict.
+State 259 contains 1 shift/reduce conflict.
+
+
+48 terminals, 89 nonterminals
+160 grammar rules, 261 states

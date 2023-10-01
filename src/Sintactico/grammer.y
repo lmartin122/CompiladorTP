@@ -5,29 +5,399 @@ import java.util.Scanner;
 import Tools.Logger;
 %}
 
-%token IF THEN ELSE END_IF CLASS VOID ID CTE_INT FOR PRINT CADENA INTEGER FLOAT ULONGINT ASING COMP_IGUAL COMP_MENOR_IGUAL COMP_MAYOR_IGUAL COMP_DISTINTO STRUCT CTE_ULON RETURN FUNC
+%token       
+CLASS INTERFACE IMPLEMENT NEW SUPER THIS
+FUNC RETURN
+IF ELSE END_IF FOR IN RANGE IMPL PRINT TOD
+EQUAL_OPERATOR NOT_EQUAL_OPERATOR GREATER_THAN_OR_EQUAL_OPERATOR LESS_THAN_OR_EQUAL_OPERATOR MINUS_ASSIGN
+VOID LONG UINT DOUBLE BOOLEAN CADENA ID CTE
 %start program
 
 %%
+/*
 
-program : asing
+>>>     PROGRAM
+
+*/
+program : type_declarations 
+        | type_declaration
 ;
 
-asing   : ID ASING expr ';'
+/*
+
+>>>     DECLARATIONS
+
+*/
+type_declarations : type_declaration 
+                  | type_declarations type_declaration
 ;
 
-expr    : expr '+' expr
-        | expr '-' expr
-        | term
+type_declaration : class_declaration 
+                 | function_declaration 
+                 | interface_declaration
+                 | implement_for_declaration
 ;
 
-term    : term '*' fact 
-        | term '/' fact
-        | fact
+class_declaration : CLASS ID class_body 
+                  | CLASS ID interfaces class_body 
 ;
 
-fact    : ID
-        | CTE_ULON
+class_body : '{' class_body_declarations '}' 
+;
+
+class_body_declarations : class_body_declaration 
+                        | class_body_declarations class_body_declaration
+;
+
+class_body_declaration : class_member_declaration 
+                       | constructor_declaration
+;
+
+class_member_declaration : field_declaration 
+                         | method_declaration
+;
+
+field_declaration : type variable_declarators ','
+;
+
+variable_declarators : variable_declarator 
+                     | variable_declarators ';' variable_declarator
+;
+
+variable_declarator : variable_declarator_id 
+                    | variable_declarator_id '=' variable_initializer
+;
+
+variable_declarator_id : ID
+;
+
+variable_initializer : expression
+;
+
+method_declaration : method_header method_body 
+;
+
+method_header : result_type method_declarator
+;
+
+// Chequear si el tipo de returno solo es de void 
+result_type : type 
+            | VOID
+;
+
+method_declarator : ID '(' formal_parameter ')' 
+                  | ID '(' ')' 
+;
+
+// Permito la creacion de multiples block en un metodo, se debe chequear que luego permita
+// un nivel de anidamiento
+method_body : block 
+            | ',' // Propotipo de metodo -> ID '(' ')' ',' sin block
+;
+
+/*
+Se permite hasta un parámetro, y puede no haber parámetros.
+Este chequeo debe efectuarse durante el Análisis Sintáctico
+
+formal_parameter_list : formal_parameter
+;
+*/
+formal_parameter : type variable_declarator_id
+;
+
+// Deberia ser una expresion? le permitiria hacer ID ( a  = 3 ) por ejemplo
+real_parameter : right_hand_side
+;
+
+// No se si hace falta el constructor pero lo dejo por las dudas, me falta el cuerpo?
+constructor_declaration : simple_type_name formal_parameter
+;
+
+simple_type_name : ID 
+;
+
+interfaces : IMPLEMENT interface_type_list
+;
+
+interface_type_list : interface_type 
+                    | interface_type_list ';' interface_type
+;
+
+interface_declaration : INTERFACE ID interface_body
+;
+
+interface_body : '{' interface_member_declaration '}' 
+               | '{' '}' ','
+;
+
+interface_member_declaration :  interface_method_declaration 
+                             | interface_member_declaration interface_method_declaration
+;
+
+interface_method_declaration : result_type method_declarator
+;
+
+function_declaration : FUNC function_header function_body 
+                     | FUNC function_header {Logger.logError(0, "Es necesario implementar el cuerpo de la funcion.");}
+;
+
+function_header : result_type function_declarator
+;
+
+function_declarator : ID '(' formal_parameter ')' 
+                    | ID '(' ')' 
+;
+
+function_body : function_block 
+;
+
+implement_for_declaration : IMPL FOR reference_type ':' implement_for_body 
+                          | IMPL FOR reference_type ':' {Logger.logError(0, "Es necesario implementar el cuerpo del metodo.");}
+;
+
+implement_for_body : '{' implement_for_body_declarations '}' 
+;
+
+implement_for_body_declarations : implement_for_body_declaration 
+                                | implement_for_body_declarations implement_for_body_declaration
+;
+
+implement_for_body_declaration : implement_for_method_declaration
+;
+
+implement_for_method_declaration : method_header implement_for_method_body 
+;
+
+implement_for_method_body : method_body
+;
+
+/*
+
+>>>     EXPRESSIONS
+
+*/
+expression : assignment
+;
+
+assignment : left_hand_side assignment_operator right_hand_side 
+;
+
+left_hand_side : expression_name 
+               | field_access
+;
+
+right_hand_side : equality_expression 
+;
+
+equality_expression : relational_expression 
+                    | equality_expression EQUAL_OPERATOR relational_expression 
+                    | equality_expression NOT_EQUAL_OPERATOR relational_expression
+;
+
+relational_expression : additive_expression 
+                      | relational_expression '<' additive_expression
+                      | relational_expression '>' additive_expression
+                      | relational_expression GREATER_THAN_OR_EQUAL_OPERATOR additive_expression
+                      | relational_expression LESS_THAN_OR_EQUAL_OPERATOR additive_expression
+;
+
+additive_expression : multiplicative_expression 
+                    | additive_expression '+' multiplicative_expression 
+                    | additive_expression '-' multiplicative_expression
+;
+
+multiplicative_expression : unary_expression 
+                          | TOD '(' unary_expression ')' // Conversion explicita
+                          | multiplicative_expression '*' unary_expression
+                          | multiplicative_expression '/' unary_expression
+                          | multiplicative_expression '%' unary_expression
+;
+
+unary_expression : term | expression_name
+;
+
+term : factor
+     | '(' right_hand_side ')'
+;
+
+factor : CTE
+;
+
+expression_name : ID
+;
+
+field_access : primary'.' ID 
+             | SUPER'.' ID 
+;
+
+assignment_operator : '=' 
+                    | MINUS_ASSIGN 
+;
+
+primary : THIS 
+        | class_instance_creation_expression 
+        | field_access 
+;
+
+literal: CTE
+;
+
+// Chequear si es necesario poner la instanciacion de una clase
+class_instance_creation_expression : NEW class_type '(' real_parameter ')' 
+                                   | NEW class_type '(' ')' 
+                                   | NEW class_type {Logger.logError(0, "Se esperaba un \'(\'.");}
+;
+
+
+// Chequear si hay que poner super o puede ser la misma regla gramatical para las funciones y metodos
+method_invocation : ID '(' real_parameter ')' invocation_end 
+                  | ID '(' ')' invocation_end
+                  | primary'.'ID '(' real_parameter ')' invocation_end 
+                  | primary'.'ID '(' ')' invocation_end
+                  | SUPER'.'ID '(' real_parameter ')' invocation_end 
+                  | SUPER'.'ID '(' ')' invocation_end 
+;
+
+invocation_end : ','
+               | {Logger.logError(0, "Se esperaba una \",\".");}
+;
+
+function_invocation : ID '(' real_parameter ')' invocation_end
+                    | ID '(' ')' invocation_end
+;
+
+/*
+
+>>>     TYPES
+
+*/
+type : primitive_type 
+     | reference_type
+;
+
+// No se si hace falta el boolean
+primitive_type : numeric_type 
+               | BOOLEAN
+;
+
+// Se puede utilizar impl for para una interfaz? supongo que no
+reference_type : class_type 
+               | interface_type
+;
+
+class_type : type_name
+;
+
+interface_type : type_name
+;
+
+numeric_type : integral_type 
+             | floating_type
+;
+
+// Chequear si tenemos que implementar mas tipos    
+integral_type : UINT 
+              | LONG 
+;
+
+floating_type : DOUBLE
+;
+
+
+type_name : ID
+;
+
+/*
+
+>>>     BLOCKS AND COMMANDS
+
+*/
+block : '{' block_statements '}' 
+      | '{' '}'
+;
+
+//Chequear si solamente las funciones tienen que tener retorno y de forma obligatoria
+function_block : '{' block_statements return_statement '}' 
+               | return_statement
+               | '{' block_statements '}' {Logger.logError(0, "Es necesario declarar el returno de la funcion.");} 
+
+
+block_statements : block_statement 
+                 | block_statements block_statement
+;
+
+block_statement : local_variable_declaration_statement 
+                | statement
+;
+
+local_variable_declaration_statement : local_variable_declaration invocation_end 
+;
+
+local_variable_declaration : type variable_declarators
+;
+
+// Creo que va aca method_declaration y print_statement
+statement : statement_without_trailing_substatement
+          | if_then_statement 
+          | if_then_else_statement 
+          | for_in_range_statement
+          | method_declaration //Es con los metodos? Esta bien declarar un metodo prototipo?
+          | print_statement
+;
+
+statement_without_trailing_substatement : block 
+                                        | empty_statement
+                                        | expression_statement
+                                        | return_statement
+;
+
+
+expression_statement : statement_expression
+;
+
+statement_expression : assignment 
+                     | method_invocation
+                     | function_invocation
+;
+
+empty_statement : ','
+;
+
+if_then_statement : IF '(' expression ')' statement END_IF invocation_end 
+; 
+
+if_then_else_statement : IF '(' expression ')' statement ELSE statement END_IF invocation_end 
+;
+
+
+for_in_range_statement : FOR for_variable IN RANGE '(' for_init ; for_end ; for_update ')' statement invocation_end 
+
+
+//Chequear si solo son CTE o pueden ser expresiones tambien, aunque tengo que tener
+//cuidado ya que la expresion me permite un ID
+for_variable : ID
+;
+
+for_init : CTE
+;
+
+for_update : CTE
+;
+
+for_end : CTE
+;
+
+statement_expression_list : statement_expression 
+                          | statement_expression_list ';' statement_expression
+;
+
+print_statement : PRINT CADENA invocation_end 
+                | PRINT {Logger.logError(0, "Se esperaba una cadena.");}
+;
+
+// Creo que solo podemos tener funciones y metodos del tipo void
+// return_statement : RETURN expression ',' | RETURN ','
+return_statement : RETURN','
 ;
 
 %%
