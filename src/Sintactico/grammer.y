@@ -11,6 +11,11 @@ FUNC RETURN
 IF ELSE END_IF FOR IN RANGE IMPL PRINT TOD
 EQUAL_OPERATOR NOT_EQUAL_OPERATOR GREATER_THAN_OR_EQUAL_OPERATOR LESS_THAN_OR_EQUAL_OPERATOR MINUS_ASSIGN
 VOID LONG UINT DOUBLE BOOLEAN CADENA ID CTE
+
+// Precedencia 
+%left '+' '-'
+%left '*' '/'
+
 %start program
 
 %%
@@ -58,6 +63,7 @@ class_member_declaration : field_declaration
 ;
 
 field_declaration : type variable_declarators ','
+                  | error ',' //Descartar tokens hasta la coma, modo panico
 ;
 
 variable_declarators : variable_declarator 
@@ -105,8 +111,8 @@ formal_parameter_list : formal_parameter
 formal_parameter : type variable_declarator_id
 ;
 
-// Deberia ser una expresion? le permitiria hacer ID ( a  = 3 ) por ejemplo
-real_parameter : right_hand_side
+// Deberia ser una asignacion? le permitiria hacer ID ( a  = 3 ) por ejemplo
+real_parameter : expression
 ;
 
 // No se si hace falta el constructor pero lo dejo por las dudas, me falta el cuerpo?
@@ -176,17 +182,14 @@ implement_for_method_body : method_body
 >>>     EXPRESSIONS
 
 */
-expression : assignment
-;
-
-assignment : left_hand_side assignment_operator right_hand_side 
+assignment : left_hand_side assignment_operator expression
 ;
 
 left_hand_side : expression_name 
                | field_access
 ;
 
-right_hand_side : equality_expression 
+expression : equality_expression 
 ;
 
 equality_expression : relational_expression 
@@ -217,7 +220,7 @@ unary_expression : term | expression_name
 ;
 
 term : factor
-     | '(' right_hand_side ')'
+     | '(' expression ')'
 ;
 
 factor : CTE
@@ -363,10 +366,10 @@ statement_expression : assignment
 empty_statement : ','
 ;
 
-if_then_statement : IF '(' expression ')' statement END_IF invocation_end 
+if_then_statement : IF '(' assignment ')' statement END_IF invocation_end 
 ; 
 
-if_then_else_statement : IF '(' expression ')' statement ELSE statement END_IF invocation_end 
+if_then_else_statement : IF '(' assignment ')' statement ELSE statement END_IF invocation_end 
 ;
 
 
@@ -407,12 +410,11 @@ private static AnalizadorLexico aLexico;
 // This method is the one where BYACC/J expects to obtain its input tokens. 
 // Wrap any file/string scanning code you have in this function. This method should return <0 if there is an error, and 0 when it encounters the end of input. See the examples to clarify what we mean.
 int yylex() {
-    
     int token = -1;
     while (!aLexico.hasFinishedTokenizer()) {
         token = aLexico.generateToken();
         if(token >= 0 ){ // deberia devolver cuando llega a un estado final
-            // yyval = new ParserVal(token);
+            // yyval = new ParserVal(token); //genera la referencia a la tabla de simbolos?
             return token;
         }
 
