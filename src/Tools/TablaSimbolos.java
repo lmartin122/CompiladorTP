@@ -9,11 +9,10 @@ public class TablaSimbolos {
     public static final String valorLexema = "lexema";
     // private static int identifierNumber = 0;
 
-    public static void addSymbol(String new_symbol) {
+    public static void addIdentificador(String new_symbol) {
         Map<String, String> values = new HashMap<>();
-        values.put(valorLexema, new_symbol);
-        tablaSimbolos.put(valorLexema, values);
-        // identifierNumber += 1;
+        values.put("uso","identificador");
+        tablaSimbolos.put(new_symbol, values);
     }
 
     /*

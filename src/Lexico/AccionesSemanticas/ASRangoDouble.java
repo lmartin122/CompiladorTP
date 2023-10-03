@@ -1,6 +1,7 @@
 package Lexico.AccionesSemanticas;
 
 import Lexico.TablaTipos;
+import Sintactico.Parser;
 import Tools.Logger;
 import Tools.ProgramReader;
 import Tools.TablaSimbolos;
@@ -8,7 +9,9 @@ import Tools.TablaSimbolos;
 import java.util.HashMap;
 
 public class ASRangoDouble implements AccionSemantica {
-
+    /*
+ACCION SEMANTICA 6
+*/
     @Override
     public int run(char simbolo, ProgramReader reader) {
         boolean error = false;
@@ -42,6 +45,6 @@ public class ASRangoDouble implements AccionSemantica {
         }
 
         this.buffer.setLength(0);
-        return 0;
+        return Parser.CTE;
     }
 }

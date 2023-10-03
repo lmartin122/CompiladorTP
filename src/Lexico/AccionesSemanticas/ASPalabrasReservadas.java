@@ -2,29 +2,46 @@ package Lexico.AccionesSemanticas;
 
 import Lexico.AnalizadorLexico;
 import Lexico.PalabrasReservadasTabla;
+import Sintactico.Parser;
 import Tools.ProgramReader;
 import Tools.TablaSimbolos;
 import Tools.Logger;
 
-public class ASPalabrasReservadas implements AccionSemantica {
+import java.util.HashMap;
+import java.util.Map;
 
-    PalabrasReservadasTabla prs; // se lee desde un archivo
+public class ASPalabrasReservadas implements AccionSemantica {
+    /*
+    ACCION SEMANTICA 3
+    */
+
+
 
     @Override
     public int run(char simbolo, ProgramReader reader) {
         String aux = this.buffer.toString();
 
-        if (!prs.getPalabrasReservadas().containsKey(aux)) {
+        if (!PalabrasReservadasTabla.p.containsKey(aux))  {
             if (aux.length() > 20) {
                 Logger.logWarning(reader.getCurrentLine(), "Identificador truncado.");
                 aux = aux.substring(0, 20);
-                TablaSimbolos.addSymbol(aux); // Lo agrego truncado a la tabla de simbolos.
             }
-        } else {
-            // deberia devolver el token de la palabra reservada.
-        }
-        buffer.setLength(0);
+            if (!TablaSimbolos.tablaSimbolos.containsKey(aux)){
+                TablaSimbolos.addIdentificador(aux);
+            };
 
-        return 0;
+            reader.returnCharacter(); //devuelvo el caracter leido de mas
+            //yylval = buffer?
+            this.buffer.setLength(0); // limpio el buffer
+            return Parser.ID;
+
+        } else {
+            reader.returnCharacter();
+            this.buffer.setLength(0);
+            //yylval = null?
+            return PalabrasReservadasTabla.p.get(aux);
+        }
+
+
     }
 }

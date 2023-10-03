@@ -1,6 +1,7 @@
 package Lexico.AccionesSemanticas;
 
 import Lexico.TablaTipos;
+import Sintactico.Parser;
 import Tools.Logger;
 import Tools.ProgramReader;
 import Tools.TablaSimbolos;
@@ -35,6 +36,6 @@ public class ASRangoEnteroLargo implements AccionSemantica {
 
         // yylval = numero ??
         this.buffer.setLength(0);
-        return 0;
+        return Parser.CTE;
     }
 }
