@@ -10,7 +10,9 @@ CLASS INTERFACE IMPLEMENT NEW SUPER THIS
 FUNC RETURN
 IF ELSE END_IF FOR IN RANGE IMPL PRINT TOD
 EQUAL_OPERATOR NOT_EQUAL_OPERATOR GREATER_THAN_OR_EQUAL_OPERATOR LESS_THAN_OR_EQUAL_OPERATOR MINUS_ASSIGN
-VOID LONG UINT DOUBLE BOOLEAN CADENA ID CTE
+VOID LONG UINT DOUBLE BOOLEAN CADENA ID CTE_DOUBLE  CTE_UINT CTE_LONG
+
+
 
 // Precedencia 
 %left '+' '-'
@@ -223,7 +225,7 @@ term : factor
      | '(' expression ')'
 ;
 
-factor : CTE
+factor : literal
 ;
 
 expression_name : ID
@@ -242,7 +244,9 @@ primary : THIS
         | field_access 
 ;
 
-literal: CTE
+literal : CTE_DOUBLE
+        | CTE_UINT 
+        | CTE_LONG
 ;
 
 // Chequear si es necesario poner la instanciacion de una clase
@@ -262,7 +266,7 @@ method_invocation : ID '(' real_parameter ')' invocation_end
 ;
 
 invocation_end : ','
-               | {Logger.logError(0, "Se esperaba una \",\".");}
+               | error {Logger.logError(0, "Se esperaba una \",\".");}
 ;
 
 function_invocation : ID '(' real_parameter ')' invocation_end
@@ -381,13 +385,13 @@ for_in_range_statement : FOR for_variable IN RANGE '(' for_init ; for_end ; for_
 for_variable : ID
 ;
 
-for_init : CTE
+for_init : literal
 ;
 
-for_update : CTE
+for_update : literal
 ;
 
-for_end : CTE
+for_end : literal
 ;
 
 statement_expression_list : statement_expression 
