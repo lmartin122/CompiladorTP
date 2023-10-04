@@ -1,0 +1,5 @@
+IF ( 2 <= 3 ) {
+	PRINT % Dos es menor a tres. %,
+} ELSE {
+	PRINT % Dos no es menor a tres. %,
+}

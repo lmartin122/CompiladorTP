@@ -1,5 +1,5 @@
 CTE_LONG abcdefghijklmnopq = -2147483648_l, *{ primer valor permitido dentro del rango, 17 caracteres  }*
-LONG bglhotkgiu = 65535_ui, *{ ultimo valor permitido dentro del rango, 10 caracteres }*
+CTE_UINT bglhotkgiu = 65535_ui, *{ ultimo valor permitido dentro del rango, 10 caracteres }*
 UINT _identificador1,
 
 IF ( abcdefghijklmnopq < bglhotkgiu ) {
@@ -9,7 +9,7 @@ IF ( abcdefghijklmnopq < bglhotkgiu ) {
 
 
 } ELSE {
-	PRINT (% El primer identificador no es menor. %),
+	PRINT % El primer identificador no es menor. %,
 }
 
 
