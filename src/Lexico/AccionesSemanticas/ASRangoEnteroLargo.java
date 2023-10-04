@@ -36,6 +36,6 @@ public class ASRangoEnteroLargo implements AccionSemantica {
 
         // yylval = numero ??
         this.buffer.setLength(0);
-        return Parser.CTE;
+        return Parser.CTE_LONG;
     }
 }

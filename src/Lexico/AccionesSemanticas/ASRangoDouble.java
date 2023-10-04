@@ -45,6 +45,6 @@ ACCION SEMANTICA 6
         }
 
         this.buffer.setLength(0);
-        return Parser.CTE;
+        return Parser.CTE_DOUBLE;
     }
 }

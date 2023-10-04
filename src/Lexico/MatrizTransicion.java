@@ -11,6 +11,25 @@ public class MatrizTransicion {
         this.matriz = new Tupla[estados][simbolos];
     }
 
+    @Override
+    public String toString() {
+        String out = "";
+        int i = 0;
+        for (Tupla<Integer, AccionSemantica>[] tuplas : matriz) {
+            out += "[" + i + "] : ";
+            for (Tupla<Integer, AccionSemantica> tupla : tuplas) {
+                if(tupla.getAs() != null){
+                    out += "[" + tupla.getEstado() + "," + tupla.getAs().getClass().getName().split("\\.")[2] + "]";
+                } else {
+                    out += "[" + tupla.getEstado() + "," + "null" + "]";
+                }
+            }
+            i++;
+            out += '\n';
+        }
+
+        return out;
+    }
     private Integer convertir(char simbolo) {
         return switch (simbolo) {
             case ' ' -> 0;
@@ -53,12 +72,16 @@ public class MatrizTransicion {
 
     public Integer nextEstado(Integer estado, char simbolo) {
         int col = convertir(simbolo);
+        System.out.println("simbolo: " + col + "/" + simbolo);
+        System.out.println("estado: " + estado);
         return matriz[estado][col].getEstado();
     };
 
     public AccionSemantica accionSemantica(Integer estado, char simbolo) {
         int col = convertir(simbolo);
-        return matriz[estado][simbolo].getAs();
+        System.out.println("simbolo: " + col + "/" + simbolo);
+        System.out.println("estado: " + estado);
+        return matriz[estado][col].getAs();
     };
 
 }

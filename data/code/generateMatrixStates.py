@@ -1,6 +1,5 @@
 import pandas as pd
 
-import pandas as pd
 
 sheet_id = {"e":"1rLdF8W5zbBylfM9_4pAV8vZYeowHRthVz-fgfouAEHE", 
             "as":"1LNSfD3MincJ71Ffr1QjJxSHvT3z4Km4R4hJusOmg97M"}
@@ -9,15 +8,15 @@ change = {"F": 20,
           "E" : -1,
           "nan": "chequear", 
           "A0": "null",
-          "A1": "",
-          "A2": "",
-          "A3": "",
-          "A4": "",
-          "A5": "",
-          "A6": "",
-          "A7": "",
-          "A8": "",
-          "A9": ""
+          "A1": "ASAnadirBuffer",
+          "A2": "ASLiterales",
+          "A3": "ASDevolverIdentificador",
+          "A4": "ASRangoEntero",
+          "A5": "ASRangoEnteroLargo",
+          "A6": "ASRangoDouble",
+          "A7": "ASChequeoOperador",
+          "A8": "ASChequeoOperador",
+          "A9": "null"
           }
         
 df_e = pd.read_csv(f"https://docs.google.com/spreadsheets/d/{sheet_id['e']}/export?format=csv")

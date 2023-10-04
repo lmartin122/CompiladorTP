@@ -10,7 +10,7 @@ import Tools.Logger;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ASPalabrasReservadas implements AccionSemantica {
+public class ASDevolverIdentificador implements AccionSemantica {
     /*
     ACCION SEMANTICA 3
     */

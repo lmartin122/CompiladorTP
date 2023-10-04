@@ -751,15 +751,9 @@ private static AnalizadorLexico aLexico;
 // Wrap any file/string scanning code you have in this function. This method should return <0 if there is an error, and 0 when it encounters the end of input. See the examples to clarify what we mean.
 int yylex() {
     int token = -1;
-    while (!aLexico.hasFinishedTokenizer()) {
-        token = aLexico.generateToken();
-        if(token >= 0 ){ // deberia devolver cuando llega a un estado final
-            // yyval = new ParserVal(token); //genera la referencia a la tabla de simbolos?
-            return token;
-        }
-
-    }
-    
+    token = aLexico.generateToken();
+    System.out.println("TOKEN: " + token);
+    // yyval = new ParserVal(token); //genera la referencia a la tabla de simbolos?
     return token;
 }
 
@@ -769,13 +763,15 @@ void yyerror(String msg) {
     System.out.println(msg);
 }
 
-public static void main (String [] args){
+public static void main (String [] args) throws ClassNotFoundException {
     System.out.println("Iniciando compilacion... ");
     System.out.print("Ingrese el nombre del archivo binario a compilar: ");
 
     Scanner scanner = new Scanner(System.in);
     String input = scanner.nextLine();
     scanner.close();
+
+
 
     aLexico = new AnalizadorLexico(input);
 
@@ -784,14 +780,19 @@ public static void main (String [] args){
     }
 
     Parser aSintactico = new Parser();
-    aSintactico.run();
 
+    //aSintactico.run();
+    for(int i = 0; i < 20; i++) {
+      System.out.println(aLexico.generateToken());
+    }
 
     Logger.logError(1, "Este es un error.");
     Logger.logWarning(2, "Esta es una advertencia.");
 
     Logger.dumpLog();
     System.out.println(aLexico.getProgram());
+
+
 }
 
 

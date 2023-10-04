@@ -9,6 +9,7 @@ public class Tupla<t1, t2> {
         this.as = second;
     }
 
+
     public t1 getEstado() {
         return estado;
     }
