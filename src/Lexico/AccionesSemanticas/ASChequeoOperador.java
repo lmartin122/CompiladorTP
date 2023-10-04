@@ -18,6 +18,7 @@ public class ASChequeoOperador  implements AccionSemantica{
                     this.buffer.append(simbolo);
                     return Parser.MINUS_ASSIGN;
                 } else {
+                    this.buffer.setLength(0);
                     reader.returnCharacter();
                     return 45;
                 }
@@ -28,6 +29,7 @@ public class ASChequeoOperador  implements AccionSemantica{
                     this.buffer.append(simbolo);
                     return Parser.LESS_THAN_OR_EQUAL_OPERATOR;
                 } else {
+                    this.buffer.setLength(0);
                     reader.returnCharacter();
                     return 60;
                 }
@@ -38,6 +40,7 @@ public class ASChequeoOperador  implements AccionSemantica{
                     this.buffer.append(simbolo);
                     return Parser.GREATER_THAN_OR_EQUAL_OPERATOR;
                 } else {
+                    this.buffer.setLength(0);
                     reader.returnCharacter();
                     return 62;
                 }
@@ -48,6 +51,7 @@ public class ASChequeoOperador  implements AccionSemantica{
                     this.buffer.append(simbolo);
                     return Parser.EQUAL_OPERATOR;
                 } else {
+                    this.buffer.setLength(0);
                     reader.returnCharacter();
                     return 61;
                 }
@@ -57,6 +61,7 @@ public class ASChequeoOperador  implements AccionSemantica{
                     this.buffer.append(simbolo);
                     return Parser.NOT_EQUAL_OPERATOR;
                 } else {
+                    this.buffer.setLength(0);
                     //ERROR, no existe el "!" solo
                     Logger.logError(reader.getCurrentLine(), "Se leyo el caracter '!' ");
                     return SIMBOL_ERROR;

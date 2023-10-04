@@ -20,6 +20,8 @@
 package Sintactico;
 import Lexico.AnalizadorLexico;
 import java.util.Scanner;
+
+import Lexico.PalabrasReservadasTabla;
 import Tools.Logger;
 //#line 22 "Parser.java"
 
@@ -781,9 +783,14 @@ public static void main (String [] args) throws ClassNotFoundException {
 
     Parser aSintactico = new Parser();
 
+    PalabrasReservadasTabla example = new PalabrasReservadasTabla(); //creo una instancia para que se ejecute el constructor y guarde todas las palabras en el mapa estatico. Si no queda vacio
+    System.out.println(PalabrasReservadasTabla.p.toString());
+
     //aSintactico.run();
-    for(int i = 0; i < 20; i++) {
-      System.out.println(aLexico.generateToken());
+    String listaTOKENS = "";
+    for(int i = 0; i < 50; i++) {
+      listaTOKENS = listaTOKENS + " " + aLexico.generateToken();
+      System.out.println(listaTOKENS);
     }
 
     Logger.logError(1, "Este es un error.");

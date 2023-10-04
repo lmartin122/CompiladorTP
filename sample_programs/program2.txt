@@ -1,7 +1,7 @@
-VOID f1 (INT b){
+VOID f1 (UINT b){
     FLOAT a,
     a = b,
-    IF(a > 0.0) *{ pregunto para despues imprimir }*
+    IF(a > 0.0d+2) *{ pregunto para despues imprimir }*
     	PRINT(%es positivo%);
     ELSE
     	PRINT(%es negativo%);

@@ -88,6 +88,7 @@ public class AnalizadorLexico {
 
     public int generateToken() {
 
+
         if (hasFinishedTokenizer())
             return 0;
 
@@ -97,24 +98,26 @@ public class AnalizadorLexico {
         AccionSemantica as = null;
         int token = -1;
 
-        while (reader.next() && estado != 20) {
+
+        while (!reader.hasFinished() && estado != 20) {
 
             char s = reader.character();
 
             as = matrizTransicion.accionSemantica(estado, s);
             estado = matrizTransicion.nextEstado(estado, s);
-
+            System.out.print("  token:" + token);
+            System.out.print("  " + reader.getCurrentColumn());
             if (as != null) {
-                System.out.println("token:" + token);
                 token = as.run(s, reader);
                 if (token < 0) {
                     error = true;
                 }
             }
-
+            System.out.println("  " + reader.getCurrentColumn());
+            reader.next();
         }
-
         return token;
+
 
     }
 

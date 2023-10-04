@@ -72,15 +72,16 @@ public class MatrizTransicion {
 
     public Integer nextEstado(Integer estado, char simbolo) {
         int col = convertir(simbolo);
-        System.out.println("simbolo: " + col + "/" + simbolo);
-        System.out.println("estado: " + estado);
+        if(col == 2){
+            System.out.print("simbolo: " + col + "/" + "\\n" + "  estado: " + estado);
+        } else{
+            System.out.print("simbolo: " + col + "/" + simbolo + "  estado: " + estado);
+        }
         return matriz[estado][col].getEstado();
     };
 
     public AccionSemantica accionSemantica(Integer estado, char simbolo) {
         int col = convertir(simbolo);
-        System.out.println("simbolo: " + col + "/" + simbolo);
-        System.out.println("estado: " + estado);
         return matriz[estado][col].getAs();
     };
 

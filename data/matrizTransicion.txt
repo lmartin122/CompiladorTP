@@ -16,8 +16,8 @@
 0;15;20;ASLiterales
 0;16;20;ASLiterales
 0;17;14;ASAnadirBuffer
-0;18;-1;-1
-0;19;-1;-1
+0;18;20;ASLiterales
+0;19;20;ASLiterales
 0;20;12;ASAnadirBuffer
 0;21;11;ASAnadirBuffer
 0;22;1;ASAnadirBuffer
@@ -48,11 +48,11 @@
 1;19;20;ASDevolverIdentificador
 1;20;20;ASDevolverIdentificador
 1;21;20;ASDevolverIdentificador
-1;22;1;ASDevolverIdentificador
-1;23;1;ASDevolverIdentificador
-1;24;1;ASDevolverIdentificador
-1;25;1;ASDevolverIdentificador
-1;26;1;ASDevolverIdentificador
+1;22;1;ASAnadirBuffer
+1;23;1;ASAnadirBuffer
+1;24;1;ASAnadirBuffer
+1;25;1;ASAnadirBuffer
+1;26;1;ASAnadirBuffer
 1;27;20;ASDevolverIdentificador
 2;0;-1;-1
 2;1;-1;-1

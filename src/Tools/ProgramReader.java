@@ -10,7 +10,7 @@ public class ProgramReader {
     public ProgramReader(String p) {
         this.program = BinaryFileReader.read(p, "sample_programs");
         this.currentLine = 0;
-        this.currentColumn = -1;
+        this.currentColumn = 0;
     }
 
     public Character character() {
@@ -18,20 +18,17 @@ public class ProgramReader {
 
     }
 
-    public boolean next() {
-        if (hasFinished())
-            return false;
-
+    public void next() {
         if (currentLine < program.size() && currentColumn < program.get(currentLine).size() - 1) {
             // Avanzamos a la siguiente columna en la misma línea
             currentColumn++;
-        } else if (currentLine < program.size() - 1) {
+        } else if (currentLine < program.size()) {
             // Avanzamos a la siguiente línea
             currentLine++;
             currentColumn = 0;
         }
 
-        return true;
+
     }
 
     public String programToString() {
@@ -54,12 +51,18 @@ public class ProgramReader {
         return this.program != null;
     }
 
+    public void nextCol() {
+        this.currentColumn++;
+    }
     public void returnCharacter() {
         currentColumn = currentColumn - 1;
     }
 
     public boolean hasFinished() {
-        return currentLine >= program.size();
+        if (currentLine == program.size()){ //si estoy en la ultima linea de codigo
+            return true;
+        }
+        return false;
     }
 
     public int getCurrentLine() {

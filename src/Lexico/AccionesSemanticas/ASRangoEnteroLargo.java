@@ -14,9 +14,9 @@ public class ASRangoEnteroLargo implements AccionSemantica {
     public int run(char simbolo, ProgramReader reader) {
         String aux = this.buffer.toString();
         boolean error = false;
-        int numero = 0;
+        Long numero = 0L;
         try {
-            numero = Integer.parseInt(aux);
+            numero = Long.parseLong(aux);
         } catch (NumberFormatException exception) {
             error = true;
         }

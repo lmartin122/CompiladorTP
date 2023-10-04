@@ -31,12 +31,13 @@ public class ASDevolverIdentificador implements AccionSemantica {
             };
 
             reader.returnCharacter(); //devuelvo el caracter leido de mas
+
             //yylval = buffer?
             this.buffer.setLength(0); // limpio el buffer
             return Parser.ID;
 
         } else {
-            reader.returnCharacter();
+            reader.returnCharacter(); //devuelvo el caracter leido de mas
             this.buffer.setLength(0);
             //yylval = null?
             return PalabrasReservadasTabla.p.get(aux);
