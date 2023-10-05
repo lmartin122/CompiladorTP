@@ -2,11 +2,9 @@ package Lexico;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import Lexico.AccionesSemanticas.ASAnadirBuffer;
 import Lexico.AccionesSemanticas.AccionSemantica;
 import Tools.BinaryFileReader;
 import Tools.ProgramReader;
@@ -27,14 +25,10 @@ public class AnalizadorLexico {
 
     private AccionSemantica toAccionSemantica(String acc) {
         acc = acc.trim();
-        if (acc.equals("null"))
+        if (acc.equals("null") || acc.equals("-1"))
             return null;
-        if (acc.equals("-1")){
-            return null;
-        }
 
         try {
-            ASAnadirBuffer a = new ASAnadirBuffer();
             // Obtener la clase a partir del nombre
             Class<?> clase = Class.forName("Lexico.AccionesSemanticas." + acc);
 
@@ -60,14 +54,14 @@ public class AnalizadorLexico {
         for (ArrayList<Character> l : data) {
             String linea[] = l.stream().map(Object::toString).collect(Collectors.joining("")).split("\\s*;\\s*");
             /*
-            for (String s : linea) {
-                System.out.println(s);
-            }
-            System.out.println(linea[0]);
-            System.out.println(linea[1]);
-            System.out.println(linea[2]);
-            System.out.println(linea[3]);
-            */
+             * for (String s : linea) {
+             * System.out.println(s);
+             * }
+             * System.out.println(linea[0]);
+             * System.out.println(linea[1]);
+             * System.out.println(linea[2]);
+             * System.out.println(linea[3]);
+             */
             try {
                 e0 = Integer.parseInt(linea[0]);
                 e1 = Integer.parseInt(linea[1]);
@@ -83,11 +77,9 @@ public class AnalizadorLexico {
                     toAccionSemantica(acc));
         }
 
-
     }
 
     public int generateToken() {
-
 
         if (hasFinishedTokenizer())
             return 0;
@@ -97,7 +89,6 @@ public class AnalizadorLexico {
         boolean error = false;
         AccionSemantica as = null;
         int token = -1;
-
 
         while (!reader.hasFinished() && estado != 20) {
 
@@ -117,7 +108,6 @@ public class AnalizadorLexico {
             reader.next();
         }
         return token;
-
 
     }
 

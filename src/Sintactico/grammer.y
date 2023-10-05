@@ -3,6 +3,7 @@ package Sintactico;
 import Lexico.AnalizadorLexico;
 import java.util.Scanner;
 import Tools.Logger;
+import java.util.ArrayList;
 %}
 
 %token       
@@ -433,13 +434,83 @@ void yyerror(String msg) {
     System.out.println(msg);
 }
 
+
+  private static ArrayList<String> listFilesInDirectory(String path) {
+    // Obtén el directorio actual
+    File element = new File(System.getProperty("user.dir") + "/" + path);
+    ArrayList<String> out = new ArrayList<>();
+
+    // Verifica si es un directorio o archivo válido
+    if (element.isDirectory() || element.isFile()) {
+      // Lista de archivos y directorios en el directorio actual
+      File[] filesAndDirs = element.listFiles();
+
+      // Itera a través de los archivos y directorios
+      int i = 0;
+      for (File fileOrDir : filesAndDirs) {
+        String name = fileOrDir.getName();
+        System.out.println("[" + i + "]" + ": " + name);
+        out.add(name);
+        i++;
+      }
+    } else {
+      System.err.println("No es un directorio válido.");
+    }
+
+    return out;
+  }
+
+  private static String generatePath() {
+    ArrayList<String> directories = listFilesInDirectory("sample_programs");
+    String path = "";
+
+    if (!directories.isEmpty()) {
+      Scanner scanner = new Scanner(System.in);
+      int indice = -1;
+
+      while (indice < 0) {
+        System.out.print("Ingrese el numero de carpeta a acceder: ");
+        String input = scanner.nextLine();
+        indice = Integer.parseInt(input);
+        if (indice < directories.size() || indice >= 0) {
+          path = directories.get(indice);
+          directories = listFilesInDirectory("sample_programs" + "/" + path);
+        } else {
+          System.out.println("El indice no es correcto, ingrese nuevamente...");
+          indice = -1;
+        }
+
+      }
+
+      if (!directories.isEmpty()) {
+        indice = -1;
+
+        while (indice < 0) {
+
+          System.out.print("Ingrese el numero de archivo binario a compilar: ");
+          String input = scanner.nextLine();
+          indice = Integer.parseInt(input);
+
+          if (indice < directories.size() || indice >= 0) {
+            path += "/" + directories.get(Integer.parseInt(input));
+          } else {
+
+            System.out.println("El indice no es correcto, ingrese nuevamente...");
+            indice = -1;
+          }
+
+        }
+      }
+      scanner.close();
+    }
+    return path;
+  }
+
+
 public static void main (String [] args){
     System.out.println("Iniciando compilacion... ");
-    System.out.print("Ingrese el nombre del archivo binario a compilar: ");
 
-    Scanner scanner = new Scanner(System.in);
-    String input = scanner.nextLine();
-    scanner.close();
+    String input = generatePath();
 
     aLexico = new AnalizadorLexico(input);
 
