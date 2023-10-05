@@ -504,7 +504,7 @@
 17;27;16;null
 18;0;19;ASAnadirBuffer
 18;1;19;ASAnadirBuffer
-18;2;19;null
+18;2;19;ASAnadirBuffer
 18;3;19;ASAnadirBuffer
 18;4;19;ASAnadirBuffer
 18;5;19;ASAnadirBuffer
@@ -512,7 +512,7 @@
 18;7;19;ASAnadirBuffer
 18;8;19;ASAnadirBuffer
 18;9;19;ASAnadirBuffer
-18;10;20;ASChequeoOperador
+18;10;20;ASCadena
 18;11;19;ASAnadirBuffer
 18;12;19;ASAnadirBuffer
 18;13;19;ASAnadirBuffer
@@ -532,7 +532,7 @@
 18;27;19;ASAnadirBuffer
 19;0;19;ASAnadirBuffer
 19;1;19;ASAnadirBuffer
-19;2;19;null
+19;2;19;ASAnadirBuffer
 19;3;19;ASAnadirBuffer
 19;4;19;ASAnadirBuffer
 19;5;19;ASAnadirBuffer
@@ -540,7 +540,7 @@
 19;7;19;ASAnadirBuffer
 19;8;19;ASAnadirBuffer
 19;9;19;ASAnadirBuffer
-19;10;20;ASChequeoOperador
+19;10;20;ASCadena
 19;11;19;ASAnadirBuffer
 19;12;19;ASAnadirBuffer
 19;13;19;ASAnadirBuffer

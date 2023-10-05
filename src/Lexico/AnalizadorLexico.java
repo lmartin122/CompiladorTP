@@ -97,14 +97,14 @@ public class AnalizadorLexico {
             as = matrizTransicion.accionSemantica(estado, s);
             estado = matrizTransicion.nextEstado(estado, s);
             System.out.print("  token:" + token);
-            System.out.print("  " + reader.getCurrentColumn());
+
             if (as != null) {
                 token = as.run(s, reader);
                 if (token < 0) {
                     error = true;
                 }
             }
-            System.out.println("  " + reader.getCurrentColumn());
+            System.out.println();
             reader.next();
         }
         return token;
