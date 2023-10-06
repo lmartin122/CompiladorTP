@@ -16,7 +16,9 @@ change = {"F": 20,
           "A6": "ASRangoDouble",
           "A7": "ASChequeoOperador",
           "A8": "ASChequeoOperador",
-          "A9": "null"
+          "A9": "null",
+          "A10": "AScadena",
+          "A11": "AsLimpiarBuffer"
           }
         
 df_e = pd.read_csv(f"https://docs.google.com/spreadsheets/d/{sheet_id['e']}/export?format=csv")

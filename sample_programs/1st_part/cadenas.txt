@@ -1,4 +1,4 @@
-IF ( 2 <= 3 ) {
+IF ( 2_l <= 3_ui ) {
 	PRINT % Dos es menor a tres. %,
 } ELSE {
 	PRINT % Dos no es menor a tres. %,

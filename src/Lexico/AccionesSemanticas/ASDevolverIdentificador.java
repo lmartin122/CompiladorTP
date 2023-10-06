@@ -22,6 +22,7 @@ public class ASDevolverIdentificador implements AccionSemantica {
         String aux = this.buffer.toString();
 
         if (!PalabrasReservadasTabla.p.containsKey(aux))  {
+            System.out.println(" IDENTIFICADOR ENCONTRADO: " + aux);
             if (aux.length() > 20) {
                 Logger.logWarning(reader.getCurrentLine(), "Identificador truncado.");
                 aux = aux.substring(0, 20);
@@ -37,6 +38,7 @@ public class ASDevolverIdentificador implements AccionSemantica {
             return Parser.ID;
 
         } else {
+            System.out.println(" PALABRA RESERVADA: " + aux);
             reader.returnCharacter(); //devuelvo el caracter leido de mas
             this.buffer.setLength(0);
             //yylval = null?

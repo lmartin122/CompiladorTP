@@ -9,6 +9,9 @@ import Tools.TablaSimbolos;
 import java.util.HashMap;
 
 public class ASRangoEntero implements AccionSemantica {
+    /*
+    ACCION SEMANTICA 4
+     */
     @Override
     public int run(char simbolo, ProgramReader reader) {
         String aux = this.buffer.toString();
@@ -22,17 +25,20 @@ public class ASRangoEntero implements AccionSemantica {
 
         if (!error && numero <= (int) Math.pow(2, 16) - 1) {
 
+            System.out.println("IF");
             if (!TablaSimbolos.tablaSimbolos.containsKey(String.valueOf(numero))) { // si la constante no está
+                System.out.print(" ENTERO UI AÑADIDO");
                 HashMap<String, String> auxMap = new HashMap<String, String>();
                 auxMap.put("tipo", TablaTipos.UINT_TYPE);
 
                 TablaSimbolos.tablaSimbolos.put(String.valueOf(numero), auxMap);
             }
         } else {
+            System.out.print(" UI entero fuera de rango");
             Logger.logError(reader.getCurrentLine(), "Unsigned entero fuera de rango");
             // Hacer algo con yylval ??
         }
-
+        System.out.println("ACCION SEMANTICA 4");
         // yylval = numero ??
         this.buffer.setLength(0);
         return Parser.CTE_UINT;

@@ -15,7 +15,8 @@ public class ASChequeoOperador  implements AccionSemantica{
         switch (auxBuffer){
             case "-":
                 if(simbolo == '='){
-                    this.buffer.append(simbolo);
+
+                    this.buffer.setLength(0);
                     return Parser.MINUS_ASSIGN;
                 } else {
                     this.buffer.setLength(0);
@@ -26,7 +27,8 @@ public class ASChequeoOperador  implements AccionSemantica{
 
             case "<":
                 if(simbolo == '='){
-                    this.buffer.append(simbolo);
+
+                    this.buffer.setLength(0);
                     return Parser.LESS_THAN_OR_EQUAL_OPERATOR;
                 } else {
                     this.buffer.setLength(0);
@@ -37,7 +39,8 @@ public class ASChequeoOperador  implements AccionSemantica{
 
             case ">":
                 if(simbolo == '='){
-                    this.buffer.append(simbolo);
+
+                    this.buffer.setLength(0);
                     return Parser.GREATER_THAN_OR_EQUAL_OPERATOR;
                 } else {
                     this.buffer.setLength(0);
@@ -48,7 +51,8 @@ public class ASChequeoOperador  implements AccionSemantica{
 
             case "=":
                 if(simbolo == '='){
-                    this.buffer.append(simbolo);
+
+                    this.buffer.setLength(0);
                     return Parser.EQUAL_OPERATOR;
                 } else {
                     this.buffer.setLength(0);
@@ -58,7 +62,8 @@ public class ASChequeoOperador  implements AccionSemantica{
 
             case "!":
                 if(simbolo == '!'){
-                    this.buffer.append(simbolo);
+
+                    this.buffer.setLength(0);
                     return Parser.NOT_EQUAL_OPERATOR;
                 } else {
                     this.buffer.setLength(0);

@@ -24,12 +24,14 @@ public class ASRangoEnteroLargo implements AccionSemantica {
         if (!error && numero <= (int) Math.pow(2, 31)) {
 
             if (!TablaSimbolos.tablaSimbolos.containsKey(String.valueOf(numero))) { // si la constante no está
+                System.out.print(" ENTERO LARGO AÑADIDO");
                 HashMap<String, String> auxMap = new HashMap<String, String>();
                 auxMap.put("tipo", TablaTipos.LONG_TYPE);
 
                 TablaSimbolos.tablaSimbolos.put(String.valueOf(numero), auxMap);
             }
         } else {
+            System.out.print(" LONG entero fuera de rango");
             Logger.logError(reader.getCurrentLine(), "Entero long fuera de rango");
             // Hacer algo con yylval ??
         }
@@ -39,3 +41,6 @@ public class ASRangoEnteroLargo implements AccionSemantica {
         return Parser.CTE_LONG;
     }
 }
+
+
+

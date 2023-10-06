@@ -22,6 +22,7 @@ import java.util.Scanner;
 
 import Lexico.PalabrasReservadasTabla;
 import Tools.Logger;
+import Tools.TablaSimbolos;
 //#line 22 "Parser.java"
 
 public class Parser {
@@ -851,7 +852,7 @@ public class Parser {
 
     Parser aSintactico = new Parser();
 
-    // PalabrasReservadasTabla example = new PalabrasReservadasTabla(); // creo una
+    PalabrasReservadasTabla example = new PalabrasReservadasTabla(); // creo una
     // instancia para que se ejecute el
     // constructor y guarde todas las palabras en el
     // mapa estatico. Si no queda vacio
@@ -859,10 +860,14 @@ public class Parser {
 
     // aSintactico.run();
     String listaTOKENS = "";
-    for (int i = 0; i < 50; i++) {
-      listaTOKENS = listaTOKENS + " " + aLexico.generateToken();
+    int token = -1;
+    while (token != 0) {
+      token = aLexico.generateToken();
+      listaTOKENS = listaTOKENS + " " + token;
       System.out.println(listaTOKENS);
     }
+      System.out.println(TablaSimbolos.tablaSimbolos.toString());
+
 
     Logger.logError(1, "Este es un error.");
     Logger.logWarning(2, "Esta es una advertencia.");

@@ -30,11 +30,13 @@ ACCION SEMANTICA 6
             error = true;
         }
 
-        if (numero > 1.7976931348623157D + 308 || numero < 2.2250738585072014D - 308 || error) {
+        if (numero > 1.7976931348623157D * Math.pow(10,308) || numero < 2.2250738585072014D  * -Math.pow(10,308) || error) {
+            System.out.print(" double fuera de rango");
             Logger.logError(reader.getCurrentLine(), "Float fuera de rango");
 
         } else {
             if (!TablaSimbolos.tablaSimbolos.containsKey(String.valueOf(numero))) {
+                System.out.print(" DOUBLE AÑADIDO");
                 HashMap<String, String> auxMap = new HashMap<String, String>();
                 auxMap.put("tipo", TablaTipos.DOUBLE_TYPE);
 

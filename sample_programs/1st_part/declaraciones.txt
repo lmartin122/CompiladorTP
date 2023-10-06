@@ -1,4 +1,4 @@
 CTE_UINT bglhotkgfegqwssfaiu = 65535_ui, 
-DOUBLE f,
+DOUBLE f = 10.34D+5,
 CTE_LONG abcdefghijklmnopqfpgotlrksosqsa = -2147483648_l, 
 UINT _identificador1,
