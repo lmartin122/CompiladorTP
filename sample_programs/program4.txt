@@ -1,3 +1,0 @@
-a = % hola
-mundo
- pepe %,

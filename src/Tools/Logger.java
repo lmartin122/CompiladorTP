@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public final class Logger {
 
-    private static final String LOG_FILE = "/log.txt";
+    private static final String LOG_FILE = "/output/log.txt";
     private static final ArrayList<String> warnings = new ArrayList<>();
     private static final ArrayList<String> errors = new ArrayList<>();
 

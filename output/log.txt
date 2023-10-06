@@ -1,0 +1,2 @@
+WARNING en la linea 2: Esta es una advertencia..
+ERROR en la linea 1: Este es un error..
