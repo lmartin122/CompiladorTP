@@ -1,0 +1,6 @@
+IMPL FOR a: { 
+	VOID  { 
+		FOR b IN RANGE ( 0_l ; 10_l ; 1_ui ) 
+			PRINT % hola todo bien 10 veces % ,
+	} 
+}
