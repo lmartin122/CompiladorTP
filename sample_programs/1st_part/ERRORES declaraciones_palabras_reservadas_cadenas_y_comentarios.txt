@@ -1,0 +1,9 @@
+CTE_LONG abcdefghijklmnopqufjtkgilhokd = -214747_l, *{ primer valor fuera del rango }*
+CTE_UINT bglhotkgiu = 65536_ui, *{ primer fuera del rango }*
+UINT abc$_id, *{ nombre de id invalido }*
+
+if ( abcdefghijklmnopqufjtkgilhokd < bglhotkgiu ) {
+	print % El primer identificador es menor. 
+} else {
+	print % El primer identificador no es menor. %,
+}
