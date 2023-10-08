@@ -314,7 +314,9 @@ if_then_statement : IF '(' expression ')' executable_block END_IF ','
 ; 
 
 if_then_else_statement : IF '(' expression ')' executable_block ELSE executable_block END_IF ','
+                       | IF '(' expression ')' executable_block ELSE executable_statament END_IF ','
                        | IF '(' expression ')' executable_statament ELSE executable_statament END_IF ','
+                       | IF '(' expression ')' executable_statament ELSE executable_block END_IF ','
 ;
 
 for_in_range_statement : FOR for_variable IN RANGE '(' for_init ; for_end ; for_update ')' executable_block ','
