@@ -63,8 +63,8 @@ public class MatrizTransicion {
             case 'D' -> 24;
             case 'd' -> 25;
             case 'i' -> 26;
-            case ':' -> 27;
-            default -> 28;
+            case ':' -> 28;
+            default -> 27;
         };
     }
 

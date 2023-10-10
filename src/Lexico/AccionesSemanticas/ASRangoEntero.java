@@ -35,7 +35,11 @@ public class ASRangoEntero implements AccionSemantica {
                 TablaSimbolos.tablaSimbolos.put(String.valueOf(numero), auxMap);
             }
         } else {
-            System.out.print(" UI entero fuera de rango");
+            HashMap<String, String> auxMap = new HashMap<String, String>();
+            auxMap.put("tipo", TablaTipos.UINT_TYPE);
+
+            TablaSimbolos.tablaSimbolos.put(String.valueOf(Math.pow(2, 16) - 1), auxMap);
+            System.out.print(" UI entero fuera de rango, se convirtio al maximo permitido");
             Logger.logError(reader.getCurrentLine(), "Unsigned entero fuera de rango");
             // Hacer algo con yylval ??
         }
