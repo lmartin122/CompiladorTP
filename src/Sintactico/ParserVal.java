@@ -66,6 +66,10 @@ public class ParserVal {
   public ParserVal(Object val) {
     obj = val;
   }
+
+  public String toString() {
+    return "" + this.sval;
+  }
 }// end class
 
 // #############################################

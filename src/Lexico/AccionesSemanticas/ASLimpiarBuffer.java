@@ -1,11 +1,12 @@
 package Lexico.AccionesSemanticas;
 
 import Tools.ProgramReader;
+import Tools.Tupla;
 
-public class ASLimpiarBuffer implements AccionSemantica{
+public class ASLimpiarBuffer implements AccionSemantica {
     @Override
-    public int run(char simbolo, ProgramReader reader) {
-        this.buffer.setLength(0);
-        return 0;
+    public Tupla<String, Short> run(char simbolo, ProgramReader reader) {
+        buffer.setLength(0);
+        return null;
     }
 }

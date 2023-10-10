@@ -3,77 +3,74 @@ package Lexico.AccionesSemanticas;
 import Sintactico.Parser;
 import Tools.Logger;
 import Tools.ProgramReader;
+import Tools.Tupla;
 
-public class ASChequeoOperador  implements AccionSemantica{
+public class ASChequeoOperador implements AccionSemantica {
     /*
-    ACCION SEMANTICA 7 y 8
-    */
+     * ACCION SEMANTICA 7 y 8
+     */
     @Override
-    public int run(char simbolo, ProgramReader reader) {
-        String auxBuffer = this.buffer.toString();
+    public Tupla<String, Short> run(char simbolo, ProgramReader reader) {
+        String auxBuffer = buffer.toString();
 
-        switch (auxBuffer){
+        switch (auxBuffer) {
             case "-":
-                if(simbolo == '='){
+                if (simbolo == '=') {
 
-                    this.buffer.setLength(0);
-                    return Parser.MINUS_ASSIGN;
+                    buffer.setLength(0);
+                    return new Tupla<>("-=", Parser.MINUS_ASSIGN);
                 } else {
-                    this.buffer.setLength(0);
+                    buffer.setLength(0);
                     reader.returnCharacter();
-                    return 45;
+                    return new Tupla<>("-", (short) '-');
                 }
-
 
             case "<":
-                if(simbolo == '='){
+                if (simbolo == '=') {
 
-                    this.buffer.setLength(0);
-                    return Parser.LESS_THAN_OR_EQUAL_OPERATOR;
+                    buffer.setLength(0);
+                    return new Tupla<>("<=", Parser.LESS_THAN_OR_EQUAL_OPERATOR);
                 } else {
-                    this.buffer.setLength(0);
+                    buffer.setLength(0);
                     reader.returnCharacter();
-                    return 60;
+                    return new Tupla<>("<", (short) '<');
                 }
-
 
             case ">":
-                if(simbolo == '='){
+                if (simbolo == '=') {
 
-                    this.buffer.setLength(0);
-                    return Parser.GREATER_THAN_OR_EQUAL_OPERATOR;
+                    buffer.setLength(0);
+                    return new Tupla<>(">=", Parser.GREATER_THAN_OR_EQUAL_OPERATOR);
                 } else {
-                    this.buffer.setLength(0);
+                    buffer.setLength(0);
                     reader.returnCharacter();
-                    return 62;
+                    return new Tupla<>(">", (short) '>');
                 }
 
-
             case "=":
-                if(simbolo == '='){
+                if (simbolo == '=') {
 
-                    this.buffer.setLength(0);
-                    return Parser.EQUAL_OPERATOR;
+                    buffer.setLength(0);
+                    return new Tupla<>("==", Parser.EQUAL_OPERATOR);
                 } else {
-                    this.buffer.setLength(0);
+                    buffer.setLength(0);
                     reader.returnCharacter();
-                    return 61;
+                    return new Tupla<>("=", (short) '=');
                 }
 
             case "!":
-                if(simbolo == '!'){
+                if (simbolo == '!') {
 
-                    this.buffer.setLength(0);
-                    return Parser.NOT_EQUAL_OPERATOR;
+                    buffer.setLength(0);
+                    return new Tupla<>("!!", Parser.NOT_EQUAL_OPERATOR);
                 } else {
-                    this.buffer.setLength(0);
-                    //ERROR, no existe el "!" solo
+                    buffer.setLength(0);
+                    // ERROR, no existe el "!" solo
                     Logger.logError(reader.getCurrentLine(), "Se leyo el caracter '!' ");
-                    return SIMBOL_ERROR;
-
+                    return new Tupla<>("!", (short) '!');
                 }
 
         }
-        return 0;
+        return null;
     }
 }

@@ -6,6 +6,7 @@ import Tools.Logger;
 import java.util.ArrayList;
 import java.io.File;
 import Tools.TablaSimbolos;
+import Tools.Tupla;
 %}
 
 %token       
@@ -263,7 +264,7 @@ block_statements : block_statement
 ;
 
 executable_block_statements : executable_statament
-                             | executable_block_statements executable_statament
+                            | executable_block_statements executable_statament
 ;
 
 
@@ -347,12 +348,14 @@ private static AnalizadorLexico aLexico;
 // This method is the one where BYACC/J expects to obtain its input tokens. 
 // Wrap any file/string scanning code you have in this function. This method should return <0 if there is an error, and 0 when it encounters the end of input. See the examples to clarify what we mean.
 int yylex() {
-    int token = aLexico.generateToken();
-    yyval = new ParserVal(token); //genera la referencia a la tabla de simbolos?
-    
-    return token;
-}
+  Tupla<String, Short> t = aLexico.generateToken();
+  String lexema = t.getFirst();
+  Short token = t.getSecond();
 
+  System.out.println("Token: " + token + " Lexema: " + lexema);
+  yylval = new ParserVal(lexema);
+  return token;
+}
 
 // This method is expected by BYACC/J, and is used to provide error messages to be directed to the channels the user desires.
 void yyerror(String msg) {
@@ -385,51 +388,51 @@ void yyerror(String msg) {
     return out;
   }
 
-  private static String generatePath() {
-    ArrayList<String> directories = listFilesInDirectory("sample_programs");
-    String path = "";
+private static String generatePath() {
+  ArrayList<String> directories = listFilesInDirectory("sample_programs");
+  String path = "";
+
+  if (!directories.isEmpty()) {
+    Scanner scanner = new Scanner(System.in);
+    int indice = -1;
+
+    while (indice < 0) {
+      System.out.print("Ingrese el numero de carpeta a acceder: ");
+      String input = scanner.nextLine();
+      indice = Integer.parseInt(input);
+      if (indice < directories.size() || indice >= 0) {
+        path = directories.get(indice);
+        directories = listFilesInDirectory("sample_programs" + "/" + path);
+      } else {
+        System.out.println("El indice no es correcto, ingrese nuevamente...");
+        indice = -1;
+      }
+
+    }
 
     if (!directories.isEmpty()) {
-      Scanner scanner = new Scanner(System.in);
-      int indice = -1;
+      indice = -1;
 
       while (indice < 0) {
-        System.out.print("Ingrese el numero de carpeta a acceder: ");
+
+        System.out.print("Ingrese el numero de archivo binario a compilar: ");
         String input = scanner.nextLine();
         indice = Integer.parseInt(input);
+
         if (indice < directories.size() || indice >= 0) {
-          path = directories.get(indice);
-          directories = listFilesInDirectory("sample_programs" + "/" + path);
+          path += "/" + directories.get(Integer.parseInt(input));
         } else {
+
           System.out.println("El indice no es correcto, ingrese nuevamente...");
           indice = -1;
         }
 
       }
-
-      if (!directories.isEmpty()) {
-        indice = -1;
-
-        while (indice < 0) {
-
-          System.out.print("Ingrese el numero de archivo binario a compilar: ");
-          String input = scanner.nextLine();
-          indice = Integer.parseInt(input);
-
-          if (indice < directories.size() || indice >= 0) {
-            path += "/" + directories.get(Integer.parseInt(input));
-          } else {
-
-            System.out.println("El indice no es correcto, ingrese nuevamente...");
-            indice = -1;
-          }
-
-        }
-      }
-      scanner.close();
     }
-    return path;
+    scanner.close();
   }
+  return path;
+}
 
 
 public static void main (String [] args){
@@ -444,9 +447,9 @@ public static void main (String [] args){
     }
 
     Parser aSintactico = new Parser();
-    /* aSintactico.run(); */
+    aSintactico.run();
 
-    String listaTOKENS = "";
+    /* String listaTOKENS = "";
     for (int i = 0; i < 50; i++) {
       listaTOKENS = listaTOKENS + " " + aLexico.generateToken();
       int token = -1;
@@ -456,7 +459,7 @@ public static void main (String [] args){
         System.out.println(listaTOKENS);
       }
         System.out.println(TablaSimbolos.tablaSimbolos.toString());
-    }
+    } */
 
     Logger.logError(1, "Este es un error.");
     Logger.logWarning(2, "Esta es una advertencia.");

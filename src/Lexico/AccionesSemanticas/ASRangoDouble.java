@@ -5,17 +5,18 @@ import Sintactico.Parser;
 import Tools.Logger;
 import Tools.ProgramReader;
 import Tools.TablaSimbolos;
+import Tools.Tupla;
 
 import java.util.HashMap;
 
 public class ASRangoDouble implements AccionSemantica {
     /*
-ACCION SEMANTICA 6
-*/
+     * ACCION SEMANTICA 6
+     */
     @Override
-    public int run(char simbolo, ProgramReader reader) {
+    public Tupla<String, Short> run(char simbolo, ProgramReader reader) {
         boolean error = false;
-        String auxBuffer = this.buffer.toString();
+        String auxBuffer = buffer.toString();
         double numero = 0.0;
 
         if (auxBuffer.contains("d")) {
@@ -30,7 +31,8 @@ ACCION SEMANTICA 6
             error = true;
         }
 
-        if (numero > 1.7976931348623157D * Math.pow(10,308) || numero < 2.2250738585072014D  * -Math.pow(10,308) || error) {
+        if (numero > 1.7976931348623157D * Math.pow(10, 308) || numero < 2.2250738585072014D * -Math.pow(10, 308)
+                || error) {
             System.out.print(" double fuera de rango");
             Logger.logError(reader.getCurrentLine(), "Float fuera de rango");
 
@@ -46,7 +48,7 @@ ACCION SEMANTICA 6
             // yylval = numero??
         }
 
-        this.buffer.setLength(0);
-        return Parser.CTE_DOUBLE;
+        buffer.setLength(0);
+        return new Tupla<>(auxBuffer, Parser.CTE_DOUBLE);
     }
 }

@@ -5,16 +5,17 @@ import Sintactico.Parser;
 import Tools.Logger;
 import Tools.ProgramReader;
 import Tools.TablaSimbolos;
+import Tools.Tupla;
 
 import java.util.HashMap;
 
 public class ASRangoEntero implements AccionSemantica {
     /*
-    ACCION SEMANTICA 4
+     * ACCION SEMANTICA 4
      */
     @Override
-    public int run(char simbolo, ProgramReader reader) {
-        String aux = this.buffer.toString();
+    public Tupla<String, Short> run(char simbolo, ProgramReader reader) {
+        String aux = buffer.toString();
         boolean error = false;
         int numero = 0;
         try {
@@ -39,8 +40,8 @@ public class ASRangoEntero implements AccionSemantica {
             // Hacer algo con yylval ??
         }
         System.out.println("ACCION SEMANTICA 4");
-        // yylval = numero ??
-        this.buffer.setLength(0);
-        return Parser.CTE_UINT;
+        // yylval = numero ?? jijijija
+        buffer.setLength(0);
+        return new Tupla<>(aux, Parser.CTE_UINT);
     };
 }

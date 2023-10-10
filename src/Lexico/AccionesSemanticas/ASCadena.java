@@ -3,17 +3,21 @@ package Lexico.AccionesSemanticas;
 import Sintactico.Parser;
 import Tools.ProgramReader;
 import Tools.TablaSimbolos;
+import Tools.Tupla;
 
-public class ASCadena implements AccionSemantica{
+public class ASCadena implements AccionSemantica {
     /*
-        Accion semantica 10
+     * Accion semantica 10
      */
     @Override
-    public int run(char simbolo, ProgramReader reader) {
-        String aux_buffer = this.buffer.toString();
+    public Tupla<String, Short> run(char simbolo, ProgramReader reader) {
+        String aux_buffer = buffer.toString();
         System.out.print(" Cadena leida: '" + aux_buffer + "'");
         TablaSimbolos.addCadena(aux_buffer);
-        this.buffer.setLength(0);
-        return Parser.CADENA; //devuelve el TOKEN correspondiente a la cadena multilinea
+        buffer.setLength(0);
+        return new Tupla<>(aux_buffer, Parser.CADENA); // devuelve el TOKEN correspondiente a
+        // la cadena
+        // multilinea
     }
+
 }

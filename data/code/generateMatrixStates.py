@@ -17,7 +17,7 @@ change = {"F": 20,
           "A7": "ASChequeoOperador",
           "A8": "ASChequeoOperador",
           "A9": "null",
-          "A10": "AScadena",
+          "A10": "ASCadena",
           "A11": "AsLimpiarBuffer"
           }
         

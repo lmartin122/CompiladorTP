@@ -8,10 +8,11 @@ import java.util.stream.Collectors;
 import Lexico.AccionesSemanticas.AccionSemantica;
 import Tools.BinaryFileReader;
 import Tools.ProgramReader;
+import Tools.Tupla;
 
 public class AnalizadorLexico {
     private final int ESTADOS = 20; // osea 20 estados 0 a 19
-    private final int SIMBOLOS = 28; // el 27 seria el simbolo "otros"
+    private final int SIMBOLOS = 29; // el 27 seria el simbolo "otros"
 
     MatrizTransicion matrizTransicion;
     private Map<String, Integer> palabrasReservadas;
@@ -20,7 +21,6 @@ public class AnalizadorLexico {
     public AnalizadorLexico(String p) {
         this.reader = new ProgramReader(p);
         cargarMatriz();
-
     }
 
     private AccionSemantica toAccionSemantica(String acc) {
@@ -53,15 +53,7 @@ public class AnalizadorLexico {
 
         for (ArrayList<Character> l : data) {
             String linea[] = l.stream().map(Object::toString).collect(Collectors.joining("")).split("\\s*;\\s*");
-            /*
-             * for (String s : linea) {
-             * System.out.println(s);
-             * }
-             * System.out.println(linea[0]);
-             * System.out.println(linea[1]);
-             * System.out.println(linea[2]);
-             * System.out.println(linea[3]);
-             */
+
             try {
                 e0 = Integer.parseInt(linea[0]);
                 e1 = Integer.parseInt(linea[1]);
@@ -79,16 +71,16 @@ public class AnalizadorLexico {
 
     }
 
-    public int generateToken() {
+    public Tupla<String, Short> generateToken() {
 
         if (hasFinishedTokenizer())
-            return 0;
+            return new Tupla<>("Fin del programa.", (short) 0);
 
         // Variables
         int estado = 0;
         boolean error = false;
         AccionSemantica as = null;
-        int token = -1;
+        Tupla<String, Short> token = null;
 
         while (!reader.hasFinished() && estado != 20) {
 
@@ -96,11 +88,10 @@ public class AnalizadorLexico {
 
             as = matrizTransicion.accionSemantica(estado, s);
             estado = matrizTransicion.nextEstado(estado, s);
-            System.out.print("  token:" + token);
 
             if (as != null) {
                 token = as.run(s, reader);
-                if (token < 0) {
+                if (token != null && token.getSecond() < 0) {
                     error = true;
                 }
             }
@@ -109,6 +100,10 @@ public class AnalizadorLexico {
         }
         return token;
 
+    }
+
+    public String getTokenPosicion() {
+        return "line " + reader.getCurrentLine();
     }
 
     public boolean hasFinishedTokenizer() {

@@ -5,14 +5,15 @@ import Sintactico.Parser;
 import Tools.Logger;
 import Tools.ProgramReader;
 import Tools.TablaSimbolos;
+import Tools.Tupla;
 
 import java.util.HashMap;
 
 public class ASRangoEnteroLargo implements AccionSemantica {
 
     @Override
-    public int run(char simbolo, ProgramReader reader) {
-        String aux = this.buffer.toString();
+    public Tupla<String, Short> run(char simbolo, ProgramReader reader) {
+        String aux = buffer.toString();
         boolean error = false;
         Long numero = 0L;
         try {
@@ -33,14 +34,11 @@ public class ASRangoEnteroLargo implements AccionSemantica {
         } else {
             System.out.print(" LONG entero fuera de rango");
             Logger.logError(reader.getCurrentLine(), "Entero long fuera de rango");
-            // Hacer algo con yylval ??
+
         }
 
-        // yylval = numero ??
-        this.buffer.setLength(0);
-        return Parser.CTE_LONG;
+        buffer.setLength(0);
+
+        return new Tupla<>(aux, Parser.CTE_LONG);
     }
 }
-
-
-

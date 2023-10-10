@@ -9,9 +9,16 @@ public class Tupla<t1, t2> {
         this.as = second;
     }
 
-
     public t1 getEstado() {
         return estado;
+    }
+
+    public t1 getFirst() {
+        return estado;
+    }
+
+    public t2 getSecond() {
+        return as;
     }
 
     public void setEstado(t1 first) {

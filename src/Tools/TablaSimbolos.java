@@ -12,13 +12,14 @@ public class TablaSimbolos {
     // private static int identifierNumber = 0;
 
     public static void addCadena(String cadena) {
-        Map<String,String> values = new HashMap<>();
+        Map<String, String> values = new HashMap<>();
         values.put("tipo", TablaTipos.STRING);
-        tablaSimbolos.put(cadena,values);
+        tablaSimbolos.put(cadena, values);
     }
+
     public static void addIdentificador(String new_symbol) {
         Map<String, String> values = new HashMap<>();
-        values.put("uso","identificador");
+        values.put("uso", "identificador");
         tablaSimbolos.put(new_symbol, values);
     }
 
