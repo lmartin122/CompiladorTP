@@ -5,7 +5,6 @@ import java.util.Scanner;
 import Tools.Logger;
 import java.util.ArrayList;
 import java.io.File;
-import Tools.TablaSimbolos;
 import Tools.Tupla;
 %}
 
@@ -129,7 +128,7 @@ interface_method_declaration : result_type method_declarator
 ;
 
 implement_for_declaration : IMPL FOR reference_type ':' implement_for_body 
-                          | IMPL FOR reference_type ':' error ',' {Logger.logError(0, "Es necesario implementar el cuerpo del metodo.");}
+                          | IMPL FOR reference_type ':' error ',' {Logger.logError(aLexico.getTokenPosition(), "Es necesario implementar el cuerpo del metodo.");}
 ;
 
 implement_for_body : '{' implement_for_body_declarations '}' 
@@ -200,6 +199,9 @@ term : factor
 factor : CTE_DOUBLE
        | CTE_UINT 
        | CTE_LONG
+       | '-'CTE_DOUBLE {System.out.println($2.sval); negarDouble($2.sval)}
+       | '-'CTE_LONG {System.out.println($2.sval); negarLong($2.sval);}
+       | '-'CTE_UINT {Logger.logWarning(aLexico.getTokenPosition() ,"Los tipos enteros deben ser sin signo.");}
 ;
 
 assignment_operator : '=' 
@@ -250,9 +252,9 @@ type_name : ID
 
 */
 block : '{' block_statements RETURN',' '}' 
-      | '{' block_statements '}' {Logger.logError(0, "Es necesario declarar el retorno del bloque.");}
+      | '{' block_statements '}' {Logger.logError(aLexico.getTokenPosition(), "Es necesario declarar el retorno del bloque.");}
       | '{' RETURN',' '}' 
-      | '{' '}' {Logger.logError(0, "Es necesario declarar el retorno del bloque.");}
+      | '{' '}' {Logger.logError(aLexico.getTokenPosition(), "Es necesario declarar el retorno del bloque.");}
 ;
 
 executable_block : '{' executable_block_statements '}' 
@@ -312,12 +314,16 @@ empty_statement : ','
 
 if_then_statement : IF '(' expression ')' executable_block END_IF ','
                   | IF '(' expression ')' executable_statament END_IF ','
+                  | IF '(' expression ')' executable_statament error ',' {Logger.logError(aLexico.getTokenPosition(), "Es necesario declarar el final de la sentencia de control.");}
+                  | IF '(' expression ')' error ',' {Logger.logError(aLexico.getTokenPosition(), "Es necesario declarar el cuerpo de la sentencia de control.");}
+                  | IF '(' error ',' {Logger.logError(aLexico.getTokenPosition(), "La condicion de la sentencia de control no es correcta.");}
 ; 
 
 if_then_else_statement : IF '(' expression ')' executable_block ELSE executable_block END_IF ','
                        | IF '(' expression ')' executable_block ELSE executable_statament END_IF ','
                        | IF '(' expression ')' executable_statament ELSE executable_statament END_IF ','
                        | IF '(' expression ')' executable_statament ELSE executable_block END_IF ','
+                       | IF '(' expression ')' executable_statament ELSE executable_block ',' 
 ;
 
 for_in_range_statement : FOR for_variable IN RANGE '(' for_init ; for_end ; for_update ')' executable_block ','
@@ -337,7 +343,7 @@ for_end : factor
 ;
 
 print_statement : PRINT CADENA ','
-                | PRINT {Logger.logError(0, "Se esperaba una cadena.");}
+                | PRINT {Logger.logError(aLexico.getTokenPosition(), "Se esperaba una cadena.");}
 ;
 
 
@@ -353,7 +359,10 @@ int yylex() {
   Short token = t.getSecond();
 
   System.out.println("Token: " + token + " Lexema: " + lexema);
-  yylval = new ParserVal(lexema);
+
+  if (lexema != null)
+    yylval = new ParserVal(lexema);
+  
   return token;
 }
 
@@ -362,31 +371,73 @@ void yyerror(String msg) {
     System.out.println(msg);
 }
 
+// ###############################################################
+// metodos auxiliares a la gramatica
+// ###############################################################
 
-  private static ArrayList<String> listFilesInDirectory(String path) {
-    // Obtén el directorio actual
-    File element = new File(System.getProperty("user.dir") + "/" + path);
-    ArrayList<String> out = new ArrayList<>();
+private String negarDouble(String lexema) {
+      
+    double RDN_MIN = -2.2250738585072014D * -Math.pow(10, 308);
+    double RDN_MAX = -1.7976931348623157D * Math.pow(10, 308);
 
-    // Verifica si es un directorio o archivo válido
-    if (element.isDirectory() || element.isFile()) {
-      // Lista de archivos y directorios en el directorio actual
-      File[] filesAndDirs = element.listFiles();
+    String n_lexema = '-'+lexema;
+    double numero = 0.0;
 
-      // Itera a través de los archivos y directorios
-      int i = 0;
-      for (File fileOrDir : filesAndDirs) {
-        String name = fileOrDir.getName();
-        System.out.println("[" + i + "]" + ": " + name);
-        out.add(name);
-        i++;
-      }
-    } else {
-      System.err.println("No es un directorio válido.");
+      try {
+        numero = Double.parseDouble(n_lexema);
+    } catch (Exception ex) {
     }
 
-    return out;
+    if(numero > RDN_MAX || numero < RDN_MIN){
+      Logger.logWarning(aLexico.getTokenPosition(), "El DOUBLE se excedio de rango, el mismo fue truncado al valor " + RDN_MIN + ".");
+      n_lexema = "" + RDN_MIN;
+    }
+
+    return n_lexema;
+}
+
+private String negarLong(String lexema) {
+
+    String n_lexema = '-'+lexema;
+    long numero = 0;
+
+      try {
+        numero = Long.parseLong(n_lexema);
+    } catch (Exception ex) {
+    }
+
+    return n_lexema;
+}
+
+// ###############################################################
+// metodos de lectura de los programadas
+// ###############################################################
+
+private static ArrayList<String> listFilesInDirectory(String path) {
+  // Obtén el directorio actual
+  File element = new File(System.getProperty("user.dir") + "/" + path);
+  ArrayList<String> out = new ArrayList<>();
+
+  // Verifica si es un directorio o archivo válido
+  if (element.isDirectory() || element.isFile()) {
+    // Lista de archivos y directorios en el directorio actual
+    File[] filesAndDirs = element.listFiles();
+
+    // Itera a través de los archivos y directorios
+    int i = 0;
+    for (File fileOrDir : filesAndDirs) {
+      String name = fileOrDir.getName();
+      System.out.println("[" + i + "]" + ": " + name);
+      out.add(name);
+      i++;
+    }
+  } else {
+    System.err.println("No es un directorio válido.");
   }
+
+  return out;
+}
+
 
 private static String generatePath() {
   ArrayList<String> directories = listFilesInDirectory("sample_programs");
@@ -448,18 +499,7 @@ public static void main (String [] args){
 
     Parser aSintactico = new Parser();
     aSintactico.run();
-
-    /* String listaTOKENS = "";
-    for (int i = 0; i < 50; i++) {
-      listaTOKENS = listaTOKENS + " " + aLexico.generateToken();
-      int token = -1;
-      while (token != 0) {
-        token = aLexico.generateToken();
-        listaTOKENS = listaTOKENS + " " + token;
-        System.out.println(listaTOKENS);
-      }
-        System.out.println(TablaSimbolos.tablaSimbolos.toString());
-    } */
+    aSintactico.dump_stacks(20);
 
     Logger.logError(1, "Este es un error.");
     Logger.logWarning(2, "Esta es una advertencia.");

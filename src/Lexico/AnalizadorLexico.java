@@ -102,8 +102,8 @@ public class AnalizadorLexico {
 
     }
 
-    public String getTokenPosicion() {
-        return "line " + reader.getCurrentLine();
+    public int getTokenPosition() {
+        return reader.getCurrentLine();
     }
 
     public boolean hasFinishedTokenizer() {

@@ -13,6 +13,15 @@ public class ASRangoDouble implements AccionSemantica {
     /*
      * ACCION SEMANTICA 6
      */
+
+    // Rango double positivo
+    public static final double RDP_MIN = 2.2250738585072014D * -Math.pow(10, 308);
+    public static final double RDP_MAX = 1.7976931348623157D * Math.pow(10, 308);
+
+    // Rango double negativo
+    public static final double RDN_MIN = -2.2250738585072014D * -Math.pow(10, 308);
+    public static final double RDN_MAX = -1.7976931348623157D * Math.pow(10, 308);
+
     @Override
     public Tupla<String, Short> run(char simbolo, ProgramReader reader) {
         boolean error = false;
@@ -31,8 +40,7 @@ public class ASRangoDouble implements AccionSemantica {
             error = true;
         }
 
-        if (numero > 1.7976931348623157D * Math.pow(10, 308) || numero < 2.2250738585072014D * -Math.pow(10, 308)
-                || error) {
+        if (numero > RDP_MAX || numero < RDP_MIN || error) {
             System.out.print(" double fuera de rango");
             Logger.logError(reader.getCurrentLine(), "Float fuera de rango");
 
@@ -44,8 +52,6 @@ public class ASRangoDouble implements AccionSemantica {
 
                 TablaSimbolos.tablaSimbolos.put(String.valueOf(numero), auxMap);
             }
-
-            // yylval = numero??
         }
 
         buffer.setLength(0);

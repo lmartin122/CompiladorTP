@@ -10,4 +10,4 @@ IF ( abcdefghijklmnopq < bglhotkgiu ) {
 
 } ELSE {
 	PRINT % El primer identificador no es menor. %,
-}
+} END_IF,

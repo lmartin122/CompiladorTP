@@ -9,15 +9,15 @@ public class ASLiterales implements AccionSemantica {
     public Tupla<String, Short> run(char simbolo, ProgramReader reader) {
 
         return switch (simbolo) {
-            case '+' -> new Tupla<>("+", (short) '+');
-            case '/' -> new Tupla<>("/", (short) '/');
-            case '(' -> new Tupla<>("(", (short) '(');
-            case ')' -> new Tupla<>(")", (short) ')');
-            case ':' -> new Tupla<>(":", (short) ':');
-            case ';' -> new Tupla<>(";", (short) ';');
-            case ',' -> new Tupla<>(",", (short) ',');
-            case '{' -> new Tupla<>("{", (short) '{');
-            case '}' -> new Tupla<>("}", (short) '}');
+            case '+' -> new Tupla<>(null, (short) '+');
+            case '/' -> new Tupla<>(null, (short) '/');
+            case '(' -> new Tupla<>(null, (short) '(');
+            case ')' -> new Tupla<>(null, (short) ')');
+            case ':' -> new Tupla<>(null, (short) ':');
+            case ';' -> new Tupla<>(null, (short) ';');
+            case ',' -> new Tupla<>(null, (short) ',');
+            case '{' -> new Tupla<>(null, (short) '{');
+            case '}' -> new Tupla<>(null, (short) '}');
             default -> null;
         };
     }

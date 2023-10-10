@@ -36,6 +36,7 @@ public class TablaSimbolos {
      * 
      * }
      */
+
     public static void printTable() {
         System.out.println("Tabla de símbolos: ");
 

@@ -33,7 +33,7 @@ public class ASRangoEnteroLargo implements AccionSemantica {
             }
         } else {
             System.out.print(" LONG entero fuera de rango");
-            Logger.logError(reader.getCurrentLine(), "Entero long fuera de rango");
+            Logger.logError(reader.getCurrentLine(), "Entero LONG fuera de rango");
 
         }
 

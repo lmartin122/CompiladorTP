@@ -68,8 +68,9 @@ public class ParserVal {
   }
 
   public String toString() {
-    return "" + this.sval;
+    return sval;
   }
+
 }// end class
 
 // #############################################

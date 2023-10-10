@@ -18,56 +18,56 @@ public class ASChequeoOperador implements AccionSemantica {
                 if (simbolo == '=') {
 
                     buffer.setLength(0);
-                    return new Tupla<>("-=", Parser.MINUS_ASSIGN);
+                    return new Tupla<>(null, Parser.MINUS_ASSIGN);
                 } else {
                     buffer.setLength(0);
                     reader.returnCharacter();
-                    return new Tupla<>("-", (short) '-');
+                    return new Tupla<>(null, (short) '-');
                 }
 
             case "<":
                 if (simbolo == '=') {
 
                     buffer.setLength(0);
-                    return new Tupla<>("<=", Parser.LESS_THAN_OR_EQUAL_OPERATOR);
+                    return new Tupla<>(null, Parser.LESS_THAN_OR_EQUAL_OPERATOR);
                 } else {
                     buffer.setLength(0);
                     reader.returnCharacter();
-                    return new Tupla<>("<", (short) '<');
+                    return new Tupla<>(null, (short) '<');
                 }
 
             case ">":
                 if (simbolo == '=') {
 
                     buffer.setLength(0);
-                    return new Tupla<>(">=", Parser.GREATER_THAN_OR_EQUAL_OPERATOR);
+                    return new Tupla<>(null, Parser.GREATER_THAN_OR_EQUAL_OPERATOR);
                 } else {
                     buffer.setLength(0);
                     reader.returnCharacter();
-                    return new Tupla<>(">", (short) '>');
+                    return new Tupla<>(null, (short) '>');
                 }
 
             case "=":
                 if (simbolo == '=') {
 
                     buffer.setLength(0);
-                    return new Tupla<>("==", Parser.EQUAL_OPERATOR);
+                    return new Tupla<>(null, Parser.EQUAL_OPERATOR);
                 } else {
                     buffer.setLength(0);
                     reader.returnCharacter();
-                    return new Tupla<>("=", (short) '=');
+                    return new Tupla<>(null, (short) '=');
                 }
 
             case "!":
                 if (simbolo == '!') {
 
                     buffer.setLength(0);
-                    return new Tupla<>("!!", Parser.NOT_EQUAL_OPERATOR);
+                    return new Tupla<>(null, Parser.NOT_EQUAL_OPERATOR);
                 } else {
                     buffer.setLength(0);
                     // ERROR, no existe el "!" solo
                     Logger.logError(reader.getCurrentLine(), "Se leyo el caracter '!' ");
-                    return new Tupla<>("!", (short) '!');
+                    return new Tupla<>(null, (short) '!');
                 }
 
         }
