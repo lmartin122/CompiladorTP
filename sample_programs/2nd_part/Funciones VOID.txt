@@ -1,0 +1,10 @@
+VOID f ( ) { 
+     VOID g () {
+         UINT x,
+         FOR x IN RANGE (0_u; 10_u; 1_u) 
+            PRINT % itera %, 
+         RETURN,
+     }
+    g(),
+    RETURN,
+}

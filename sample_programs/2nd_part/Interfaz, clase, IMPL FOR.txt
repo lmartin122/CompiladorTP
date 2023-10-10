@@ -1,0 +1,19 @@
+INTERFACE my_interface {
+   VOID my_method (),
+},
+
+CLASS my_class IMPLEMENT my_interface {
+    UINT x; y,
+    VOID b (LONG l),
+}
+
+IMPL FOR my_class : {
+    VOID b (LONG l) {
+         
+         IF ( x == 2 ) 
+              PRINT % Es par %,
+         END_IF
+
+         RETURN,
+     }
+}
