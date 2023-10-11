@@ -30,12 +30,10 @@ public class ASRangoEnteroLargo implements AccionSemantica {
                 auxMap.put("tipo", TablaTipos.LONG_TYPE);
 
                 TablaSimbolos.tablaSimbolos.put(String.valueOf(numero), auxMap);
+                TablaSimbolos.addContador(numero);
             }
         } else {
-            HashMap<String, String> auxMap = new HashMap<String, String>();
-            auxMap.put("tipo", TablaTipos.LONG_TYPE);
-
-            TablaSimbolos.tablaSimbolos.put(String.valueOf(Math.pow(2, 31)), auxMap);
+            TablaSimbolos.addLong(String.valueOf(Math.pow(2, 31)));
             System.out.print(" LONG entero fuera de rango, se convirtio al maximo permitido");
             Logger.logError(reader.getCurrentLine(), "Entero LONG fuera de rango");
 

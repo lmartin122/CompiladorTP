@@ -1,2 +1,24 @@
-WARNING en la linea 2: Esta es una advertencia..
-ERROR en la linea 1: Este es un error..
+Se encontro un TOKEN en la linea 1: 261.
+Se encontro un TOKEN en la linea 1: 40.
+Se encontro un TOKEN en la linea 1: 283.
+Se encontro un TOKEN en la linea 1: 273.
+Se encontro un TOKEN en la linea 1: 282.
+Se encontro un TOKEN en la linea 1: 41.
+Se encontro un RULE en la linea 1: Se reconocio una operacion logica..
+Se encontro un TOKEN en la linea 2: 123.
+Se encontro un TOKEN en la linea 2: 268.
+Se encontro un TOKEN en la linea 2: 279.
+Se encontro un TOKEN en la linea 3: 44.
+Se encontro un RULE en la linea 3: Se reconocio una sentencia PRINT..
+Se encontro un TOKEN en la linea 3: 125.
+Se encontro un TOKEN en la linea 3: 262.
+Se encontro un TOKEN en la linea 4: 123.
+Se encontro un TOKEN en la linea 4: 268.
+Se encontro un TOKEN en la linea 4: 279.
+Se encontro un TOKEN en la linea 5: 44.
+Se encontro un RULE en la linea 5: Se reconocio una sentencia PRINT..
+Se encontro un TOKEN en la linea 5: 125.
+Se encontro un TOKEN en la linea 5: 263.
+Se encontro un TOKEN en la linea 6: 44.
+Se encontro un RULE en la linea 6: Se reconocio una sentencia IF ELSE..
+Se encontro un RULE en la linea 6: Se reconocio el programa..

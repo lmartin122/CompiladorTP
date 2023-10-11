@@ -2,11 +2,11 @@ package Lexico;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import Lexico.AccionesSemanticas.AccionSemantica;
 import Tools.BinaryFileReader;
+import Tools.Logger;
 import Tools.ProgramReader;
 import Tools.Tupla;
 
@@ -16,9 +16,7 @@ public class AnalizadorLexico {
 
     public static int estado_error = 0;
     public static boolean error = false;
-    public static final ArrayList<String> lista_token = new ArrayList<>();
     MatrizTransicion matrizTransicion;
-    private Map<String, Integer> palabrasReservadas;
     private ProgramReader reader;
 
     public AnalizadorLexico(String p) {
@@ -95,23 +93,26 @@ public class AnalizadorLexico {
             if (as != null) {
                 token = as.run(s, reader);
                 if (token != null && AnalizadorLexico.estado_error < 0) {
-                    estado = 20; //terminó de leer en caso de error
+                    estado = 20; // terminó de leer en caso de error
                     error = true;
                     estado_error = 1;
                 }
             }
-                if(estado == -1){ //error simbomlo desconocido
-                    estado = 0;
-                    error = true;
-                }
+            if (estado == -1) { // error simbomlo desconocido
+                estado = 0;
+                error = true;
+            }
             System.out.println();
             reader.next();
         }
+
+        Logger.logToken(getProgramPosition(), token.getSecond());
+
         return token;
 
     }
 
-    public int getTokenPosition() {
+    public int getProgramPosition() {
         return reader.getCurrentLine();
     }
 

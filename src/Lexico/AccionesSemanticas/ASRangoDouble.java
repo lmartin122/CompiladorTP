@@ -18,7 +18,6 @@ public class ASRangoDouble implements AccionSemantica {
     public static final double RDP_MIN = 2.2250738585072014D * -Math.pow(10, 308);
     public static final double RDP_MAX = 1.7976931348623157D * Math.pow(10, 308);
 
-
     @Override
     public Tupla<String, Short> run(char simbolo, ProgramReader reader) {
         boolean error = false;
@@ -42,12 +41,11 @@ public class ASRangoDouble implements AccionSemantica {
             Logger.logError(reader.getCurrentLine(), "Float fuera de rango");
 
         } else {
-            if (!TablaSimbolos.tablaSimbolos.containsKey(String.valueOf(numero))) {
+            if (!TablaSimbolos.containsKey(numero)) {
                 System.out.print(" DOUBLE AÑADIDO");
-                HashMap<String, String> auxMap = new HashMap<String, String>();
-                auxMap.put("tipo", TablaTipos.DOUBLE_TYPE);
 
-                TablaSimbolos.tablaSimbolos.put(String.valueOf(numero), auxMap);
+                TablaSimbolos.addDouble(numero);
+                TablaSimbolos.addContador(numero);
             }
         }
 

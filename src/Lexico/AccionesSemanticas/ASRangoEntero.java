@@ -27,18 +27,13 @@ public class ASRangoEntero implements AccionSemantica {
         if (!error && numero <= (int) Math.pow(2, 16) - 1) {
 
             System.out.println("IF");
-            if (!TablaSimbolos.tablaSimbolos.containsKey(String.valueOf(numero))) { // si la constante no está
+            if (!TablaSimbolos.containsKey(numero)) { // si la constante no está
                 System.out.print(" ENTERO UI AÑADIDO ");
-                HashMap<String, String> auxMap = new HashMap<String, String>();
-                auxMap.put("tipo", TablaTipos.UINT_TYPE);
 
-                TablaSimbolos.tablaSimbolos.put(String.valueOf(numero), auxMap);
+                TablaSimbolos.addUInteger(numero);
             }
         } else {
-            HashMap<String, String> auxMap = new HashMap<String, String>();
-            auxMap.put("tipo", TablaTipos.UINT_TYPE);
-
-            TablaSimbolos.tablaSimbolos.put(String.valueOf(Math.pow(2, 16) - 1), auxMap);
+            TablaSimbolos.addUInteger(String.valueOf(Math.pow(2, 16) - 1));
             System.out.print(" UI entero fuera de rango, se convirtio al maximo permitido");
             Logger.logError(reader.getCurrentLine(), "Unsigned entero fuera de rango");
             // Hacer algo con yylval ??
