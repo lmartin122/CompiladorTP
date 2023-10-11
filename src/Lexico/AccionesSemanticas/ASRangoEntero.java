@@ -28,7 +28,7 @@ public class ASRangoEntero implements AccionSemantica {
 
             System.out.println("IF");
             if (!TablaSimbolos.tablaSimbolos.containsKey(String.valueOf(numero))) { // si la constante no está
-                System.out.print(" ENTERO UI AÑADIDO");
+                System.out.print(" ENTERO UI AÑADIDO ");
                 HashMap<String, String> auxMap = new HashMap<String, String>();
                 auxMap.put("tipo", TablaTipos.UINT_TYPE);
 
@@ -43,7 +43,6 @@ public class ASRangoEntero implements AccionSemantica {
             Logger.logError(reader.getCurrentLine(), "Unsigned entero fuera de rango");
             // Hacer algo con yylval ??
         }
-        System.out.println("ACCION SEMANTICA 4");
         // yylval = numero ?? jijijija
         buffer.setLength(0);
         return new Tupla<>(aux, Parser.CTE_UINT);

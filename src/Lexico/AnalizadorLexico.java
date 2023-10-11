@@ -14,6 +14,9 @@ public class AnalizadorLexico {
     private final int ESTADOS = 20; // osea 20 estados 0 a 19
     private final int SIMBOLOS = 29; // el 27 seria el simbolo "otros"
 
+    public static int estado_error = 0;
+    public static boolean error = false;
+    public static final ArrayList<String> lista_token = new ArrayList<>();
     MatrizTransicion matrizTransicion;
     private Map<String, Integer> palabrasReservadas;
     private ProgramReader reader;
@@ -78,7 +81,7 @@ public class AnalizadorLexico {
 
         // Variables
         int estado = 0;
-        boolean error = false;
+
         AccionSemantica as = null;
         Tupla<String, Short> token = null;
 
@@ -91,7 +94,13 @@ public class AnalizadorLexico {
 
             if (as != null) {
                 token = as.run(s, reader);
-                if (token != null && token.getSecond() < 0) {
+                if (token != null && AnalizadorLexico.estado_error < 0) {
+                    estado = 20; //terminó de leer en caso de error
+                    error = true;
+                    estado_error = 1;
+                }
+                if(estado == -1){ //error simbomlo desconocido
+                    estado = 0;
                     error = true;
                 }
             }

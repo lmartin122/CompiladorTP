@@ -21,7 +21,7 @@ public class Tupla<t1, t2> {
         return as;
     }
 
-    public void setEstado(t1 first) {
+    public void setFirst(t1 first) {
         this.estado = first;
     }
 
@@ -29,7 +29,7 @@ public class Tupla<t1, t2> {
         return as;
     }
 
-    public void setAs(t2 second) {
+    public void setSecond(t2 second) {
         this.as = second;
     }
 }

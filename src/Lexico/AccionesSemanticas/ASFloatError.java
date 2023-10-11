@@ -1,5 +1,7 @@
 package Lexico.AccionesSemanticas;
 
+import Lexico.AnalizadorLexico;
+import Sintactico.Parser;
 import Tools.Logger;
 import Tools.ProgramReader;
 import Tools.Tupla;
@@ -8,7 +10,10 @@ public class ASFloatError implements AccionSemantica {
 
     @Override
     public Tupla<String, Short> run(char simbolo, ProgramReader reader) {
-        Logger.logError(reader.getCurrentLine(), "flotante mal escrito.");
-        return new Tupla<>(null, FLOAT_ERROR);
+        Logger.logError(reader.getCurrentLine(), " flotante mal escrito.");
+        reader.returnCharacter();
+        this.buffer.setLength(0);
+        AnalizadorLexico.estado_error = -1;
+        return new Tupla<>(null, (short) Parser.CTE_DOUBLE);
     }
 }

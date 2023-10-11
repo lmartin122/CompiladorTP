@@ -716,6 +716,7 @@ public class Parser {
     if (lexema != null)
       yylval = new ParserVal(lexema);
 
+    AnalizadorLexico.lista_token.add(String.valueOf(token));
     return token;
   }
 
@@ -805,7 +806,7 @@ public class Parser {
         System.out.print("Ingrese el numero de carpeta a acceder: ");
         String input = scanner.nextLine();
         indice = Integer.parseInt(input);
-        if (indice < directories.size() || indice >= 0) {
+        if (indice < directories.size() && indice >= 0) {
           path = directories.get(indice);
           directories = listFilesInDirectory("sample_programs" + "/" + path);
         } else {
@@ -824,7 +825,7 @@ public class Parser {
           String input = scanner.nextLine();
           indice = Integer.parseInt(input);
 
-          if (indice < directories.size() || indice >= 0) {
+          if (indice < directories.size() && indice >= 0) {
             path += "/" + directories.get(Integer.parseInt(input));
           } else {
 
@@ -853,7 +854,7 @@ public class Parser {
     Parser aSintactico = new Parser(false);
     aSintactico.run();
     aSintactico.dump_stacks(20);
-
+    System.out.println("Lista de token reconocidos " + AnalizadorLexico.lista_token.toString());
     /*
      * String listaTOKENS = "";
      * for (int i = 0; i < 50; i++) {
