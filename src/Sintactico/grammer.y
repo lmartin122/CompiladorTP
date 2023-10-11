@@ -46,10 +46,8 @@ type_declaration : class_declaration
                  | block_statement
 ;
 
-
 class_declaration : CLASS ID class_body {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una CLASS.");}
                   | CLASS ID interfaces class_body {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una CLASS que implementa una interface.");}
-                  | error ID class_body {Logger.logRule(aLexico.getProgramPosition(), "Declaracion de CLASS no valida.");}
 ;
 
 class_body : '{' class_body_declarations '}' 
@@ -166,7 +164,15 @@ implement_for_method_body : method_body
 assignment : left_hand_side assignment_operator arithmetic_operation {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una asignacion.");}
 ;
 
-left_hand_side : reference_type
+left_hand_side : reference_type 
+               | field_acces
+;
+
+field_acces : primary '.' ID
+;
+
+primary : reference_type
+        | field_acces
 ;
 
 expression : equality_expression  {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica.");}
@@ -220,10 +226,12 @@ assignment_operator : '='
                     | MINUS_ASSIGN 
 ;
 
-method_invocation : ID '(' real_parameter ')' ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo.");}
-                  | ID '(' ')' ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo.");}
-                  | ID '(' real_parameter ';' error ')' ',' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
-                  | ID 
+method_invocation : ID '(' real_parameter ')' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo, con pj de parametro.");}
+                  | ID '(' ')' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo, sin pj de parametro.");}
+                  | ID '(' real_parameter ';' error ')' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
+                  | field_acces '(' real_parameter ')' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo desde una clase, con pj de parametro.");}
+                  | field_acces '(' ')' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo desde una clase, sin pj de parametro.");}
+                  | field_acces '(' real_parameter ';' error ')' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
 ;
 
 /*
@@ -315,7 +323,7 @@ statement_without_trailing_substatement : block
                                         | expression_statement
 ;
 
-expression_statement : statement_expression
+expression_statement : statement_expression ','
 ;
 
 statement_expression : assignment 
@@ -523,8 +531,14 @@ private static String generatePath() {
     while (indice < 0) {
       System.out.print("Ingrese el numero de carpeta a acceder: ");
       String input = scanner.nextLine();
-      indice = Integer.parseInt(input);
-      if (indice < directories.size() || indice >= 0) {
+   
+      try {
+        indice = Integer.parseInt(input);
+      } catch (Exception ex) {
+        indice = -1;
+      } 
+
+      if (indice < directories.size() && indice >= 0) {
         path = directories.get(indice);
         directories = listFilesInDirectory("sample_programs" + "/" + path);
       } else {
@@ -541,12 +555,16 @@ private static String generatePath() {
 
         System.out.print("Ingrese el numero de archivo binario a compilar: ");
         String input = scanner.nextLine();
-        indice = Integer.parseInt(input);
 
-        if (indice < directories.size() || indice >= 0) {
+        try {
+          indice = Integer.parseInt(input);
+        } catch (Exception ex) {
+          indice = -1;
+        } 
+
+        if (indice < directories.size() && indice >= 0) {
           path += "/" + directories.get(Integer.parseInt(input));
         } else {
-
           System.out.println("El indice no es correcto, ingrese nuevamente...");
           indice = -1;
         }
@@ -569,13 +587,13 @@ public static void main (String [] args) throws IOException {
         return;
     }
 
-    System.out.println(aLexico.getProgram());
 
     Parser aSintactico = new Parser();
     aSintactico.run();
     aSintactico.dump_stacks(yylval_recognition);
 
     System.out.println(Logger.dumpLog());
+    System.out.println(aLexico.getProgram());
 }
 
 
