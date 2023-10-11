@@ -106,10 +106,22 @@ public class AnalizadorLexico {
             reader.next();
         }
 
-        Logger.logToken(getProgramPosition(), token.getSecond());
+        Logger.logToken(getProgramPosition(),
+                (token.getFirst() != null) ? "[" + token.getSecond() + ", " + token.getFirst() + "]"
+                        : "[" + token.getSecond() + ", " + getLexema(token.getSecond()) + "]");
 
         return token;
 
+    }
+
+    private String getLexema(Short token) {
+        int out = (int) token;
+        return switch (token) {
+            case 273 -> ">=";
+            case 272 -> "<=";
+            case 270 -> "==";
+            default -> "" + ((char) out);
+        };
     }
 
     public int getProgramPosition() {
