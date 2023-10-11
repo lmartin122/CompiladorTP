@@ -49,6 +49,7 @@ public class ASRangoDouble implements AccionSemantica {
             }
         }
 
+        reader.returnCharacter();
         buffer.setLength(0);
         return new Tupla<>(auxBuffer, Parser.CTE_DOUBLE);
     }

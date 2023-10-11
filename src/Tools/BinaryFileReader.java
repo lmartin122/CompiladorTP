@@ -32,14 +32,16 @@ public class BinaryFileReader {
 
             while ((character = fileReader.read()) != -1) {
                 if ((char) character == '\n') {
-                    line++;
+                    if (out.get(line - 1).isEmpty()) {
+                        out.get(line - 1).add((char) character);
+                    }
                     out.add(new ArrayList<>());
+                    line++;
                 } else {
                     out.get(line - 1).add((char) character);
-                    // System.out.print((char) character); // Convierte el valor numérico en un
-                    // caracter
                 }
             }
+            out.get(line - 1).add('\n');
 
             fileReader.close();
             return out;

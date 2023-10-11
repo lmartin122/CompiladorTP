@@ -28,7 +28,7 @@ VOID LONG UINT DOUBLE CADENA ID CTE_DOUBLE CTE_UINT CTE_LONG
 >>>     PROGRAM
 
 */
-program : type_declarations {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio el programa.");}
+program : type_declarations {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio el programa");}
 ;
 
 /*
@@ -94,11 +94,11 @@ method_header : result_type method_declarator
 result_type : VOID 
 ;
 
-method_declarator : ID '(' formal_parameter ')'','{Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo.");}
-                  | ID '{' formal_parameter '}'','{Logger.logError(aLexico.getProgramPosition(), "La declaracion de un metodo debe estar limitado por parentesis \"(...)\".");}
-                  | ID '(' formal_parameter ',' error ')'',' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite la declaracion de un unico parametro formal.");}
-                  | ID '(' ')'',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo.");}
-                  | ID '{' '}'',' {Logger.logError(aLexico.getProgramPosition(), "La declaracion de un metodo debe estar limitado por parentesis \"(...)\".");}
+method_declarator : ID '(' formal_parameter ')'{Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo.");}
+                  | ID '{' formal_parameter '}'{Logger.logError(aLexico.getProgramPosition(), "La declaracion de un metodo debe estar limitado por parentesis \"(...)\".");}
+                  | ID '(' formal_parameter ',' error ')' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite la declaracion de un unico parametro formal.");}
+                  | ID '(' ')' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo.");}
+                  | ID '{' '}' {Logger.logError(aLexico.getProgramPosition(), "La declaracion de un metodo debe estar limitado por parentesis \"(...)\".");}
 ;
 
 // Permito la creacion de multiples block en un metodo, se debe chequear que luego permita
@@ -122,7 +122,6 @@ interface_type_list : type_name
 
 interface_declaration : INTERFACE ID interface_body {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una INTERFACE.");}
                       | INTERFACE ID error ',' {Logger.logError(aLexico.getProgramPosition(), "Es necesario definir el cuerpo de la interface.");}
-                      | error ID interface_body {Logger.logRule(aLexico.getProgramPosition(), "Declaracion de INTERFACE no valida.");}
 ;
 
 interface_body : '{' interface_member_declaration '}'
@@ -266,9 +265,9 @@ type_name : ID
 >>>     BLOCKS AND COMMANDS
 
 */
-block : '{' block_statements RETURN',' '}' 
+block : '{' block_statements RETURN',' '}'
       | '{' block_statements '}' {Logger.logError(aLexico.getProgramPosition(), "Es necesario declarar el retorno del bloque.");}
-      | '{' RETURN',' '}' 
+      | '{' RETURN',' '}'
       | '{' '}' {Logger.logError(aLexico.getProgramPosition(), "Es necesario declarar el retorno del bloque.");}
 ;
 
@@ -350,11 +349,11 @@ if_then_else_statement : IF '(' expression ')' executable_block ELSE executable_
 ; 
 
 
-for_in_range_statement : FOR for_variable IN RANGE '(' for_init ; for_end ; for_update ')' executable_block ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia FOR IN RANGE.");}
-                       | FOR for_variable IN RANGE '(' for_init ; for_end ; for_update ')' executable_statament ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia FOR IN RANGE.");}
-                       | FOR for_variable IN RANGE '(' for_init ; for_end ; for_update ')' error ',' {Logger.logError(aLexico.getProgramPosition(), "Cuerpo del FOR IN RANGE no valido.");} 
-                       | FOR for_variable IN RANGE '(' error ')' executable_block ',' {Logger.logError(aLexico.getProgramPosition(), "Condicion del FOR IN RANGE no valido.");} 
-                       | FOR for_variable IN RANGE '(' error ')' executable_statament ',' {Logger.logError(aLexico.getProgramPosition(), "Condicion del FOR IN RANGE no valido.");} 
+for_in_range_statement : FOR for_variable IN RANGE '(' for_init ';' for_end ';' for_update ')' executable_block {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia FOR IN RANGE.");}
+                       | FOR for_variable IN RANGE '(' for_init ';' for_end ';' for_update ')' executable_statament {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia FOR IN RANGE.");}
+                       | FOR for_variable IN RANGE '(' for_init ';' for_end ';' for_update ')' error ',' {Logger.logError(aLexico.getProgramPosition(), "Cuerpo del FOR IN RANGE no valido.");} 
+                       | FOR for_variable IN RANGE '('error')'  executable_block {Logger.logError(aLexico.getProgramPosition(), "Condicion del FOR IN RANGE no valido.");} 
+                       | FOR for_variable IN RANGE '('error')' executable_statament {Logger.logError(aLexico.getProgramPosition(), "Condicion del FOR IN RANGE no valido.");} 
 ;
 
 for_variable : reference_type

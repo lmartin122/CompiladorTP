@@ -1,24 +1,60 @@
-Se encontro un TOKEN en la linea 1: [261, IF].
-Se encontro un TOKEN en la linea 1: [40, (].
-Se encontro un TOKEN en la linea 1: [283, 2].
-Se encontro un TOKEN en la linea 1: [273, >=].
-Se encontro un TOKEN en la linea 1: [282, 3].
-Se encontro un TOKEN en la linea 1: [41, )].
-Se encontro un TOKEN en la linea 2: [123, {].
-Se encontro un TOKEN en la linea 2: [268, PRINT].
-Se encontro un TOKEN en la linea 2: [279,  Dos es menor a tres. ].
-Se encontro un TOKEN en la linea 3: [44, ,].
-Se encontro un TOKEN en la linea 3: [125, }].
-Se encontro un TOKEN en la linea 3: [262, ELSE].
-Se encontro un TOKEN en la linea 4: [123, {].
-Se encontro un TOKEN en la linea 4: [268, PRINT].
-Se encontro un TOKEN en la linea 4: [279,  Dos no es menor a tres. ].
-Se encontro un TOKEN en la linea 5: [44, ,].
-Se encontro un TOKEN en la linea 5: [125, }].
-Se encontro un TOKEN en la linea 5: [263, END_IF].
-Se encontro un TOKEN en la linea 6: [44, ,].
-Se encontro un RULE en la linea 1: Se reconocio una operacion logica..
-Se encontro un RULE en la linea 3: Se reconocio una sentencia PRINT..
-Se encontro un RULE en la linea 5: Se reconocio una sentencia PRINT..
-Se encontro un RULE en la linea 6: Se reconocio una sentencia IF ELSE..
-Se encontro un RULE en la linea 6: Se reconocio el programa..
+Se encontro un ERROR en la linea 8:   es un simbolo desconocido.
+Se encontro un ERROR en la linea 8:   es un simbolo desconocido.
+Se encontro un ERROR en la linea 8:   es un simbolo desconocido.
+Se encontro un ERROR en la linea 8:   es un simbolo desconocido.
+Se encontro un ERROR en la linea 13: El string nunca se cierra y finaliza el programa
+Se encontro un TOKEN en la linea 1: [275, VOID]
+Se encontro un TOKEN en la linea 1: [280, f]
+Se encontro un TOKEN en la linea 1: [40, (]
+Se encontro un TOKEN en la linea 1: [277, UINT]
+Se encontro un TOKEN en la linea 1: [280, a]
+Se encontro un TOKEN en la linea 1: [41, )]
+Se encontro un TOKEN en la linea 1: [123, {]
+Se encontro un TOKEN en la linea 2: [277, UINT]
+Se encontro un TOKEN en la linea 2: [280, c]
+Se encontro un TOKEN en la linea 2: [61, =]
+Se encontro un TOKEN en la linea 2: [282, 0]
+Se encontro un TOKEN en la linea 3: [44, ,]
+Se encontro un TOKEN en la linea 4: [264, FOR]
+Se encontro un TOKEN en la linea 4: [280, a]
+Se encontro un TOKEN en la linea 4: [265, IN]
+Se encontro un TOKEN en la linea 4: [266, RANGE]
+Se encontro un TOKEN en la linea 4: [40, (]
+Se encontro un TOKEN en la linea 4: [282, 0]
+Se encontro un TOKEN en la linea 4: [59, ;]
+Se encontro un TOKEN en la linea 4: [282, 10]
+Se encontro un TOKEN en la linea 4: [59, ;]
+Se encontro un TOKEN en la linea 4: [282, 2]
+Se encontro un TOKEN en la linea 4: [41, )]
+Se encontro un TOKEN en la linea 5: [123, {]
+Se encontro un TOKEN en la linea 5: [280, c]
+Se encontro un TOKEN en la linea 5: [274, Ē]
+Se encontro un TOKEN en la linea 5: [282, 1]
+Se encontro un TOKEN en la linea 6: [44, ,]
+Se encontro un TOKEN en la linea 8: [125, }]
+Se encontro un TOKEN en la linea 8: [260, RETURN]
+Se encontro un TOKEN en la linea 9: [44, ,]
+Se encontro un TOKEN en la linea 11: [125, }]
+Se encontro un TOKEN en la linea 11: [277, UINT]
+Se encontro un TOKEN en la linea 11: [280, a]
+Se encontro un TOKEN en la linea 11: [59, ;]
+Se encontro un TOKEN en la linea 11: [280, b]
+Se encontro un TOKEN en la linea 11: [61, =]
+Se encontro un TOKEN en la linea 11: [282, 12]
+Se encontro un TOKEN en la linea 12: [44, ,]
+Se encontro un TOKEN en la linea 12: [280, f]
+Se encontro un TOKEN en la linea 12: [40, (]
+Se encontro un TOKEN en la linea 12: [280, a]
+Se encontro un TOKEN en la linea 12: [59, ;]
+Se encontro un TOKEN en la linea 12: [280, b]
+Se encontro un TOKEN en la linea 12: [41, )]
+Se encontro un TOKEN en la linea 12: [44, ,]
+Se encontro un RULE en la linea 1: Se reconocio un metodo.
+Se encontro un RULE en la linea 3: Se reconocio una operacion aritmetica.
+Se encontro un RULE en la linea 3: Se reconocio una declaracion de variable local.
+Se encontro un RULE en la linea 6: Se reconocio una operacion aritmetica.
+Se encontro un RULE en la linea 6: Se reconocio una asignacion.
+Se encontro un RULE en la linea 8: Se reconocio una sentencia FOR IN RANGE.
+Se encontro un RULE en la linea 12: Se reconocio una operacion aritmetica.
+Se encontro un RULE en la linea 12: Se reconocio una declaracion de variable local.
+Se encontro un RULE en la linea 12: Se reconocio una operacion aritmetica.

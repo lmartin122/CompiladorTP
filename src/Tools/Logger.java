@@ -23,19 +23,19 @@ public final class Logger {
     }
 
     public static void logError(int line, Object message) {
-        errors.add("Se encontro un " + LogType.ERROR + " en la linea " + line + ": " + message + ".\n");
+        errors.add("Se encontro un " + LogType.ERROR + " en la linea " + line + ": " + message + "\n");
     }
 
     public static void logWarning(int line, Object message) {
-        warnings.add("Se encontro un " + LogType.WARNING + " en la linea " + line + ": " + message + ".\n");
+        warnings.add("Se encontro un " + LogType.WARNING + " en la linea " + line + ": " + message + "\n");
     }
 
     public static void logToken(int line, Object message) {
-        tokens.add("Se encontro un " + LogType.TOKEN + " en la linea " + line + ": " + message + ".\n");
+        tokens.add("Se encontro un " + LogType.TOKEN + " en la linea " + line + ": " + message + "\n");
     }
 
     public static void logRule(int line, Object message) {
-        rules.add("Se encontro un " + LogType.RULE + " en la linea " + line + ": " + message + ".\n");
+        rules.add("Se encontro un " + LogType.RULE + " en la linea " + line + ": " + message + "\n");
     }
 
     public static String dumpLog() throws IOException {

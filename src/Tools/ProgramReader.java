@@ -28,9 +28,12 @@ public class ProgramReader {
         if (currentLine < program.size() && currentColumn < program.get(currentLine).size() - 1) {
             // Avanzamos a la siguiente columna en la misma línea
             currentColumn++;
-        } else if (currentLine < program.size()) {
+        } else if (!hasFinished()) {
             // Avanzamos a la siguiente línea
             currentLine++;
+            // while (program.get(currentLine).size() == 0 && !hasFinished()) {
+            // currentLine++;
+            // }
             currentColumn = 0;
         }
     }
@@ -42,7 +45,8 @@ public class ProgramReader {
         for (ArrayList<Character> l : this.program) {
             out += "[" + linea + "]: ";
             for (Character c : l) {
-                out += c;
+                if (c != '\n')
+                    out += c;
             }
             out += "\n";
             linea++;
