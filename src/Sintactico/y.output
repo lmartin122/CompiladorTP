@@ -42,11 +42,11 @@
 
   26  result_type : VOID
 
-  27  method_declarator : ID '(' formal_parameter ')'
-  28                    | ID '{' formal_parameter '}'
-  29                    | ID '(' formal_parameter ',' error ')'
-  30                    | ID '(' ')'
-  31                    | ID '{' '}'
+  27  method_declarator : ID '(' formal_parameter ')' ','
+  28                    | ID '{' formal_parameter '}' ','
+  29                    | ID '(' formal_parameter ',' error ')' ','
+  30                    | ID '(' ')' ','
+  31                    | ID '{' '}' ','
 
   32  method_body : block
   33              | ','
@@ -66,177 +66,178 @@
 
   42  interface_body : '{' interface_member_declaration '}'
   43                 | '(' interface_member_declaration ')'
-  44                 | '{' '}' ','
+  44                 | '{' '}'
   45                 | '(' ')'
 
   46  interface_member_declaration : interface_method_declaration
   47                               | interface_member_declaration interface_method_declaration
 
   48  interface_method_declaration : result_type method_declarator
+  49                               | result_type error ','
 
-  49  implement_for_declaration : IMPL FOR reference_type ':' implement_for_body
-  50                            | IMPL FOR reference_type ':' error ','
-  51                            | IMPL FOR error ':' implement_for_body ','
-  52                            | error reference_type ':' implement_for_body
+  50  implement_for_declaration : IMPL FOR reference_type ':' implement_for_body
+  51                            | IMPL FOR reference_type ':' error ','
+  52                            | IMPL FOR error ':' implement_for_body ','
+  53                            | error reference_type ':' implement_for_body
 
-  53  implement_for_body : '{' implement_for_body_declarations '}'
+  54  implement_for_body : '{' implement_for_body_declarations '}'
 
-  54  implement_for_body_declarations : implement_for_body_declaration
-  55                                  | implement_for_body_declarations implement_for_body_declaration
+  55  implement_for_body_declarations : implement_for_body_declaration
+  56                                  | implement_for_body_declarations implement_for_body_declaration
 
-  56  implement_for_body_declaration : implement_for_method_declaration
+  57  implement_for_body_declaration : implement_for_method_declaration
 
-  57  implement_for_method_declaration : method_header implement_for_method_body
+  58  implement_for_method_declaration : method_header implement_for_method_body
 
-  58  implement_for_method_body : method_body
+  59  implement_for_method_body : method_body
 
-  59  assignment : left_hand_side assignment_operator arithmetic_operation
+  60  assignment : left_hand_side assignment_operator arithmetic_operation
 
-  60  left_hand_side : ID
+  61  left_hand_side : reference_type
 
-  61  expression : equality_expression
+  62  expression : equality_expression
 
-  62  equality_expression : relational_expression
-  63                      | equality_expression EQUAL_OPERATOR relational_expression
-  64                      | equality_expression NOT_EQUAL_OPERATOR relational_expression
+  63  equality_expression : relational_expression
+  64                      | equality_expression EQUAL_OPERATOR relational_expression
+  65                      | equality_expression NOT_EQUAL_OPERATOR relational_expression
 
-  65  relational_expression : additive_expression
-  66                        | relational_expression '<' additive_expression
-  67                        | relational_expression '>' additive_expression
-  68                        | relational_expression GREATER_THAN_OR_EQUAL_OPERATOR additive_expression
-  69                        | relational_expression LESS_THAN_OR_EQUAL_OPERATOR additive_expression
+  66  relational_expression : additive_expression
+  67                        | relational_expression '<' additive_expression
+  68                        | relational_expression '>' additive_expression
+  69                        | relational_expression GREATER_THAN_OR_EQUAL_OPERATOR additive_expression
+  70                        | relational_expression LESS_THAN_OR_EQUAL_OPERATOR additive_expression
 
-  70  arithmetic_operation : additive_expression
+  71  arithmetic_operation : additive_expression
 
-  71  additive_expression : multiplicative_expression
-  72                      | additive_expression '+' multiplicative_expression
-  73                      | additive_expression '-' multiplicative_expression
+  72  additive_expression : multiplicative_expression
+  73                      | additive_expression '+' multiplicative_expression
+  74                      | additive_expression '-' multiplicative_expression
 
-  74  multiplicative_expression : unary_expression
-  75                            | TOD '(' unary_expression ')'
-  76                            | multiplicative_expression '*' unary_expression
-  77                            | multiplicative_expression '/' unary_expression
-  78                            | multiplicative_expression '%' unary_expression
+  75  multiplicative_expression : unary_expression
+  76                            | TOD '(' unary_expression ')'
+  77                            | multiplicative_expression '*' unary_expression
+  78                            | multiplicative_expression '/' unary_expression
+  79                            | multiplicative_expression '%' unary_expression
 
-  79  unary_expression : term
-  80                   | ID
+  80  unary_expression : term
+  81                   | ID
 
-  81  term : factor
-  82       | '(' expression ')'
+  82  term : factor
+  83       | '(' expression ')'
+  84       | '(' ')'
 
-  83  factor : CTE_DOUBLE
-  84         | CTE_UINT
-  85         | CTE_LONG
-  86         | '-' CTE_DOUBLE
-  87         | '-' CTE_LONG
-  88         | '-' CTE_UINT
+  85  factor : CTE_DOUBLE
+  86         | CTE_UINT
+  87         | CTE_LONG
+  88         | '-' CTE_DOUBLE
+  89         | '-' CTE_LONG
+  90         | '-' CTE_UINT
 
-  89  assignment_operator : '='
-  90                      | MINUS_ASSIGN
+  91  assignment_operator : '='
+  92                      | MINUS_ASSIGN
 
-  91  method_invocation : ID '(' real_parameter ')' ','
-  92                    | ID '(' ')' ','
-  93                    | ID '(' real_parameter ',' error ')' ','
+  93  method_invocation : ID '(' real_parameter ')' ','
+  94                    | ID '(' ')' ','
+  95                    | ID '(' real_parameter ',' error ')' ','
 
-  94  type : primitive_type
-  95       | reference_type
+  96  type : primitive_type
+  97       | reference_type
 
-  96  primitive_type : numeric_type
+  98  primitive_type : numeric_type
 
-  97  reference_type : ID
+  99  reference_type : ID
 
-  98  numeric_type : integral_type
-  99               | floating_type
+ 100  numeric_type : integral_type
+ 101               | floating_type
 
- 100  integral_type : UINT
- 101                | LONG
+ 102  integral_type : UINT
+ 103                | LONG
 
- 102  floating_type : DOUBLE
+ 104  floating_type : DOUBLE
 
- 103  type_name : ID
+ 105  type_name : ID
 
- 104  block : '{' block_statements RETURN ',' '}'
- 105        | '{' block_statements '}'
- 106        | '{' RETURN ',' '}'
- 107        | '{' '}'
+ 106  block : '{' block_statements RETURN ',' '}'
+ 107        | '{' block_statements '}'
+ 108        | '{' RETURN ',' '}'
+ 109        | '{' '}'
 
- 108  executable_block : '{' executable_block_statements '}'
- 109                   | '{' '}'
+ 110  executable_block : '{' executable_block_statements '}'
+ 111                   | '{' '}'
 
- 110  block_statements : block_statement
- 111                   | block_statements block_statement
+ 112  block_statements : block_statement
+ 113                   | block_statements block_statement
 
- 112  executable_block_statements : executable_statament
- 113                              | executable_block_statements executable_statament
+ 114  executable_block_statements : executable_statament
+ 115                              | executable_block_statements executable_statament
 
- 114  block_statement : local_variable_declaration_statement
- 115                  | statement
+ 116  block_statement : local_variable_declaration_statement
+ 117                  | statement
 
- 116  executable_statament : if_then_statement
- 117                       | if_then_else_statement
- 118                       | for_in_range_statement
- 119                       | print_statement
- 120                       | expression_statement
- 121                       | empty_statement
+ 118  executable_statament : if_then_statement
+ 119                       | if_then_else_statement
+ 120                       | for_in_range_statement
+ 121                       | print_statement
+ 122                       | expression_statement
+ 123                       | empty_statement
 
- 122  local_variable_declaration_statement : local_variable_declaration ','
+ 124  local_variable_declaration_statement : local_variable_declaration ','
 
- 123  local_variable_declaration : type variable_declarators
+ 125  local_variable_declaration : type variable_declarators
 
- 124  statement : statement_without_trailing_substatement
- 125            | if_then_statement
- 126            | if_then_else_statement
- 127            | for_in_range_statement
- 128            | method_declaration
- 129            | print_statement
+ 126  statement : statement_without_trailing_substatement
+ 127            | if_then_statement
+ 128            | if_then_else_statement
+ 129            | for_in_range_statement
+ 130            | method_declaration
+ 131            | print_statement
 
- 130  statement_without_trailing_substatement : block
- 131                                          | empty_statement
- 132                                          | expression_statement
+ 132  statement_without_trailing_substatement : block
+ 133                                          | empty_statement
+ 134                                          | expression_statement
 
- 133  expression_statement : statement_expression
+ 135  expression_statement : statement_expression
 
- 134  statement_expression : assignment
- 135                       | method_invocation
+ 136  statement_expression : assignment
+ 137                       | method_invocation
 
- 136  empty_statement : ','
+ 138  empty_statement : ','
 
- 137  if_then_statement : IF '(' expression ')' executable_block END_IF ','
- 138                    | IF '(' expression ')' executable_statament END_IF ','
- 139                    | IF '(' expression ')' executable_statament ','
- 140                    | IF '(' expression ')' executable_block ','
- 141                    | IF '(' expression ')' error END_IF ','
- 142                    | IF '(' error ')' executable_block END_IF ','
- 143                    | IF '(' error ')' executable_statament END_IF ','
+ 139  if_then_statement : IF '(' expression ')' executable_block END_IF ','
+ 140                    | IF '(' expression ')' executable_statament END_IF ','
+ 141                    | IF '(' expression ')' executable_statament ','
+ 142                    | IF '(' expression ')' executable_block ','
+ 143                    | IF '(' expression ')' error END_IF ','
+ 144                    | IF '(' error ')' executable_block END_IF ','
+ 145                    | IF '(' error ')' executable_statament END_IF ','
 
- 144  if_then_else_statement : IF '(' expression ')' executable_block ELSE executable_block END_IF ','
- 145                         | IF '(' expression ')' executable_block ELSE executable_statament END_IF ','
- 146                         | IF '(' expression ')' executable_statament ELSE executable_statament END_IF ','
- 147                         | IF '(' expression ')' executable_statament ELSE executable_block END_IF ','
- 148                         | IF '(' expression ')' executable_statament ELSE executable_block error ','
- 149                         | IF '(' error ')' executable_block ELSE executable_block END_IF ','
- 150                         | IF '(' error ')' executable_block ELSE executable_statament END_IF ','
- 151                         | IF '(' error ')' executable_statament ELSE executable_statament END_IF ','
- 152                         | IF '(' error ')' executable_statament ELSE executable_block END_IF ','
- 153                         | IF '(' expression ')' executable_block ELSE executable_block ','
+ 146  if_then_else_statement : IF '(' expression ')' executable_block ELSE executable_block END_IF ','
+ 147                         | IF '(' expression ')' executable_block ELSE executable_statament END_IF ','
+ 148                         | IF '(' expression ')' executable_statament ELSE executable_statament END_IF ','
+ 149                         | IF '(' expression ')' executable_statament ELSE executable_block END_IF ','
+ 150                         | IF '(' expression ')' executable_statament ELSE executable_block error ','
+ 151                         | IF '(' error ')' executable_block ELSE executable_block END_IF ','
+ 152                         | IF '(' error ')' executable_block ELSE executable_statament END_IF ','
+ 153                         | IF '(' error ')' executable_statament ELSE executable_statament END_IF ','
+ 154                         | IF '(' error ')' executable_statament ELSE executable_block END_IF ','
 
- 154  for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update ')' executable_block ','
- 155                         | FOR for_variable IN RANGE '(' for_init for_end for_update ')' executable_statament ','
- 156                         | FOR for_variable IN RANGE '(' for_init for_end for_update ')' error ','
- 157                         | FOR for_variable IN RANGE '(' error ')' executable_block ','
- 158                         | FOR for_variable IN RANGE '(' error ')' executable_statament ','
+ 155  for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update ')' executable_block ','
+ 156                         | FOR for_variable IN RANGE '(' for_init for_end for_update ')' executable_statament ','
+ 157                         | FOR for_variable IN RANGE '(' for_init for_end for_update ')' error ','
+ 158                         | FOR for_variable IN RANGE '(' error ')' executable_block ','
+ 159                         | FOR for_variable IN RANGE '(' error ')' executable_statament ','
 
- 159  for_variable : ID
+ 160  for_variable : reference_type
 
- 160  for_init : factor
+ 161  for_init : factor
 
- 161  for_update : factor
+ 162  for_update : factor
 
- 162  for_end : factor
+ 163  for_end : factor
 
- 163  print_statement : PRINT CADENA ','
- 164                  | PRINT error ','
- 165                  | error CADENA ','
+ 164  print_statement : PRINT CADENA ','
+ 165                  | PRINT error ','
+ 166                  | error CADENA ','
 
 state 0
 	$accept : . program $end  (0)
@@ -293,8 +294,8 @@ state 0
 state 1
 	class_declaration : error . ID class_body  (10)
 	interface_declaration : error . ID interface_body  (41)
-	implement_for_declaration : error . reference_type ':' implement_for_body  (52)
-	print_statement : error . CADENA ','  (165)
+	implement_for_declaration : error . reference_type ':' implement_for_body  (53)
+	print_statement : error . CADENA ','  (166)
 
 	CADENA  shift 46
 	ID  shift 47
@@ -320,56 +321,56 @@ state 3
 
 
 state 4
-	if_then_statement : IF . '(' expression ')' executable_block END_IF ','  (137)
-	if_then_statement : IF . '(' expression ')' executable_statament END_IF ','  (138)
-	if_then_statement : IF . '(' expression ')' executable_statament ','  (139)
-	if_then_statement : IF . '(' expression ')' executable_block ','  (140)
-	if_then_statement : IF . '(' expression ')' error END_IF ','  (141)
-	if_then_statement : IF . '(' error ')' executable_block END_IF ','  (142)
-	if_then_statement : IF . '(' error ')' executable_statament END_IF ','  (143)
-	if_then_else_statement : IF . '(' expression ')' executable_block ELSE executable_block END_IF ','  (144)
-	if_then_else_statement : IF . '(' expression ')' executable_block ELSE executable_statament END_IF ','  (145)
-	if_then_else_statement : IF . '(' expression ')' executable_statament ELSE executable_statament END_IF ','  (146)
-	if_then_else_statement : IF . '(' expression ')' executable_statament ELSE executable_block END_IF ','  (147)
-	if_then_else_statement : IF . '(' expression ')' executable_statament ELSE executable_block error ','  (148)
-	if_then_else_statement : IF . '(' error ')' executable_block ELSE executable_block END_IF ','  (149)
-	if_then_else_statement : IF . '(' error ')' executable_block ELSE executable_statament END_IF ','  (150)
-	if_then_else_statement : IF . '(' error ')' executable_statament ELSE executable_statament END_IF ','  (151)
-	if_then_else_statement : IF . '(' error ')' executable_statament ELSE executable_block END_IF ','  (152)
-	if_then_else_statement : IF . '(' expression ')' executable_block ELSE executable_block ','  (153)
+	if_then_statement : IF . '(' expression ')' executable_block END_IF ','  (139)
+	if_then_statement : IF . '(' expression ')' executable_statament END_IF ','  (140)
+	if_then_statement : IF . '(' expression ')' executable_statament ','  (141)
+	if_then_statement : IF . '(' expression ')' executable_block ','  (142)
+	if_then_statement : IF . '(' expression ')' error END_IF ','  (143)
+	if_then_statement : IF . '(' error ')' executable_block END_IF ','  (144)
+	if_then_statement : IF . '(' error ')' executable_statament END_IF ','  (145)
+	if_then_else_statement : IF . '(' expression ')' executable_block ELSE executable_block END_IF ','  (146)
+	if_then_else_statement : IF . '(' expression ')' executable_block ELSE executable_statament END_IF ','  (147)
+	if_then_else_statement : IF . '(' expression ')' executable_statament ELSE executable_statament END_IF ','  (148)
+	if_then_else_statement : IF . '(' expression ')' executable_statament ELSE executable_block END_IF ','  (149)
+	if_then_else_statement : IF . '(' expression ')' executable_statament ELSE executable_block error ','  (150)
+	if_then_else_statement : IF . '(' error ')' executable_block ELSE executable_block END_IF ','  (151)
+	if_then_else_statement : IF . '(' error ')' executable_block ELSE executable_statament END_IF ','  (152)
+	if_then_else_statement : IF . '(' error ')' executable_statament ELSE executable_statament END_IF ','  (153)
+	if_then_else_statement : IF . '(' error ')' executable_statament ELSE executable_block END_IF ','  (154)
 
 	'('  shift 51
 	.  error
 
 
 state 5
-	for_in_range_statement : FOR . for_variable IN RANGE '(' for_init for_end for_update ')' executable_block ','  (154)
-	for_in_range_statement : FOR . for_variable IN RANGE '(' for_init for_end for_update ')' executable_statament ','  (155)
-	for_in_range_statement : FOR . for_variable IN RANGE '(' for_init for_end for_update ')' error ','  (156)
-	for_in_range_statement : FOR . for_variable IN RANGE '(' error ')' executable_block ','  (157)
-	for_in_range_statement : FOR . for_variable IN RANGE '(' error ')' executable_statament ','  (158)
+	for_in_range_statement : FOR . for_variable IN RANGE '(' for_init for_end for_update ')' executable_block ','  (155)
+	for_in_range_statement : FOR . for_variable IN RANGE '(' for_init for_end for_update ')' executable_statament ','  (156)
+	for_in_range_statement : FOR . for_variable IN RANGE '(' for_init for_end for_update ')' error ','  (157)
+	for_in_range_statement : FOR . for_variable IN RANGE '(' error ')' executable_block ','  (158)
+	for_in_range_statement : FOR . for_variable IN RANGE '(' error ')' executable_statament ','  (159)
 
 	ID  shift 52
 	.  error
 
-	for_variable  goto 53
+	reference_type  goto 53
+	for_variable  goto 54
 
 
 state 6
-	implement_for_declaration : IMPL . FOR reference_type ':' implement_for_body  (49)
-	implement_for_declaration : IMPL . FOR reference_type ':' error ','  (50)
-	implement_for_declaration : IMPL . FOR error ':' implement_for_body ','  (51)
+	implement_for_declaration : IMPL . FOR reference_type ':' implement_for_body  (50)
+	implement_for_declaration : IMPL . FOR reference_type ':' error ','  (51)
+	implement_for_declaration : IMPL . FOR error ':' implement_for_body ','  (52)
 
-	FOR  shift 54
+	FOR  shift 55
 	.  error
 
 
 state 7
-	print_statement : PRINT . CADENA ','  (163)
-	print_statement : PRINT . error ','  (164)
+	print_statement : PRINT . CADENA ','  (164)
+	print_statement : PRINT . error ','  (165)
 
-	error  shift 55
-	CADENA  shift 56
+	error  shift 56
+	CADENA  shift 57
 	.  error
 
 
@@ -380,44 +381,43 @@ state 8
 
 
 state 9
-	integral_type : LONG .  (101)
+	integral_type : LONG .  (103)
 
-	.  reduce 101
+	.  reduce 103
 
 
 state 10
-	integral_type : UINT .  (100)
-
-	.  reduce 100
-
-
-state 11
-	floating_type : DOUBLE .  (102)
+	integral_type : UINT .  (102)
 
 	.  reduce 102
 
 
-state 12
-	left_hand_side : ID .  (60)
-	method_invocation : ID . '(' real_parameter ')' ','  (91)
-	method_invocation : ID . '(' ')' ','  (92)
-	method_invocation : ID . '(' real_parameter ',' error ')' ','  (93)
-	reference_type : ID .  (97)
+state 11
+	floating_type : DOUBLE .  (104)
 
-	'('  shift 57
-	MINUS_ASSIGN  reduce 60
-	ID  reduce 97
-	'='  reduce 60
+	.  reduce 104
+
+
+state 12
+	method_invocation : ID . '(' real_parameter ')' ','  (93)
+	method_invocation : ID . '(' ')' ','  (94)
+	method_invocation : ID . '(' real_parameter ',' error ')' ','  (95)
+	reference_type : ID .  (99)
+
+	'('  shift 58
+	MINUS_ASSIGN  reduce 99
+	ID  reduce 99
+	'='  reduce 99
 
 
 state 13
-	block : '{' . block_statements RETURN ',' '}'  (104)
-	block : '{' . block_statements '}'  (105)
-	block : '{' . RETURN ',' '}'  (106)
-	block : '{' . '}'  (107)
+	block : '{' . block_statements RETURN ',' '}'  (106)
+	block : '{' . block_statements '}'  (107)
+	block : '{' . RETURN ',' '}'  (108)
+	block : '{' . '}'  (109)
 
-	error  shift 58
-	RETURN  shift 59
+	error  shift 59
+	RETURN  shift 60
 	IF  shift 4
 	FOR  shift 5
 	PRINT  shift 7
@@ -427,11 +427,11 @@ state 13
 	DOUBLE  shift 11
 	ID  shift 12
 	'{'  shift 13
-	'}'  shift 60
+	'}'  shift 61
 	','  shift 14
 	.  error
 
-	block_statement  goto 61
+	block_statement  goto 62
 	method_declaration  goto 22
 	type  goto 23
 	method_header  goto 24
@@ -445,7 +445,7 @@ state 13
 	numeric_type  goto 32
 	integral_type  goto 33
 	floating_type  goto 34
-	block_statements  goto 62
+	block_statements  goto 63
 	local_variable_declaration_statement  goto 35
 	statement  goto 36
 	if_then_statement  goto 37
@@ -460,9 +460,9 @@ state 13
 
 
 state 14
-	empty_statement : ',' .  (136)
+	empty_statement : ',' .  (138)
 
-	.  reduce 136
+	.  reduce 138
 
 
 state 15
@@ -491,7 +491,7 @@ state 16
 	','  shift 14
 	$end  reduce 1
 
-	type_declaration  goto 63
+	type_declaration  goto 64
 	class_declaration  goto 18
 	interface_declaration  goto 19
 	implement_for_declaration  goto 20
@@ -553,191 +553,194 @@ state 21
 
 
 state 22
-	statement : method_declaration .  (128)
+	statement : method_declaration .  (130)
 
-	.  reduce 128
+	.  reduce 130
 
 
 state 23
-	local_variable_declaration : type . variable_declarators  (123)
+	local_variable_declaration : type . variable_declarators  (125)
 
-	ID  shift 64
+	ID  shift 65
 	.  error
 
-	variable_declarators  goto 65
-	variable_declarator  goto 66
-	variable_declarator_id  goto 67
+	variable_declarators  goto 66
+	variable_declarator  goto 67
+	variable_declarator_id  goto 68
 
 
 state 24
 	method_declaration : method_header . method_body  (24)
 
 	'{'  shift 13
-	','  shift 68
+	','  shift 69
 	.  error
 
-	method_body  goto 69
-	block  goto 70
+	method_body  goto 70
+	block  goto 71
 
 
 state 25
 	method_header : result_type . method_declarator  (25)
 
-	ID  shift 71
+	ID  shift 72
 	.  error
 
-	method_declarator  goto 72
+	method_declarator  goto 73
 
 
 state 26
-	statement_without_trailing_substatement : block .  (130)
-
-	.  reduce 130
-
-
-state 27
-	type : reference_type .  (95)
-
-	.  reduce 95
-
-
-state 28
-	statement_expression : assignment .  (134)
-
-	.  reduce 134
-
-
-state 29
-	assignment : left_hand_side . assignment_operator arithmetic_operation  (59)
-
-	MINUS_ASSIGN  shift 73
-	'='  shift 74
-	.  error
-
-	assignment_operator  goto 75
-
-
-state 30
-	statement_expression : method_invocation .  (135)
-
-	.  reduce 135
-
-
-state 31
-	type : primitive_type .  (94)
-
-	.  reduce 94
-
-
-state 32
-	primitive_type : numeric_type .  (96)
-
-	.  reduce 96
-
-
-state 33
-	numeric_type : integral_type .  (98)
-
-	.  reduce 98
-
-
-state 34
-	numeric_type : floating_type .  (99)
-
-	.  reduce 99
-
-
-state 35
-	block_statement : local_variable_declaration_statement .  (114)
-
-	.  reduce 114
-
-
-state 36
-	block_statement : statement .  (115)
-
-	.  reduce 115
-
-
-state 37
-	statement : if_then_statement .  (125)
-
-	.  reduce 125
-
-
-state 38
-	statement : if_then_else_statement .  (126)
-
-	.  reduce 126
-
-
-state 39
-	statement : for_in_range_statement .  (127)
-
-	.  reduce 127
-
-
-state 40
-	statement : print_statement .  (129)
-
-	.  reduce 129
-
-
-state 41
-	statement_without_trailing_substatement : expression_statement .  (132)
+	statement_without_trailing_substatement : block .  (132)
 
 	.  reduce 132
 
 
-state 42
-	statement_without_trailing_substatement : empty_statement .  (131)
+state 27
+	left_hand_side : reference_type .  (61)
+	type : reference_type .  (97)
+
+	MINUS_ASSIGN  reduce 61
+	ID  reduce 97
+	'='  reduce 61
+
+
+state 28
+	statement_expression : assignment .  (136)
+
+	.  reduce 136
+
+
+state 29
+	assignment : left_hand_side . assignment_operator arithmetic_operation  (60)
+
+	MINUS_ASSIGN  shift 74
+	'='  shift 75
+	.  error
+
+	assignment_operator  goto 76
+
+
+state 30
+	statement_expression : method_invocation .  (137)
+
+	.  reduce 137
+
+
+state 31
+	type : primitive_type .  (96)
+
+	.  reduce 96
+
+
+state 32
+	primitive_type : numeric_type .  (98)
+
+	.  reduce 98
+
+
+state 33
+	numeric_type : integral_type .  (100)
+
+	.  reduce 100
+
+
+state 34
+	numeric_type : floating_type .  (101)
+
+	.  reduce 101
+
+
+state 35
+	block_statement : local_variable_declaration_statement .  (116)
+
+	.  reduce 116
+
+
+state 36
+	block_statement : statement .  (117)
+
+	.  reduce 117
+
+
+state 37
+	statement : if_then_statement .  (127)
+
+	.  reduce 127
+
+
+state 38
+	statement : if_then_else_statement .  (128)
+
+	.  reduce 128
+
+
+state 39
+	statement : for_in_range_statement .  (129)
+
+	.  reduce 129
+
+
+state 40
+	statement : print_statement .  (131)
 
 	.  reduce 131
 
 
-state 43
-	local_variable_declaration_statement : local_variable_declaration . ','  (122)
+state 41
+	statement_without_trailing_substatement : expression_statement .  (134)
 
-	','  shift 76
-	.  error
-
-
-state 44
-	statement : statement_without_trailing_substatement .  (124)
-
-	.  reduce 124
+	.  reduce 134
 
 
-state 45
-	expression_statement : statement_expression .  (133)
+state 42
+	statement_without_trailing_substatement : empty_statement .  (133)
 
 	.  reduce 133
 
 
-state 46
-	print_statement : error CADENA . ','  (165)
+state 43
+	local_variable_declaration_statement : local_variable_declaration . ','  (124)
 
 	','  shift 77
+	.  error
+
+
+state 44
+	statement : statement_without_trailing_substatement .  (126)
+
+	.  reduce 126
+
+
+state 45
+	expression_statement : statement_expression .  (135)
+
+	.  reduce 135
+
+
+state 46
+	print_statement : error CADENA . ','  (166)
+
+	','  shift 78
 	.  error
 
 
 state 47
 	class_declaration : error ID . class_body  (10)
 	interface_declaration : error ID . interface_body  (41)
-	reference_type : ID .  (97)
+	reference_type : ID .  (99)
 
-	'{'  shift 78
-	'('  shift 79
-	':'  reduce 97
+	'{'  shift 79
+	'('  shift 80
+	':'  reduce 99
 
-	class_body  goto 80
-	interface_body  goto 81
+	class_body  goto 81
+	interface_body  goto 82
 
 
 state 48
-	implement_for_declaration : error reference_type . ':' implement_for_body  (52)
+	implement_for_declaration : error reference_type . ':' implement_for_body  (53)
 
-	':'  shift 82
+	':'  shift 83
 	.  error
 
 
@@ -745,164 +748,169 @@ state 49
 	class_declaration : CLASS ID . class_body  (8)
 	class_declaration : CLASS ID . interfaces class_body  (9)
 
-	IMPLEMENT  shift 83
-	'{'  shift 84
+	IMPLEMENT  shift 84
+	'{'  shift 85
 	.  error
 
-	class_body  goto 85
-	interfaces  goto 86
+	class_body  goto 86
+	interfaces  goto 87
 
 
 state 50
 	interface_declaration : INTERFACE ID . interface_body  (39)
 	interface_declaration : INTERFACE ID . error ','  (40)
 
-	error  shift 87
-	'{'  shift 88
-	'('  shift 79
+	error  shift 88
+	'{'  shift 89
+	'('  shift 80
 	.  error
 
-	interface_body  goto 89
+	interface_body  goto 90
 
 
 state 51
-	if_then_statement : IF '(' . expression ')' executable_block END_IF ','  (137)
-	if_then_statement : IF '(' . expression ')' executable_statament END_IF ','  (138)
-	if_then_statement : IF '(' . expression ')' executable_statament ','  (139)
-	if_then_statement : IF '(' . expression ')' executable_block ','  (140)
-	if_then_statement : IF '(' . expression ')' error END_IF ','  (141)
-	if_then_statement : IF '(' . error ')' executable_block END_IF ','  (142)
-	if_then_statement : IF '(' . error ')' executable_statament END_IF ','  (143)
-	if_then_else_statement : IF '(' . expression ')' executable_block ELSE executable_block END_IF ','  (144)
-	if_then_else_statement : IF '(' . expression ')' executable_block ELSE executable_statament END_IF ','  (145)
-	if_then_else_statement : IF '(' . expression ')' executable_statament ELSE executable_statament END_IF ','  (146)
-	if_then_else_statement : IF '(' . expression ')' executable_statament ELSE executable_block END_IF ','  (147)
-	if_then_else_statement : IF '(' . expression ')' executable_statament ELSE executable_block error ','  (148)
-	if_then_else_statement : IF '(' . error ')' executable_block ELSE executable_block END_IF ','  (149)
-	if_then_else_statement : IF '(' . error ')' executable_block ELSE executable_statament END_IF ','  (150)
-	if_then_else_statement : IF '(' . error ')' executable_statament ELSE executable_statament END_IF ','  (151)
-	if_then_else_statement : IF '(' . error ')' executable_statament ELSE executable_block END_IF ','  (152)
-	if_then_else_statement : IF '(' . expression ')' executable_block ELSE executable_block ','  (153)
+	if_then_statement : IF '(' . expression ')' executable_block END_IF ','  (139)
+	if_then_statement : IF '(' . expression ')' executable_statament END_IF ','  (140)
+	if_then_statement : IF '(' . expression ')' executable_statament ','  (141)
+	if_then_statement : IF '(' . expression ')' executable_block ','  (142)
+	if_then_statement : IF '(' . expression ')' error END_IF ','  (143)
+	if_then_statement : IF '(' . error ')' executable_block END_IF ','  (144)
+	if_then_statement : IF '(' . error ')' executable_statament END_IF ','  (145)
+	if_then_else_statement : IF '(' . expression ')' executable_block ELSE executable_block END_IF ','  (146)
+	if_then_else_statement : IF '(' . expression ')' executable_block ELSE executable_statament END_IF ','  (147)
+	if_then_else_statement : IF '(' . expression ')' executable_statament ELSE executable_statament END_IF ','  (148)
+	if_then_else_statement : IF '(' . expression ')' executable_statament ELSE executable_block END_IF ','  (149)
+	if_then_else_statement : IF '(' . expression ')' executable_statament ELSE executable_block error ','  (150)
+	if_then_else_statement : IF '(' . error ')' executable_block ELSE executable_block END_IF ','  (151)
+	if_then_else_statement : IF '(' . error ')' executable_block ELSE executable_statament END_IF ','  (152)
+	if_then_else_statement : IF '(' . error ')' executable_statament ELSE executable_statament END_IF ','  (153)
+	if_then_else_statement : IF '(' . error ')' executable_statament ELSE executable_block END_IF ','  (154)
 
-	error  shift 90
-	TOD  shift 91
-	ID  shift 92
-	CTE_DOUBLE  shift 93
-	CTE_UINT  shift 94
-	CTE_LONG  shift 95
-	'-'  shift 96
-	'('  shift 97
+	error  shift 91
+	TOD  shift 92
+	ID  shift 93
+	CTE_DOUBLE  shift 94
+	CTE_UINT  shift 95
+	CTE_LONG  shift 96
+	'-'  shift 97
+	'('  shift 98
 	.  error
 
-	expression  goto 98
-	equality_expression  goto 99
-	relational_expression  goto 100
-	additive_expression  goto 101
-	multiplicative_expression  goto 102
-	unary_expression  goto 103
-	term  goto 104
-	factor  goto 105
+	expression  goto 99
+	equality_expression  goto 100
+	relational_expression  goto 101
+	additive_expression  goto 102
+	multiplicative_expression  goto 103
+	unary_expression  goto 104
+	term  goto 105
+	factor  goto 106
 
 
 state 52
-	for_variable : ID .  (159)
+	reference_type : ID .  (99)
 
-	.  reduce 159
+	.  reduce 99
 
 
 state 53
-	for_in_range_statement : FOR for_variable . IN RANGE '(' for_init for_end for_update ')' executable_block ','  (154)
-	for_in_range_statement : FOR for_variable . IN RANGE '(' for_init for_end for_update ')' executable_statament ','  (155)
-	for_in_range_statement : FOR for_variable . IN RANGE '(' for_init for_end for_update ')' error ','  (156)
-	for_in_range_statement : FOR for_variable . IN RANGE '(' error ')' executable_block ','  (157)
-	for_in_range_statement : FOR for_variable . IN RANGE '(' error ')' executable_statament ','  (158)
+	for_variable : reference_type .  (160)
 
-	IN  shift 106
-	.  error
+	.  reduce 160
 
 
 state 54
-	implement_for_declaration : IMPL FOR . reference_type ':' implement_for_body  (49)
-	implement_for_declaration : IMPL FOR . reference_type ':' error ','  (50)
-	implement_for_declaration : IMPL FOR . error ':' implement_for_body ','  (51)
+	for_in_range_statement : FOR for_variable . IN RANGE '(' for_init for_end for_update ')' executable_block ','  (155)
+	for_in_range_statement : FOR for_variable . IN RANGE '(' for_init for_end for_update ')' executable_statament ','  (156)
+	for_in_range_statement : FOR for_variable . IN RANGE '(' for_init for_end for_update ')' error ','  (157)
+	for_in_range_statement : FOR for_variable . IN RANGE '(' error ')' executable_block ','  (158)
+	for_in_range_statement : FOR for_variable . IN RANGE '(' error ')' executable_statament ','  (159)
 
-	error  shift 107
-	ID  shift 108
+	IN  shift 107
+	.  error
+
+
+state 55
+	implement_for_declaration : IMPL FOR . reference_type ':' implement_for_body  (50)
+	implement_for_declaration : IMPL FOR . reference_type ':' error ','  (51)
+	implement_for_declaration : IMPL FOR . error ':' implement_for_body ','  (52)
+
+	error  shift 108
+	ID  shift 52
 	.  error
 
 	reference_type  goto 109
 
 
-state 55
-	print_statement : PRINT error . ','  (164)
+state 56
+	print_statement : PRINT error . ','  (165)
 
 	','  shift 110
 	.  error
 
 
-state 56
-	print_statement : PRINT CADENA . ','  (163)
+state 57
+	print_statement : PRINT CADENA . ','  (164)
 
 	','  shift 111
 	.  error
 
 
-state 57
-	method_invocation : ID '(' . real_parameter ')' ','  (91)
-	method_invocation : ID '(' . ')' ','  (92)
-	method_invocation : ID '(' . real_parameter ',' error ')' ','  (93)
+state 58
+	method_invocation : ID '(' . real_parameter ')' ','  (93)
+	method_invocation : ID '(' . ')' ','  (94)
+	method_invocation : ID '(' . real_parameter ',' error ')' ','  (95)
 
-	TOD  shift 91
-	ID  shift 92
-	CTE_DOUBLE  shift 93
-	CTE_UINT  shift 94
-	CTE_LONG  shift 95
-	'-'  shift 96
-	'('  shift 97
+	TOD  shift 92
+	ID  shift 93
+	CTE_DOUBLE  shift 94
+	CTE_UINT  shift 95
+	CTE_LONG  shift 96
+	'-'  shift 97
+	'('  shift 98
 	')'  shift 112
 	.  error
 
 	arithmetic_operation  goto 113
 	real_parameter  goto 114
 	additive_expression  goto 115
-	multiplicative_expression  goto 102
-	unary_expression  goto 103
-	term  goto 104
-	factor  goto 105
+	multiplicative_expression  goto 103
+	unary_expression  goto 104
+	term  goto 105
+	factor  goto 106
 
 
-state 58
-	print_statement : error . CADENA ','  (165)
+state 59
+	print_statement : error . CADENA ','  (166)
 
 	CADENA  shift 46
 	.  error
 
 
-state 59
-	block : '{' RETURN . ',' '}'  (106)
+state 60
+	block : '{' RETURN . ',' '}'  (108)
 
 	','  shift 116
 	.  error
 
 
-state 60
-	block : '{' '}' .  (107)
-
-	.  reduce 107
-
-
 state 61
-	block_statements : block_statement .  (110)
+	block : '{' '}' .  (109)
 
-	.  reduce 110
+	.  reduce 109
 
 
 state 62
-	block : '{' block_statements . RETURN ',' '}'  (104)
-	block : '{' block_statements . '}'  (105)
-	block_statements : block_statements . block_statement  (111)
+	block_statements : block_statement .  (112)
 
-	error  shift 58
+	.  reduce 112
+
+
+state 63
+	block : '{' block_statements . RETURN ',' '}'  (106)
+	block : '{' block_statements . '}'  (107)
+	block_statements : block_statements . block_statement  (113)
+
+	error  shift 59
 	RETURN  shift 117
 	IF  shift 4
 	FOR  shift 5
@@ -944,33 +952,33 @@ state 62
 	statement_expression  goto 45
 
 
-state 63
+state 64
 	type_declarations : type_declarations type_declaration .  (3)
 
 	.  reduce 3
 
 
-state 64
+state 65
 	variable_declarator_id : ID .  (22)
 
 	.  reduce 22
 
 
-state 65
+state 66
 	variable_declarators : variable_declarators . ';' variable_declarator  (19)
-	local_variable_declaration : type variable_declarators .  (123)
+	local_variable_declaration : type variable_declarators .  (125)
 
 	';'  shift 120
-	','  reduce 123
+	','  reduce 125
 
 
-state 66
+state 67
 	variable_declarators : variable_declarator .  (18)
 
 	.  reduce 18
 
 
-state 67
+state 68
 	variable_declarator : variable_declarator_id .  (20)
 	variable_declarator : variable_declarator_id . '=' variable_initializer  (21)
 
@@ -979,96 +987,96 @@ state 67
 	';'  reduce 20
 
 
-state 68
+state 69
 	method_body : ',' .  (33)
 
 	.  reduce 33
 
 
-state 69
+state 70
 	method_declaration : method_header method_body .  (24)
 
 	.  reduce 24
 
 
-state 70
+state 71
 	method_body : block .  (32)
 
 	.  reduce 32
 
 
-state 71
-	method_declarator : ID . '(' formal_parameter ')'  (27)
-	method_declarator : ID . '{' formal_parameter '}'  (28)
-	method_declarator : ID . '(' formal_parameter ',' error ')'  (29)
-	method_declarator : ID . '(' ')'  (30)
-	method_declarator : ID . '{' '}'  (31)
+state 72
+	method_declarator : ID . '(' formal_parameter ')' ','  (27)
+	method_declarator : ID . '{' formal_parameter '}' ','  (28)
+	method_declarator : ID . '(' formal_parameter ',' error ')' ','  (29)
+	method_declarator : ID . '(' ')' ','  (30)
+	method_declarator : ID . '{' '}' ','  (31)
 
 	'{'  shift 122
 	'('  shift 123
 	.  error
 
 
-state 72
+state 73
 	method_header : result_type method_declarator .  (25)
 
 	.  reduce 25
 
 
-state 73
-	assignment_operator : MINUS_ASSIGN .  (90)
-
-	.  reduce 90
-
-
 state 74
-	assignment_operator : '=' .  (89)
+	assignment_operator : MINUS_ASSIGN .  (92)
 
-	.  reduce 89
+	.  reduce 92
 
 
 state 75
-	assignment : left_hand_side assignment_operator . arithmetic_operation  (59)
+	assignment_operator : '=' .  (91)
 
-	TOD  shift 91
-	ID  shift 92
-	CTE_DOUBLE  shift 93
-	CTE_UINT  shift 94
-	CTE_LONG  shift 95
-	'-'  shift 96
-	'('  shift 97
+	.  reduce 91
+
+
+state 76
+	assignment : left_hand_side assignment_operator . arithmetic_operation  (60)
+
+	TOD  shift 92
+	ID  shift 93
+	CTE_DOUBLE  shift 94
+	CTE_UINT  shift 95
+	CTE_LONG  shift 96
+	'-'  shift 97
+	'('  shift 98
 	.  error
 
 	arithmetic_operation  goto 124
 	additive_expression  goto 115
-	multiplicative_expression  goto 102
-	unary_expression  goto 103
-	term  goto 104
-	factor  goto 105
-
-
-state 76
-	local_variable_declaration_statement : local_variable_declaration ',' .  (122)
-
-	.  reduce 122
+	multiplicative_expression  goto 103
+	unary_expression  goto 104
+	term  goto 105
+	factor  goto 106
 
 
 state 77
-	print_statement : error CADENA ',' .  (165)
+	local_variable_declaration_statement : local_variable_declaration ',' .  (124)
 
-	.  reduce 165
+	.  reduce 124
 
 
 state 78
+	print_statement : error CADENA ',' .  (166)
+
+	.  reduce 166
+
+
+state 79
 	class_body : '{' . class_body_declarations '}'  (11)
 	interface_body : '{' . interface_member_declaration '}'  (42)
-	interface_body : '{' . '}' ','  (44)
+	interface_body : '{' . '}'  (44)
 
 	VOID  shift 8
 	LONG  shift 9
 	UINT  shift 10
 	DOUBLE  shift 11
-	ID  shift 108
+	ID  shift 52
 	'}'  shift 125
 	.  error
 
@@ -1082,65 +1090,65 @@ state 78
 	result_type  goto 132
 	interface_member_declaration  goto 133
 	interface_method_declaration  goto 134
-	reference_type  goto 27
+	reference_type  goto 135
 	primitive_type  goto 31
 	numeric_type  goto 32
 	integral_type  goto 33
 	floating_type  goto 34
 
 
-state 79
+state 80
 	interface_body : '(' . interface_member_declaration ')'  (43)
 	interface_body : '(' . ')'  (45)
 
 	VOID  shift 8
-	')'  shift 135
+	')'  shift 136
 	.  error
 
-	result_type  goto 136
-	interface_member_declaration  goto 137
+	result_type  goto 137
+	interface_member_declaration  goto 138
 	interface_method_declaration  goto 134
 
 
-state 80
+state 81
 	class_declaration : error ID class_body .  (10)
 
 	.  reduce 10
 
 
-state 81
+state 82
 	interface_declaration : error ID interface_body .  (41)
 
 	.  reduce 41
 
 
-state 82
-	implement_for_declaration : error reference_type ':' . implement_for_body  (52)
-
-	'{'  shift 138
-	.  error
-
-	implement_for_body  goto 139
-
-
 state 83
-	interfaces : IMPLEMENT . interface_type_list  (36)
+	implement_for_declaration : error reference_type ':' . implement_for_body  (53)
 
-	ID  shift 140
+	'{'  shift 139
 	.  error
 
-	interface_type_list  goto 141
-	type_name  goto 142
+	implement_for_body  goto 140
 
 
 state 84
+	interfaces : IMPLEMENT . interface_type_list  (36)
+
+	ID  shift 141
+	.  error
+
+	interface_type_list  goto 142
+	type_name  goto 143
+
+
+state 85
 	class_body : '{' . class_body_declarations '}'  (11)
 
 	VOID  shift 8
 	LONG  shift 9
 	UINT  shift 10
 	DOUBLE  shift 11
-	ID  shift 108
+	ID  shift 52
 	.  error
 
 	class_body_declarations  goto 126
@@ -1151,198 +1159,315 @@ state 84
 	type  goto 131
 	method_header  goto 24
 	result_type  goto 25
-	reference_type  goto 27
+	reference_type  goto 135
 	primitive_type  goto 31
 	numeric_type  goto 32
 	integral_type  goto 33
 	floating_type  goto 34
 
 
-state 85
+state 86
 	class_declaration : CLASS ID class_body .  (8)
 
 	.  reduce 8
 
 
-state 86
+state 87
 	class_declaration : CLASS ID interfaces . class_body  (9)
 
-	'{'  shift 84
+	'{'  shift 85
 	.  error
 
-	class_body  goto 143
-
-
-state 87
-	interface_declaration : INTERFACE ID error . ','  (40)
-
-	','  shift 144
-	.  error
+	class_body  goto 144
 
 
 state 88
+	interface_declaration : INTERFACE ID error . ','  (40)
+
+	','  shift 145
+	.  error
+
+
+state 89
 	interface_body : '{' . interface_member_declaration '}'  (42)
-	interface_body : '{' . '}' ','  (44)
+	interface_body : '{' . '}'  (44)
 
 	VOID  shift 8
 	'}'  shift 125
 	.  error
 
-	result_type  goto 136
+	result_type  goto 137
 	interface_member_declaration  goto 133
 	interface_method_declaration  goto 134
 
 
-state 89
+state 90
 	interface_declaration : INTERFACE ID interface_body .  (39)
 
 	.  reduce 39
 
 
-state 90
-	if_then_statement : IF '(' error . ')' executable_block END_IF ','  (142)
-	if_then_statement : IF '(' error . ')' executable_statament END_IF ','  (143)
-	if_then_else_statement : IF '(' error . ')' executable_block ELSE executable_block END_IF ','  (149)
-	if_then_else_statement : IF '(' error . ')' executable_block ELSE executable_statament END_IF ','  (150)
-	if_then_else_statement : IF '(' error . ')' executable_statament ELSE executable_statament END_IF ','  (151)
-	if_then_else_statement : IF '(' error . ')' executable_statament ELSE executable_block END_IF ','  (152)
-
-	')'  shift 145
-	.  error
-
-
 state 91
-	multiplicative_expression : TOD . '(' unary_expression ')'  (75)
+	if_then_statement : IF '(' error . ')' executable_block END_IF ','  (144)
+	if_then_statement : IF '(' error . ')' executable_statament END_IF ','  (145)
+	if_then_else_statement : IF '(' error . ')' executable_block ELSE executable_block END_IF ','  (151)
+	if_then_else_statement : IF '(' error . ')' executable_block ELSE executable_statament END_IF ','  (152)
+	if_then_else_statement : IF '(' error . ')' executable_statament ELSE executable_statament END_IF ','  (153)
+	if_then_else_statement : IF '(' error . ')' executable_statament ELSE executable_block END_IF ','  (154)
 
-	'('  shift 146
+	')'  shift 146
 	.  error
 
 
 state 92
-	unary_expression : ID .  (80)
+	multiplicative_expression : TOD . '(' unary_expression ')'  (76)
 
-	.  reduce 80
+	'('  shift 147
+	.  error
 
 
 state 93
-	factor : CTE_DOUBLE .  (83)
+	unary_expression : ID .  (81)
 
-	.  reduce 83
+	.  reduce 81
 
 
 state 94
-	factor : CTE_UINT .  (84)
-
-	.  reduce 84
-
-
-state 95
-	factor : CTE_LONG .  (85)
+	factor : CTE_DOUBLE .  (85)
 
 	.  reduce 85
 
 
-state 96
-	factor : '-' . CTE_DOUBLE  (86)
-	factor : '-' . CTE_LONG  (87)
-	factor : '-' . CTE_UINT  (88)
+state 95
+	factor : CTE_UINT .  (86)
 
-	CTE_DOUBLE  shift 147
-	CTE_UINT  shift 148
-	CTE_LONG  shift 149
-	.  error
+	.  reduce 86
+
+
+state 96
+	factor : CTE_LONG .  (87)
+
+	.  reduce 87
 
 
 state 97
-	term : '(' . expression ')'  (82)
+	factor : '-' . CTE_DOUBLE  (88)
+	factor : '-' . CTE_LONG  (89)
+	factor : '-' . CTE_UINT  (90)
 
-	TOD  shift 91
-	ID  shift 92
-	CTE_DOUBLE  shift 93
-	CTE_UINT  shift 94
-	CTE_LONG  shift 95
-	'-'  shift 96
-	'('  shift 97
+	CTE_DOUBLE  shift 148
+	CTE_UINT  shift 149
+	CTE_LONG  shift 150
 	.  error
-
-	expression  goto 150
-	equality_expression  goto 99
-	relational_expression  goto 100
-	additive_expression  goto 101
-	multiplicative_expression  goto 102
-	unary_expression  goto 103
-	term  goto 104
-	factor  goto 105
 
 
 state 98
-	if_then_statement : IF '(' expression . ')' executable_block END_IF ','  (137)
-	if_then_statement : IF '(' expression . ')' executable_statament END_IF ','  (138)
-	if_then_statement : IF '(' expression . ')' executable_statament ','  (139)
-	if_then_statement : IF '(' expression . ')' executable_block ','  (140)
-	if_then_statement : IF '(' expression . ')' error END_IF ','  (141)
-	if_then_else_statement : IF '(' expression . ')' executable_block ELSE executable_block END_IF ','  (144)
-	if_then_else_statement : IF '(' expression . ')' executable_block ELSE executable_statament END_IF ','  (145)
-	if_then_else_statement : IF '(' expression . ')' executable_statament ELSE executable_statament END_IF ','  (146)
-	if_then_else_statement : IF '(' expression . ')' executable_statament ELSE executable_block END_IF ','  (147)
-	if_then_else_statement : IF '(' expression . ')' executable_statament ELSE executable_block error ','  (148)
-	if_then_else_statement : IF '(' expression . ')' executable_block ELSE executable_block ','  (153)
+	term : '(' . expression ')'  (83)
+	term : '(' . ')'  (84)
 
+	TOD  shift 92
+	ID  shift 93
+	CTE_DOUBLE  shift 94
+	CTE_UINT  shift 95
+	CTE_LONG  shift 96
+	'-'  shift 97
+	'('  shift 98
 	')'  shift 151
 	.  error
 
+	expression  goto 152
+	equality_expression  goto 100
+	relational_expression  goto 101
+	additive_expression  goto 102
+	multiplicative_expression  goto 103
+	unary_expression  goto 104
+	term  goto 105
+	factor  goto 106
+
 
 state 99
-	expression : equality_expression .  (61)
-	equality_expression : equality_expression . EQUAL_OPERATOR relational_expression  (63)
-	equality_expression : equality_expression . NOT_EQUAL_OPERATOR relational_expression  (64)
+	if_then_statement : IF '(' expression . ')' executable_block END_IF ','  (139)
+	if_then_statement : IF '(' expression . ')' executable_statament END_IF ','  (140)
+	if_then_statement : IF '(' expression . ')' executable_statament ','  (141)
+	if_then_statement : IF '(' expression . ')' executable_block ','  (142)
+	if_then_statement : IF '(' expression . ')' error END_IF ','  (143)
+	if_then_else_statement : IF '(' expression . ')' executable_block ELSE executable_block END_IF ','  (146)
+	if_then_else_statement : IF '(' expression . ')' executable_block ELSE executable_statament END_IF ','  (147)
+	if_then_else_statement : IF '(' expression . ')' executable_statament ELSE executable_statament END_IF ','  (148)
+	if_then_else_statement : IF '(' expression . ')' executable_statament ELSE executable_block END_IF ','  (149)
+	if_then_else_statement : IF '(' expression . ')' executable_statament ELSE executable_block error ','  (150)
 
-	EQUAL_OPERATOR  shift 152
-	NOT_EQUAL_OPERATOR  shift 153
-	')'  reduce 61
+	')'  shift 153
+	.  error
 
 
 state 100
-	equality_expression : relational_expression .  (62)
-	relational_expression : relational_expression . '<' additive_expression  (66)
-	relational_expression : relational_expression . '>' additive_expression  (67)
-	relational_expression : relational_expression . GREATER_THAN_OR_EQUAL_OPERATOR additive_expression  (68)
-	relational_expression : relational_expression . LESS_THAN_OR_EQUAL_OPERATOR additive_expression  (69)
+	expression : equality_expression .  (62)
+	equality_expression : equality_expression . EQUAL_OPERATOR relational_expression  (64)
+	equality_expression : equality_expression . NOT_EQUAL_OPERATOR relational_expression  (65)
 
-	GREATER_THAN_OR_EQUAL_OPERATOR  shift 154
-	LESS_THAN_OR_EQUAL_OPERATOR  shift 155
-	'<'  shift 156
-	'>'  shift 157
-	EQUAL_OPERATOR  reduce 62
-	NOT_EQUAL_OPERATOR  reduce 62
+	EQUAL_OPERATOR  shift 154
+	NOT_EQUAL_OPERATOR  shift 155
 	')'  reduce 62
 
 
 state 101
-	relational_expression : additive_expression .  (65)
-	additive_expression : additive_expression . '+' multiplicative_expression  (72)
-	additive_expression : additive_expression . '-' multiplicative_expression  (73)
+	equality_expression : relational_expression .  (63)
+	relational_expression : relational_expression . '<' additive_expression  (67)
+	relational_expression : relational_expression . '>' additive_expression  (68)
+	relational_expression : relational_expression . GREATER_THAN_OR_EQUAL_OPERATOR additive_expression  (69)
+	relational_expression : relational_expression . LESS_THAN_OR_EQUAL_OPERATOR additive_expression  (70)
 
-	'+'  shift 158
-	'-'  shift 159
-	EQUAL_OPERATOR  reduce 65
-	NOT_EQUAL_OPERATOR  reduce 65
-	GREATER_THAN_OR_EQUAL_OPERATOR  reduce 65
-	LESS_THAN_OR_EQUAL_OPERATOR  reduce 65
-	')'  reduce 65
-	'<'  reduce 65
-	'>'  reduce 65
+	GREATER_THAN_OR_EQUAL_OPERATOR  shift 156
+	LESS_THAN_OR_EQUAL_OPERATOR  shift 157
+	'<'  shift 158
+	'>'  shift 159
+	EQUAL_OPERATOR  reduce 63
+	NOT_EQUAL_OPERATOR  reduce 63
+	')'  reduce 63
 
 
 state 102
-	additive_expression : multiplicative_expression .  (71)
-	multiplicative_expression : multiplicative_expression . '*' unary_expression  (76)
-	multiplicative_expression : multiplicative_expression . '/' unary_expression  (77)
-	multiplicative_expression : multiplicative_expression . '%' unary_expression  (78)
+	relational_expression : additive_expression .  (66)
+	additive_expression : additive_expression . '+' multiplicative_expression  (73)
+	additive_expression : additive_expression . '-' multiplicative_expression  (74)
 
-	'*'  shift 160
-	'/'  shift 161
-	'%'  shift 162
+	'+'  shift 160
+	'-'  shift 161
+	EQUAL_OPERATOR  reduce 66
+	NOT_EQUAL_OPERATOR  reduce 66
+	GREATER_THAN_OR_EQUAL_OPERATOR  reduce 66
+	LESS_THAN_OR_EQUAL_OPERATOR  reduce 66
+	')'  reduce 66
+	'<'  reduce 66
+	'>'  reduce 66
+
+
+state 103
+	additive_expression : multiplicative_expression .  (72)
+	multiplicative_expression : multiplicative_expression . '*' unary_expression  (77)
+	multiplicative_expression : multiplicative_expression . '/' unary_expression  (78)
+	multiplicative_expression : multiplicative_expression . '%' unary_expression  (79)
+
+	'*'  shift 162
+	'/'  shift 163
+	'%'  shift 164
+	$end  reduce 72
+	error  reduce 72
+	CLASS  reduce 72
+	INTERFACE  reduce 72
+	RETURN  reduce 72
+	IF  reduce 72
+	ELSE  reduce 72
+	END_IF  reduce 72
+	FOR  reduce 72
+	IMPL  reduce 72
+	PRINT  reduce 72
+	EQUAL_OPERATOR  reduce 72
+	NOT_EQUAL_OPERATOR  reduce 72
+	GREATER_THAN_OR_EQUAL_OPERATOR  reduce 72
+	LESS_THAN_OR_EQUAL_OPERATOR  reduce 72
+	VOID  reduce 72
+	LONG  reduce 72
+	UINT  reduce 72
+	DOUBLE  reduce 72
+	ID  reduce 72
+	'+'  reduce 72
+	'-'  reduce 72
+	'{'  reduce 72
+	'}'  reduce 72
+	','  reduce 72
+	';'  reduce 72
+	')'  reduce 72
+	'<'  reduce 72
+	'>'  reduce 72
+
+
+state 104
+	multiplicative_expression : unary_expression .  (75)
+
+	.  reduce 75
+
+
+state 105
+	unary_expression : term .  (80)
+
+	.  reduce 80
+
+
+state 106
+	term : factor .  (82)
+
+	.  reduce 82
+
+
+state 107
+	for_in_range_statement : FOR for_variable IN . RANGE '(' for_init for_end for_update ')' executable_block ','  (155)
+	for_in_range_statement : FOR for_variable IN . RANGE '(' for_init for_end for_update ')' executable_statament ','  (156)
+	for_in_range_statement : FOR for_variable IN . RANGE '(' for_init for_end for_update ')' error ','  (157)
+	for_in_range_statement : FOR for_variable IN . RANGE '(' error ')' executable_block ','  (158)
+	for_in_range_statement : FOR for_variable IN . RANGE '(' error ')' executable_statament ','  (159)
+
+	RANGE  shift 165
+	.  error
+
+
+state 108
+	implement_for_declaration : IMPL FOR error . ':' implement_for_body ','  (52)
+
+	':'  shift 166
+	.  error
+
+
+state 109
+	implement_for_declaration : IMPL FOR reference_type . ':' implement_for_body  (50)
+	implement_for_declaration : IMPL FOR reference_type . ':' error ','  (51)
+
+	':'  shift 167
+	.  error
+
+
+state 110
+	print_statement : PRINT error ',' .  (165)
+
+	.  reduce 165
+
+
+state 111
+	print_statement : PRINT CADENA ',' .  (164)
+
+	.  reduce 164
+
+
+state 112
+	method_invocation : ID '(' ')' . ','  (94)
+
+	','  shift 168
+	.  error
+
+
+state 113
+	real_parameter : arithmetic_operation .  (35)
+
+	.  reduce 35
+
+
+state 114
+	method_invocation : ID '(' real_parameter . ')' ','  (93)
+	method_invocation : ID '(' real_parameter . ',' error ')' ','  (95)
+
+	','  shift 169
+	')'  shift 170
+	.  error
+
+
+state 115
+	arithmetic_operation : additive_expression .  (71)
+	additive_expression : additive_expression . '+' multiplicative_expression  (73)
+	additive_expression : additive_expression . '-' multiplicative_expression  (74)
+
+	'+'  shift 160
+	'-'  shift 161
 	$end  reduce 71
 	error  reduce 71
 	CLASS  reduce 71
@@ -1354,211 +1479,89 @@ state 102
 	FOR  reduce 71
 	IMPL  reduce 71
 	PRINT  reduce 71
-	EQUAL_OPERATOR  reduce 71
-	NOT_EQUAL_OPERATOR  reduce 71
-	GREATER_THAN_OR_EQUAL_OPERATOR  reduce 71
-	LESS_THAN_OR_EQUAL_OPERATOR  reduce 71
 	VOID  reduce 71
 	LONG  reduce 71
 	UINT  reduce 71
 	DOUBLE  reduce 71
 	ID  reduce 71
-	'+'  reduce 71
-	'-'  reduce 71
 	'{'  reduce 71
 	'}'  reduce 71
 	','  reduce 71
 	';'  reduce 71
 	')'  reduce 71
-	'<'  reduce 71
-	'>'  reduce 71
-
-
-state 103
-	multiplicative_expression : unary_expression .  (74)
-
-	.  reduce 74
-
-
-state 104
-	unary_expression : term .  (79)
-
-	.  reduce 79
-
-
-state 105
-	term : factor .  (81)
-
-	.  reduce 81
-
-
-state 106
-	for_in_range_statement : FOR for_variable IN . RANGE '(' for_init for_end for_update ')' executable_block ','  (154)
-	for_in_range_statement : FOR for_variable IN . RANGE '(' for_init for_end for_update ')' executable_statament ','  (155)
-	for_in_range_statement : FOR for_variable IN . RANGE '(' for_init for_end for_update ')' error ','  (156)
-	for_in_range_statement : FOR for_variable IN . RANGE '(' error ')' executable_block ','  (157)
-	for_in_range_statement : FOR for_variable IN . RANGE '(' error ')' executable_statament ','  (158)
-
-	RANGE  shift 163
-	.  error
-
-
-state 107
-	implement_for_declaration : IMPL FOR error . ':' implement_for_body ','  (51)
-
-	':'  shift 164
-	.  error
-
-
-state 108
-	reference_type : ID .  (97)
-
-	.  reduce 97
-
-
-state 109
-	implement_for_declaration : IMPL FOR reference_type . ':' implement_for_body  (49)
-	implement_for_declaration : IMPL FOR reference_type . ':' error ','  (50)
-
-	':'  shift 165
-	.  error
-
-
-state 110
-	print_statement : PRINT error ',' .  (164)
-
-	.  reduce 164
-
-
-state 111
-	print_statement : PRINT CADENA ',' .  (163)
-
-	.  reduce 163
-
-
-state 112
-	method_invocation : ID '(' ')' . ','  (92)
-
-	','  shift 166
-	.  error
-
-
-state 113
-	real_parameter : arithmetic_operation .  (35)
-
-	.  reduce 35
-
-
-state 114
-	method_invocation : ID '(' real_parameter . ')' ','  (91)
-	method_invocation : ID '(' real_parameter . ',' error ')' ','  (93)
-
-	','  shift 167
-	')'  shift 168
-	.  error
-
-
-state 115
-	arithmetic_operation : additive_expression .  (70)
-	additive_expression : additive_expression . '+' multiplicative_expression  (72)
-	additive_expression : additive_expression . '-' multiplicative_expression  (73)
-
-	'+'  shift 158
-	'-'  shift 159
-	$end  reduce 70
-	error  reduce 70
-	CLASS  reduce 70
-	INTERFACE  reduce 70
-	RETURN  reduce 70
-	IF  reduce 70
-	ELSE  reduce 70
-	END_IF  reduce 70
-	FOR  reduce 70
-	IMPL  reduce 70
-	PRINT  reduce 70
-	VOID  reduce 70
-	LONG  reduce 70
-	UINT  reduce 70
-	DOUBLE  reduce 70
-	ID  reduce 70
-	'{'  reduce 70
-	'}'  reduce 70
-	','  reduce 70
-	';'  reduce 70
-	')'  reduce 70
 
 
 state 116
-	block : '{' RETURN ',' . '}'  (106)
+	block : '{' RETURN ',' . '}'  (108)
 
-	'}'  shift 169
+	'}'  shift 171
 	.  error
 
 
 state 117
-	block : '{' block_statements RETURN . ',' '}'  (104)
+	block : '{' block_statements RETURN . ',' '}'  (106)
 
-	','  shift 170
+	','  shift 172
 	.  error
 
 
 state 118
-	block : '{' block_statements '}' .  (105)
+	block : '{' block_statements '}' .  (107)
 
-	.  reduce 105
+	.  reduce 107
 
 
 state 119
-	block_statements : block_statements block_statement .  (111)
+	block_statements : block_statements block_statement .  (113)
 
-	.  reduce 111
+	.  reduce 113
 
 
 state 120
 	variable_declarators : variable_declarators ';' . variable_declarator  (19)
 
-	ID  shift 64
+	ID  shift 65
 	.  error
 
-	variable_declarator  goto 171
-	variable_declarator_id  goto 67
+	variable_declarator  goto 173
+	variable_declarator_id  goto 68
 
 
 state 121
 	variable_declarator : variable_declarator_id '=' . variable_initializer  (21)
 
-	TOD  shift 91
-	ID  shift 92
-	CTE_DOUBLE  shift 93
-	CTE_UINT  shift 94
-	CTE_LONG  shift 95
-	'-'  shift 96
-	'('  shift 97
+	TOD  shift 92
+	ID  shift 93
+	CTE_DOUBLE  shift 94
+	CTE_UINT  shift 95
+	CTE_LONG  shift 96
+	'-'  shift 97
+	'('  shift 98
 	.  error
 
-	variable_initializer  goto 172
-	arithmetic_operation  goto 173
+	variable_initializer  goto 174
+	arithmetic_operation  goto 175
 	additive_expression  goto 115
-	multiplicative_expression  goto 102
-	unary_expression  goto 103
-	term  goto 104
-	factor  goto 105
+	multiplicative_expression  goto 103
+	unary_expression  goto 104
+	term  goto 105
+	factor  goto 106
 
 
 state 122
-	method_declarator : ID '{' . formal_parameter '}'  (28)
-	method_declarator : ID '{' . '}'  (31)
+	method_declarator : ID '{' . formal_parameter '}' ','  (28)
+	method_declarator : ID '{' . '}' ','  (31)
 
 	LONG  shift 9
 	UINT  shift 10
 	DOUBLE  shift 11
-	ID  shift 108
-	'}'  shift 174
+	ID  shift 52
+	'}'  shift 176
 	.  error
 
-	type  goto 175
-	formal_parameter  goto 176
-	reference_type  goto 27
+	type  goto 177
+	formal_parameter  goto 178
+	reference_type  goto 135
 	primitive_type  goto 31
 	numeric_type  goto 32
 	integral_type  goto 33
@@ -1566,20 +1569,20 @@ state 122
 
 
 state 123
-	method_declarator : ID '(' . formal_parameter ')'  (27)
-	method_declarator : ID '(' . formal_parameter ',' error ')'  (29)
-	method_declarator : ID '(' . ')'  (30)
+	method_declarator : ID '(' . formal_parameter ')' ','  (27)
+	method_declarator : ID '(' . formal_parameter ',' error ')' ','  (29)
+	method_declarator : ID '(' . ')' ','  (30)
 
 	LONG  shift 9
 	UINT  shift 10
 	DOUBLE  shift 11
-	ID  shift 108
-	')'  shift 177
+	ID  shift 52
+	')'  shift 179
 	.  error
 
-	type  goto 175
-	formal_parameter  goto 178
-	reference_type  goto 27
+	type  goto 177
+	formal_parameter  goto 180
+	reference_type  goto 135
 	primitive_type  goto 31
 	numeric_type  goto 32
 	integral_type  goto 33
@@ -1587,16 +1590,15 @@ state 123
 
 
 state 124
-	assignment : left_hand_side assignment_operator arithmetic_operation .  (59)
+	assignment : left_hand_side assignment_operator arithmetic_operation .  (60)
 
-	.  reduce 59
+	.  reduce 60
 
 
 state 125
-	interface_body : '{' '}' . ','  (44)
+	interface_body : '{' '}' .  (44)
 
-	','  shift 179
-	.  error
+	.  reduce 44
 
 
 state 126
@@ -1607,18 +1609,18 @@ state 126
 	LONG  shift 9
 	UINT  shift 10
 	DOUBLE  shift 11
-	ID  shift 108
-	'}'  shift 180
+	ID  shift 52
+	'}'  shift 181
 	.  error
 
-	class_body_declaration  goto 181
+	class_body_declaration  goto 182
 	class_member_declaration  goto 128
 	field_declaration  goto 129
 	method_declaration  goto 130
 	type  goto 131
 	method_header  goto 24
 	result_type  goto 25
-	reference_type  goto 27
+	reference_type  goto 135
 	primitive_type  goto 31
 	numeric_type  goto 32
 	integral_type  goto 33
@@ -1652,22 +1654,24 @@ state 130
 state 131
 	field_declaration : type . variable_declarators ','  (17)
 
-	ID  shift 64
+	ID  shift 65
 	.  error
 
-	variable_declarators  goto 182
-	variable_declarator  goto 66
-	variable_declarator_id  goto 67
+	variable_declarators  goto 183
+	variable_declarator  goto 67
+	variable_declarator_id  goto 68
 
 
 state 132
 	method_header : result_type . method_declarator  (25)
 	interface_method_declaration : result_type . method_declarator  (48)
+	interface_method_declaration : result_type . error ','  (49)
 
-	ID  shift 71
+	error  shift 184
+	ID  shift 72
 	.  error
 
-	method_declarator  goto 183
+	method_declarator  goto 185
 
 
 state 133
@@ -1675,11 +1679,11 @@ state 133
 	interface_member_declaration : interface_member_declaration . interface_method_declaration  (47)
 
 	VOID  shift 8
-	'}'  shift 184
+	'}'  shift 186
 	.  error
 
-	result_type  goto 136
-	interface_method_declaration  goto 185
+	result_type  goto 137
+	interface_method_declaration  goto 187
 
 
 state 134
@@ -1689,538 +1693,556 @@ state 134
 
 
 state 135
+	type : reference_type .  (97)
+
+	.  reduce 97
+
+
+state 136
 	interface_body : '(' ')' .  (45)
 
 	.  reduce 45
 
 
-state 136
+state 137
 	interface_method_declaration : result_type . method_declarator  (48)
+	interface_method_declaration : result_type . error ','  (49)
 
-	ID  shift 71
+	error  shift 184
+	ID  shift 72
 	.  error
 
-	method_declarator  goto 186
+	method_declarator  goto 188
 
 
-state 137
+state 138
 	interface_body : '(' interface_member_declaration . ')'  (43)
 	interface_member_declaration : interface_member_declaration . interface_method_declaration  (47)
 
 	VOID  shift 8
-	')'  shift 187
+	')'  shift 189
 	.  error
 
-	result_type  goto 136
-	interface_method_declaration  goto 185
+	result_type  goto 137
+	interface_method_declaration  goto 187
 
 
-state 138
-	implement_for_body : '{' . implement_for_body_declarations '}'  (53)
+state 139
+	implement_for_body : '{' . implement_for_body_declarations '}'  (54)
 
 	VOID  shift 8
 	.  error
 
-	method_header  goto 188
+	method_header  goto 190
 	result_type  goto 25
-	implement_for_body_declarations  goto 189
-	implement_for_body_declaration  goto 190
-	implement_for_method_declaration  goto 191
-
-
-state 139
-	implement_for_declaration : error reference_type ':' implement_for_body .  (52)
-
-	.  reduce 52
+	implement_for_body_declarations  goto 191
+	implement_for_body_declaration  goto 192
+	implement_for_method_declaration  goto 193
 
 
 state 140
-	type_name : ID .  (103)
+	implement_for_declaration : error reference_type ':' implement_for_body .  (53)
 
-	.  reduce 103
+	.  reduce 53
 
 
 state 141
-	interfaces : IMPLEMENT interface_type_list .  (36)
-	interface_type_list : interface_type_list . ';' type_name  (38)
+	type_name : ID .  (105)
 
-	';'  shift 192
-	'{'  reduce 36
+	.  reduce 105
 
 
 state 142
+	interfaces : IMPLEMENT interface_type_list .  (36)
+	interface_type_list : interface_type_list . ';' type_name  (38)
+
+	';'  shift 194
+	'{'  reduce 36
+
+
+state 143
 	interface_type_list : type_name .  (37)
 
 	.  reduce 37
 
 
-state 143
+state 144
 	class_declaration : CLASS ID interfaces class_body .  (9)
 
 	.  reduce 9
 
 
-state 144
+state 145
 	interface_declaration : INTERFACE ID error ',' .  (40)
 
 	.  reduce 40
 
 
-state 145
-	if_then_statement : IF '(' error ')' . executable_block END_IF ','  (142)
-	if_then_statement : IF '(' error ')' . executable_statament END_IF ','  (143)
-	if_then_else_statement : IF '(' error ')' . executable_block ELSE executable_block END_IF ','  (149)
-	if_then_else_statement : IF '(' error ')' . executable_block ELSE executable_statament END_IF ','  (150)
-	if_then_else_statement : IF '(' error ')' . executable_statament ELSE executable_statament END_IF ','  (151)
-	if_then_else_statement : IF '(' error ')' . executable_statament ELSE executable_block END_IF ','  (152)
+state 146
+	if_then_statement : IF '(' error ')' . executable_block END_IF ','  (144)
+	if_then_statement : IF '(' error ')' . executable_statament END_IF ','  (145)
+	if_then_else_statement : IF '(' error ')' . executable_block ELSE executable_block END_IF ','  (151)
+	if_then_else_statement : IF '(' error ')' . executable_block ELSE executable_statament END_IF ','  (152)
+	if_then_else_statement : IF '(' error ')' . executable_statament ELSE executable_statament END_IF ','  (153)
+	if_then_else_statement : IF '(' error ')' . executable_statament ELSE executable_block END_IF ','  (154)
 
-	error  shift 58
+	error  shift 59
 	IF  shift 4
 	FOR  shift 5
 	PRINT  shift 7
-	ID  shift 193
-	'{'  shift 194
+	ID  shift 12
+	'{'  shift 195
 	','  shift 14
 	.  error
 
+	reference_type  goto 196
 	assignment  goto 28
 	left_hand_side  goto 29
 	method_invocation  goto 30
-	executable_block  goto 195
-	executable_statament  goto 196
-	if_then_statement  goto 197
-	if_then_else_statement  goto 198
-	for_in_range_statement  goto 199
-	print_statement  goto 200
-	expression_statement  goto 201
-	empty_statement  goto 202
+	executable_block  goto 197
+	executable_statament  goto 198
+	if_then_statement  goto 199
+	if_then_else_statement  goto 200
+	for_in_range_statement  goto 201
+	print_statement  goto 202
+	expression_statement  goto 203
+	empty_statement  goto 204
 	statement_expression  goto 45
 
 
-state 146
-	multiplicative_expression : TOD '(' . unary_expression ')'  (75)
+state 147
+	multiplicative_expression : TOD '(' . unary_expression ')'  (76)
 
-	ID  shift 92
-	CTE_DOUBLE  shift 93
-	CTE_UINT  shift 94
-	CTE_LONG  shift 95
-	'-'  shift 96
-	'('  shift 97
+	ID  shift 93
+	CTE_DOUBLE  shift 94
+	CTE_UINT  shift 95
+	CTE_LONG  shift 96
+	'-'  shift 97
+	'('  shift 98
 	.  error
 
-	unary_expression  goto 203
-	term  goto 104
-	factor  goto 105
-
-
-state 147
-	factor : '-' CTE_DOUBLE .  (86)
-
-	.  reduce 86
+	unary_expression  goto 205
+	term  goto 105
+	factor  goto 106
 
 
 state 148
-	factor : '-' CTE_UINT .  (88)
+	factor : '-' CTE_DOUBLE .  (88)
 
 	.  reduce 88
 
 
 state 149
-	factor : '-' CTE_LONG .  (87)
+	factor : '-' CTE_UINT .  (90)
 
-	.  reduce 87
+	.  reduce 90
 
 
 state 150
-	term : '(' expression . ')'  (82)
+	factor : '-' CTE_LONG .  (89)
 
-	')'  shift 204
-	.  error
+	.  reduce 89
 
 
 state 151
-	if_then_statement : IF '(' expression ')' . executable_block END_IF ','  (137)
-	if_then_statement : IF '(' expression ')' . executable_statament END_IF ','  (138)
-	if_then_statement : IF '(' expression ')' . executable_statament ','  (139)
-	if_then_statement : IF '(' expression ')' . executable_block ','  (140)
-	if_then_statement : IF '(' expression ')' . error END_IF ','  (141)
-	if_then_else_statement : IF '(' expression ')' . executable_block ELSE executable_block END_IF ','  (144)
-	if_then_else_statement : IF '(' expression ')' . executable_block ELSE executable_statament END_IF ','  (145)
-	if_then_else_statement : IF '(' expression ')' . executable_statament ELSE executable_statament END_IF ','  (146)
-	if_then_else_statement : IF '(' expression ')' . executable_statament ELSE executable_block END_IF ','  (147)
-	if_then_else_statement : IF '(' expression ')' . executable_statament ELSE executable_block error ','  (148)
-	if_then_else_statement : IF '(' expression ')' . executable_block ELSE executable_block ','  (153)
+	term : '(' ')' .  (84)
 
-	error  shift 205
-	IF  shift 4
-	FOR  shift 5
-	PRINT  shift 7
-	ID  shift 193
-	'{'  shift 194
-	','  shift 14
-	.  error
-
-	assignment  goto 28
-	left_hand_side  goto 29
-	method_invocation  goto 30
-	executable_block  goto 206
-	executable_statament  goto 207
-	if_then_statement  goto 197
-	if_then_else_statement  goto 198
-	for_in_range_statement  goto 199
-	print_statement  goto 200
-	expression_statement  goto 201
-	empty_statement  goto 202
-	statement_expression  goto 45
+	.  reduce 84
 
 
 state 152
-	equality_expression : equality_expression EQUAL_OPERATOR . relational_expression  (63)
+	term : '(' expression . ')'  (83)
 
-	TOD  shift 91
-	ID  shift 92
-	CTE_DOUBLE  shift 93
-	CTE_UINT  shift 94
-	CTE_LONG  shift 95
-	'-'  shift 96
-	'('  shift 97
+	')'  shift 206
 	.  error
-
-	relational_expression  goto 208
-	additive_expression  goto 101
-	multiplicative_expression  goto 102
-	unary_expression  goto 103
-	term  goto 104
-	factor  goto 105
 
 
 state 153
-	equality_expression : equality_expression NOT_EQUAL_OPERATOR . relational_expression  (64)
+	if_then_statement : IF '(' expression ')' . executable_block END_IF ','  (139)
+	if_then_statement : IF '(' expression ')' . executable_statament END_IF ','  (140)
+	if_then_statement : IF '(' expression ')' . executable_statament ','  (141)
+	if_then_statement : IF '(' expression ')' . executable_block ','  (142)
+	if_then_statement : IF '(' expression ')' . error END_IF ','  (143)
+	if_then_else_statement : IF '(' expression ')' . executable_block ELSE executable_block END_IF ','  (146)
+	if_then_else_statement : IF '(' expression ')' . executable_block ELSE executable_statament END_IF ','  (147)
+	if_then_else_statement : IF '(' expression ')' . executable_statament ELSE executable_statament END_IF ','  (148)
+	if_then_else_statement : IF '(' expression ')' . executable_statament ELSE executable_block END_IF ','  (149)
+	if_then_else_statement : IF '(' expression ')' . executable_statament ELSE executable_block error ','  (150)
 
-	TOD  shift 91
-	ID  shift 92
-	CTE_DOUBLE  shift 93
-	CTE_UINT  shift 94
-	CTE_LONG  shift 95
-	'-'  shift 96
-	'('  shift 97
+	error  shift 207
+	IF  shift 4
+	FOR  shift 5
+	PRINT  shift 7
+	ID  shift 12
+	'{'  shift 195
+	','  shift 14
 	.  error
 
-	relational_expression  goto 209
-	additive_expression  goto 101
-	multiplicative_expression  goto 102
-	unary_expression  goto 103
-	term  goto 104
-	factor  goto 105
+	reference_type  goto 196
+	assignment  goto 28
+	left_hand_side  goto 29
+	method_invocation  goto 30
+	executable_block  goto 208
+	executable_statament  goto 209
+	if_then_statement  goto 199
+	if_then_else_statement  goto 200
+	for_in_range_statement  goto 201
+	print_statement  goto 202
+	expression_statement  goto 203
+	empty_statement  goto 204
+	statement_expression  goto 45
 
 
 state 154
-	relational_expression : relational_expression GREATER_THAN_OR_EQUAL_OPERATOR . additive_expression  (68)
+	equality_expression : equality_expression EQUAL_OPERATOR . relational_expression  (64)
 
-	TOD  shift 91
-	ID  shift 92
-	CTE_DOUBLE  shift 93
-	CTE_UINT  shift 94
-	CTE_LONG  shift 95
-	'-'  shift 96
-	'('  shift 97
+	TOD  shift 92
+	ID  shift 93
+	CTE_DOUBLE  shift 94
+	CTE_UINT  shift 95
+	CTE_LONG  shift 96
+	'-'  shift 97
+	'('  shift 98
 	.  error
 
-	additive_expression  goto 210
-	multiplicative_expression  goto 102
-	unary_expression  goto 103
-	term  goto 104
-	factor  goto 105
+	relational_expression  goto 210
+	additive_expression  goto 102
+	multiplicative_expression  goto 103
+	unary_expression  goto 104
+	term  goto 105
+	factor  goto 106
 
 
 state 155
-	relational_expression : relational_expression LESS_THAN_OR_EQUAL_OPERATOR . additive_expression  (69)
+	equality_expression : equality_expression NOT_EQUAL_OPERATOR . relational_expression  (65)
 
-	TOD  shift 91
-	ID  shift 92
-	CTE_DOUBLE  shift 93
-	CTE_UINT  shift 94
-	CTE_LONG  shift 95
-	'-'  shift 96
-	'('  shift 97
+	TOD  shift 92
+	ID  shift 93
+	CTE_DOUBLE  shift 94
+	CTE_UINT  shift 95
+	CTE_LONG  shift 96
+	'-'  shift 97
+	'('  shift 98
 	.  error
 
-	additive_expression  goto 211
-	multiplicative_expression  goto 102
-	unary_expression  goto 103
-	term  goto 104
-	factor  goto 105
+	relational_expression  goto 211
+	additive_expression  goto 102
+	multiplicative_expression  goto 103
+	unary_expression  goto 104
+	term  goto 105
+	factor  goto 106
 
 
 state 156
-	relational_expression : relational_expression '<' . additive_expression  (66)
+	relational_expression : relational_expression GREATER_THAN_OR_EQUAL_OPERATOR . additive_expression  (69)
 
-	TOD  shift 91
-	ID  shift 92
-	CTE_DOUBLE  shift 93
-	CTE_UINT  shift 94
-	CTE_LONG  shift 95
-	'-'  shift 96
-	'('  shift 97
+	TOD  shift 92
+	ID  shift 93
+	CTE_DOUBLE  shift 94
+	CTE_UINT  shift 95
+	CTE_LONG  shift 96
+	'-'  shift 97
+	'('  shift 98
 	.  error
 
 	additive_expression  goto 212
-	multiplicative_expression  goto 102
-	unary_expression  goto 103
-	term  goto 104
-	factor  goto 105
+	multiplicative_expression  goto 103
+	unary_expression  goto 104
+	term  goto 105
+	factor  goto 106
 
 
 state 157
-	relational_expression : relational_expression '>' . additive_expression  (67)
+	relational_expression : relational_expression LESS_THAN_OR_EQUAL_OPERATOR . additive_expression  (70)
 
-	TOD  shift 91
-	ID  shift 92
-	CTE_DOUBLE  shift 93
-	CTE_UINT  shift 94
-	CTE_LONG  shift 95
-	'-'  shift 96
-	'('  shift 97
+	TOD  shift 92
+	ID  shift 93
+	CTE_DOUBLE  shift 94
+	CTE_UINT  shift 95
+	CTE_LONG  shift 96
+	'-'  shift 97
+	'('  shift 98
 	.  error
 
 	additive_expression  goto 213
-	multiplicative_expression  goto 102
-	unary_expression  goto 103
-	term  goto 104
-	factor  goto 105
+	multiplicative_expression  goto 103
+	unary_expression  goto 104
+	term  goto 105
+	factor  goto 106
 
 
 state 158
-	additive_expression : additive_expression '+' . multiplicative_expression  (72)
+	relational_expression : relational_expression '<' . additive_expression  (67)
 
-	TOD  shift 91
-	ID  shift 92
-	CTE_DOUBLE  shift 93
-	CTE_UINT  shift 94
-	CTE_LONG  shift 95
-	'-'  shift 96
-	'('  shift 97
+	TOD  shift 92
+	ID  shift 93
+	CTE_DOUBLE  shift 94
+	CTE_UINT  shift 95
+	CTE_LONG  shift 96
+	'-'  shift 97
+	'('  shift 98
 	.  error
 
-	multiplicative_expression  goto 214
-	unary_expression  goto 103
-	term  goto 104
-	factor  goto 105
+	additive_expression  goto 214
+	multiplicative_expression  goto 103
+	unary_expression  goto 104
+	term  goto 105
+	factor  goto 106
 
 
 state 159
-	additive_expression : additive_expression '-' . multiplicative_expression  (73)
+	relational_expression : relational_expression '>' . additive_expression  (68)
 
-	TOD  shift 91
-	ID  shift 92
-	CTE_DOUBLE  shift 93
-	CTE_UINT  shift 94
-	CTE_LONG  shift 95
-	'-'  shift 96
-	'('  shift 97
+	TOD  shift 92
+	ID  shift 93
+	CTE_DOUBLE  shift 94
+	CTE_UINT  shift 95
+	CTE_LONG  shift 96
+	'-'  shift 97
+	'('  shift 98
 	.  error
 
-	multiplicative_expression  goto 215
-	unary_expression  goto 103
-	term  goto 104
-	factor  goto 105
+	additive_expression  goto 215
+	multiplicative_expression  goto 103
+	unary_expression  goto 104
+	term  goto 105
+	factor  goto 106
 
 
 state 160
-	multiplicative_expression : multiplicative_expression '*' . unary_expression  (76)
+	additive_expression : additive_expression '+' . multiplicative_expression  (73)
 
-	ID  shift 92
-	CTE_DOUBLE  shift 93
-	CTE_UINT  shift 94
-	CTE_LONG  shift 95
-	'-'  shift 96
-	'('  shift 97
+	TOD  shift 92
+	ID  shift 93
+	CTE_DOUBLE  shift 94
+	CTE_UINT  shift 95
+	CTE_LONG  shift 96
+	'-'  shift 97
+	'('  shift 98
 	.  error
 
-	unary_expression  goto 216
-	term  goto 104
-	factor  goto 105
+	multiplicative_expression  goto 216
+	unary_expression  goto 104
+	term  goto 105
+	factor  goto 106
 
 
 state 161
-	multiplicative_expression : multiplicative_expression '/' . unary_expression  (77)
+	additive_expression : additive_expression '-' . multiplicative_expression  (74)
 
-	ID  shift 92
-	CTE_DOUBLE  shift 93
-	CTE_UINT  shift 94
-	CTE_LONG  shift 95
-	'-'  shift 96
-	'('  shift 97
+	TOD  shift 92
+	ID  shift 93
+	CTE_DOUBLE  shift 94
+	CTE_UINT  shift 95
+	CTE_LONG  shift 96
+	'-'  shift 97
+	'('  shift 98
 	.  error
 
-	unary_expression  goto 217
-	term  goto 104
-	factor  goto 105
+	multiplicative_expression  goto 217
+	unary_expression  goto 104
+	term  goto 105
+	factor  goto 106
 
 
 state 162
-	multiplicative_expression : multiplicative_expression '%' . unary_expression  (78)
+	multiplicative_expression : multiplicative_expression '*' . unary_expression  (77)
 
-	ID  shift 92
-	CTE_DOUBLE  shift 93
-	CTE_UINT  shift 94
-	CTE_LONG  shift 95
-	'-'  shift 96
-	'('  shift 97
+	ID  shift 93
+	CTE_DOUBLE  shift 94
+	CTE_UINT  shift 95
+	CTE_LONG  shift 96
+	'-'  shift 97
+	'('  shift 98
 	.  error
 
 	unary_expression  goto 218
-	term  goto 104
-	factor  goto 105
+	term  goto 105
+	factor  goto 106
 
 
 state 163
-	for_in_range_statement : FOR for_variable IN RANGE . '(' for_init for_end for_update ')' executable_block ','  (154)
-	for_in_range_statement : FOR for_variable IN RANGE . '(' for_init for_end for_update ')' executable_statament ','  (155)
-	for_in_range_statement : FOR for_variable IN RANGE . '(' for_init for_end for_update ')' error ','  (156)
-	for_in_range_statement : FOR for_variable IN RANGE . '(' error ')' executable_block ','  (157)
-	for_in_range_statement : FOR for_variable IN RANGE . '(' error ')' executable_statament ','  (158)
+	multiplicative_expression : multiplicative_expression '/' . unary_expression  (78)
 
-	'('  shift 219
+	ID  shift 93
+	CTE_DOUBLE  shift 94
+	CTE_UINT  shift 95
+	CTE_LONG  shift 96
+	'-'  shift 97
+	'('  shift 98
 	.  error
+
+	unary_expression  goto 219
+	term  goto 105
+	factor  goto 106
 
 
 state 164
-	implement_for_declaration : IMPL FOR error ':' . implement_for_body ','  (51)
+	multiplicative_expression : multiplicative_expression '%' . unary_expression  (79)
 
-	'{'  shift 138
+	ID  shift 93
+	CTE_DOUBLE  shift 94
+	CTE_UINT  shift 95
+	CTE_LONG  shift 96
+	'-'  shift 97
+	'('  shift 98
 	.  error
 
-	implement_for_body  goto 220
+	unary_expression  goto 220
+	term  goto 105
+	factor  goto 106
 
 
 state 165
-	implement_for_declaration : IMPL FOR reference_type ':' . implement_for_body  (49)
-	implement_for_declaration : IMPL FOR reference_type ':' . error ','  (50)
+	for_in_range_statement : FOR for_variable IN RANGE . '(' for_init for_end for_update ')' executable_block ','  (155)
+	for_in_range_statement : FOR for_variable IN RANGE . '(' for_init for_end for_update ')' executable_statament ','  (156)
+	for_in_range_statement : FOR for_variable IN RANGE . '(' for_init for_end for_update ')' error ','  (157)
+	for_in_range_statement : FOR for_variable IN RANGE . '(' error ')' executable_block ','  (158)
+	for_in_range_statement : FOR for_variable IN RANGE . '(' error ')' executable_statament ','  (159)
 
-	error  shift 221
-	'{'  shift 138
+	'('  shift 221
+	.  error
+
+
+state 166
+	implement_for_declaration : IMPL FOR error ':' . implement_for_body ','  (52)
+
+	'{'  shift 139
 	.  error
 
 	implement_for_body  goto 222
 
 
-state 166
-	method_invocation : ID '(' ')' ',' .  (92)
-
-	.  reduce 92
-
-
 state 167
-	method_invocation : ID '(' real_parameter ',' . error ')' ','  (93)
+	implement_for_declaration : IMPL FOR reference_type ':' . implement_for_body  (50)
+	implement_for_declaration : IMPL FOR reference_type ':' . error ','  (51)
 
 	error  shift 223
+	'{'  shift 139
 	.  error
+
+	implement_for_body  goto 224
 
 
 state 168
-	method_invocation : ID '(' real_parameter ')' . ','  (91)
+	method_invocation : ID '(' ')' ',' .  (94)
 
-	','  shift 224
-	.  error
+	.  reduce 94
 
 
 state 169
-	block : '{' RETURN ',' '}' .  (106)
+	method_invocation : ID '(' real_parameter ',' . error ')' ','  (95)
 
-	.  reduce 106
+	error  shift 225
+	.  error
 
 
 state 170
-	block : '{' block_statements RETURN ',' . '}'  (104)
+	method_invocation : ID '(' real_parameter ')' . ','  (93)
 
-	'}'  shift 225
+	','  shift 226
 	.  error
 
 
 state 171
-	variable_declarators : variable_declarators ';' variable_declarator .  (19)
+	block : '{' RETURN ',' '}' .  (108)
 
-	.  reduce 19
+	.  reduce 108
 
 
 state 172
-	variable_declarator : variable_declarator_id '=' variable_initializer .  (21)
-
-	.  reduce 21
-
-
-state 173
-	variable_initializer : arithmetic_operation .  (23)
-
-	.  reduce 23
-
-
-state 174
-	method_declarator : ID '{' '}' .  (31)
-
-	.  reduce 31
-
-
-state 175
-	formal_parameter : type . variable_declarator_id  (34)
-
-	ID  shift 64
-	.  error
-
-	variable_declarator_id  goto 226
-
-
-state 176
-	method_declarator : ID '{' formal_parameter . '}'  (28)
+	block : '{' block_statements RETURN ',' . '}'  (106)
 
 	'}'  shift 227
 	.  error
 
 
-state 177
-	method_declarator : ID '(' ')' .  (30)
+state 173
+	variable_declarators : variable_declarators ';' variable_declarator .  (19)
 
-	.  reduce 30
+	.  reduce 19
+
+
+state 174
+	variable_declarator : variable_declarator_id '=' variable_initializer .  (21)
+
+	.  reduce 21
+
+
+state 175
+	variable_initializer : arithmetic_operation .  (23)
+
+	.  reduce 23
+
+
+state 176
+	method_declarator : ID '{' '}' . ','  (31)
+
+	','  shift 228
+	.  error
+
+
+state 177
+	formal_parameter : type . variable_declarator_id  (34)
+
+	ID  shift 65
+	.  error
+
+	variable_declarator_id  goto 229
 
 
 state 178
-	method_declarator : ID '(' formal_parameter . ')'  (27)
-	method_declarator : ID '(' formal_parameter . ',' error ')'  (29)
+	method_declarator : ID '{' formal_parameter . '}' ','  (28)
 
-	','  shift 228
-	')'  shift 229
+	'}'  shift 230
 	.  error
 
 
 state 179
-	interface_body : '{' '}' ',' .  (44)
+	method_declarator : ID '(' ')' . ','  (30)
 
-	.  reduce 44
+	','  shift 231
+	.  error
 
 
 state 180
+	method_declarator : ID '(' formal_parameter . ')' ','  (27)
+	method_declarator : ID '(' formal_parameter . ',' error ')' ','  (29)
+
+	','  shift 232
+	')'  shift 233
+	.  error
+
+
+state 181
 	class_body : '{' class_body_declarations '}' .  (11)
 
 	.  reduce 11
 
 
-state 181
+state 182
 	class_body_declarations : class_body_declarations class_body_declaration .  (13)
 
 	.  reduce 13
 
 
-state 182
+state 183
 	field_declaration : type variable_declarators . ','  (17)
 	variable_declarators : variable_declarators . ';' variable_declarator  (19)
 
-	','  shift 230
+	','  shift 234
 	';'  shift 120
 	.  error
 
 
-state 183
+state 184
+	interface_method_declaration : result_type error . ','  (49)
+
+	','  shift 235
+	.  error
+
+
+state 185
 	method_header : result_type method_declarator .  (25)
 	interface_method_declaration : result_type method_declarator .  (48)
 
@@ -2230,274 +2252,253 @@ state 183
 	','  reduce 25
 
 
-state 184
+state 186
 	interface_body : '{' interface_member_declaration '}' .  (42)
 
 	.  reduce 42
 
 
-state 185
+state 187
 	interface_member_declaration : interface_member_declaration interface_method_declaration .  (47)
 
 	.  reduce 47
 
 
-state 186
+state 188
 	interface_method_declaration : result_type method_declarator .  (48)
 
 	.  reduce 48
 
 
-state 187
+state 189
 	interface_body : '(' interface_member_declaration ')' .  (43)
 
 	.  reduce 43
 
 
-state 188
-	implement_for_method_declaration : method_header . implement_for_method_body  (57)
+state 190
+	implement_for_method_declaration : method_header . implement_for_method_body  (58)
 
 	'{'  shift 13
-	','  shift 68
+	','  shift 69
 	.  error
 
-	method_body  goto 231
-	block  goto 70
-	implement_for_method_body  goto 232
-
-
-state 189
-	implement_for_body : '{' implement_for_body_declarations . '}'  (53)
-	implement_for_body_declarations : implement_for_body_declarations . implement_for_body_declaration  (55)
-
-	VOID  shift 8
-	'}'  shift 233
-	.  error
-
-	method_header  goto 188
-	result_type  goto 25
-	implement_for_body_declaration  goto 234
-	implement_for_method_declaration  goto 191
-
-
-state 190
-	implement_for_body_declarations : implement_for_body_declaration .  (54)
-
-	.  reduce 54
+	method_body  goto 236
+	block  goto 71
+	implement_for_method_body  goto 237
 
 
 state 191
-	implement_for_body_declaration : implement_for_method_declaration .  (56)
+	implement_for_body : '{' implement_for_body_declarations . '}'  (54)
+	implement_for_body_declarations : implement_for_body_declarations . implement_for_body_declaration  (56)
 
-	.  reduce 56
+	VOID  shift 8
+	'}'  shift 238
+	.  error
+
+	method_header  goto 190
+	result_type  goto 25
+	implement_for_body_declaration  goto 239
+	implement_for_method_declaration  goto 193
 
 
 state 192
-	interface_type_list : interface_type_list ';' . type_name  (38)
+	implement_for_body_declarations : implement_for_body_declaration .  (55)
 
-	ID  shift 140
-	.  error
-
-	type_name  goto 235
+	.  reduce 55
 
 
 state 193
-	left_hand_side : ID .  (60)
-	method_invocation : ID . '(' real_parameter ')' ','  (91)
-	method_invocation : ID . '(' ')' ','  (92)
-	method_invocation : ID . '(' real_parameter ',' error ')' ','  (93)
+	implement_for_body_declaration : implement_for_method_declaration .  (57)
 
-	'('  shift 57
-	MINUS_ASSIGN  reduce 60
-	'='  reduce 60
+	.  reduce 57
 
 
 state 194
-	executable_block : '{' . executable_block_statements '}'  (108)
-	executable_block : '{' . '}'  (109)
+	interface_type_list : interface_type_list ';' . type_name  (38)
 
-	error  shift 58
-	IF  shift 4
-	FOR  shift 5
-	PRINT  shift 7
-	ID  shift 193
-	'}'  shift 236
-	','  shift 14
+	ID  shift 141
 	.  error
 
-	assignment  goto 28
-	left_hand_side  goto 29
-	method_invocation  goto 30
-	executable_block_statements  goto 237
-	executable_statament  goto 238
-	if_then_statement  goto 197
-	if_then_else_statement  goto 198
-	for_in_range_statement  goto 199
-	print_statement  goto 200
-	expression_statement  goto 201
-	empty_statement  goto 202
-	statement_expression  goto 45
+	type_name  goto 240
 
 
 state 195
-	if_then_statement : IF '(' error ')' executable_block . END_IF ','  (142)
-	if_then_else_statement : IF '(' error ')' executable_block . ELSE executable_block END_IF ','  (149)
-	if_then_else_statement : IF '(' error ')' executable_block . ELSE executable_statament END_IF ','  (150)
+	executable_block : '{' . executable_block_statements '}'  (110)
+	executable_block : '{' . '}'  (111)
 
-	ELSE  shift 239
-	END_IF  shift 240
+	error  shift 59
+	IF  shift 4
+	FOR  shift 5
+	PRINT  shift 7
+	ID  shift 12
+	'}'  shift 241
+	','  shift 14
 	.  error
+
+	reference_type  goto 196
+	assignment  goto 28
+	left_hand_side  goto 29
+	method_invocation  goto 30
+	executable_block_statements  goto 242
+	executable_statament  goto 243
+	if_then_statement  goto 199
+	if_then_else_statement  goto 200
+	for_in_range_statement  goto 201
+	print_statement  goto 202
+	expression_statement  goto 203
+	empty_statement  goto 204
+	statement_expression  goto 45
 
 
 state 196
-	if_then_statement : IF '(' error ')' executable_statament . END_IF ','  (143)
-	if_then_else_statement : IF '(' error ')' executable_statament . ELSE executable_statament END_IF ','  (151)
-	if_then_else_statement : IF '(' error ')' executable_statament . ELSE executable_block END_IF ','  (152)
+	left_hand_side : reference_type .  (61)
 
-	ELSE  shift 241
-	END_IF  shift 242
-	.  error
+	.  reduce 61
 
 
 state 197
-	executable_statament : if_then_statement .  (116)
+	if_then_statement : IF '(' error ')' executable_block . END_IF ','  (144)
+	if_then_else_statement : IF '(' error ')' executable_block . ELSE executable_block END_IF ','  (151)
+	if_then_else_statement : IF '(' error ')' executable_block . ELSE executable_statament END_IF ','  (152)
 
-	.  reduce 116
+	ELSE  shift 244
+	END_IF  shift 245
+	.  error
 
 
 state 198
-	executable_statament : if_then_else_statement .  (117)
+	if_then_statement : IF '(' error ')' executable_statament . END_IF ','  (145)
+	if_then_else_statement : IF '(' error ')' executable_statament . ELSE executable_statament END_IF ','  (153)
+	if_then_else_statement : IF '(' error ')' executable_statament . ELSE executable_block END_IF ','  (154)
 
-	.  reduce 117
+	ELSE  shift 246
+	END_IF  shift 247
+	.  error
 
 
 state 199
-	executable_statament : for_in_range_statement .  (118)
+	executable_statament : if_then_statement .  (118)
 
 	.  reduce 118
 
 
 state 200
-	executable_statament : print_statement .  (119)
+	executable_statament : if_then_else_statement .  (119)
 
 	.  reduce 119
 
 
 state 201
-	executable_statament : expression_statement .  (120)
+	executable_statament : for_in_range_statement .  (120)
 
 	.  reduce 120
 
 
 state 202
-	executable_statament : empty_statement .  (121)
+	executable_statament : print_statement .  (121)
 
 	.  reduce 121
 
 
 state 203
-	multiplicative_expression : TOD '(' unary_expression . ')'  (75)
+	executable_statament : expression_statement .  (122)
 
-	')'  shift 243
-	.  error
+	.  reduce 122
 
 
 state 204
-	term : '(' expression ')' .  (82)
+	executable_statament : empty_statement .  (123)
 
-	.  reduce 82
+	.  reduce 123
 
 
 state 205
-	if_then_statement : IF '(' expression ')' error . END_IF ','  (141)
-	print_statement : error . CADENA ','  (165)
+	multiplicative_expression : TOD '(' unary_expression . ')'  (76)
 
-	END_IF  shift 244
-	CADENA  shift 46
+	')'  shift 248
 	.  error
 
 
 state 206
-	if_then_statement : IF '(' expression ')' executable_block . END_IF ','  (137)
-	if_then_statement : IF '(' expression ')' executable_block . ','  (140)
-	if_then_else_statement : IF '(' expression ')' executable_block . ELSE executable_block END_IF ','  (144)
-	if_then_else_statement : IF '(' expression ')' executable_block . ELSE executable_statament END_IF ','  (145)
-	if_then_else_statement : IF '(' expression ')' executable_block . ELSE executable_block ','  (153)
+	term : '(' expression ')' .  (83)
 
-	ELSE  shift 245
-	END_IF  shift 246
-	','  shift 247
-	.  error
+	.  reduce 83
 
 
 state 207
-	if_then_statement : IF '(' expression ')' executable_statament . END_IF ','  (138)
-	if_then_statement : IF '(' expression ')' executable_statament . ','  (139)
-	if_then_else_statement : IF '(' expression ')' executable_statament . ELSE executable_statament END_IF ','  (146)
-	if_then_else_statement : IF '(' expression ')' executable_statament . ELSE executable_block END_IF ','  (147)
-	if_then_else_statement : IF '(' expression ')' executable_statament . ELSE executable_block error ','  (148)
+	if_then_statement : IF '(' expression ')' error . END_IF ','  (143)
+	print_statement : error . CADENA ','  (166)
 
-	ELSE  shift 248
 	END_IF  shift 249
-	','  shift 250
+	CADENA  shift 46
 	.  error
 
 
 state 208
-	equality_expression : equality_expression EQUAL_OPERATOR relational_expression .  (63)
-	relational_expression : relational_expression . '<' additive_expression  (66)
-	relational_expression : relational_expression . '>' additive_expression  (67)
-	relational_expression : relational_expression . GREATER_THAN_OR_EQUAL_OPERATOR additive_expression  (68)
-	relational_expression : relational_expression . LESS_THAN_OR_EQUAL_OPERATOR additive_expression  (69)
+	if_then_statement : IF '(' expression ')' executable_block . END_IF ','  (139)
+	if_then_statement : IF '(' expression ')' executable_block . ','  (142)
+	if_then_else_statement : IF '(' expression ')' executable_block . ELSE executable_block END_IF ','  (146)
+	if_then_else_statement : IF '(' expression ')' executable_block . ELSE executable_statament END_IF ','  (147)
 
-	GREATER_THAN_OR_EQUAL_OPERATOR  shift 154
-	LESS_THAN_OR_EQUAL_OPERATOR  shift 155
-	'<'  shift 156
-	'>'  shift 157
-	EQUAL_OPERATOR  reduce 63
-	NOT_EQUAL_OPERATOR  reduce 63
-	')'  reduce 63
+	ELSE  shift 250
+	END_IF  shift 251
+	','  shift 252
+	.  error
 
 
 state 209
-	equality_expression : equality_expression NOT_EQUAL_OPERATOR relational_expression .  (64)
-	relational_expression : relational_expression . '<' additive_expression  (66)
-	relational_expression : relational_expression . '>' additive_expression  (67)
-	relational_expression : relational_expression . GREATER_THAN_OR_EQUAL_OPERATOR additive_expression  (68)
-	relational_expression : relational_expression . LESS_THAN_OR_EQUAL_OPERATOR additive_expression  (69)
+	if_then_statement : IF '(' expression ')' executable_statament . END_IF ','  (140)
+	if_then_statement : IF '(' expression ')' executable_statament . ','  (141)
+	if_then_else_statement : IF '(' expression ')' executable_statament . ELSE executable_statament END_IF ','  (148)
+	if_then_else_statement : IF '(' expression ')' executable_statament . ELSE executable_block END_IF ','  (149)
+	if_then_else_statement : IF '(' expression ')' executable_statament . ELSE executable_block error ','  (150)
 
-	GREATER_THAN_OR_EQUAL_OPERATOR  shift 154
-	LESS_THAN_OR_EQUAL_OPERATOR  shift 155
-	'<'  shift 156
-	'>'  shift 157
+	ELSE  shift 253
+	END_IF  shift 254
+	','  shift 255
+	.  error
+
+
+state 210
+	equality_expression : equality_expression EQUAL_OPERATOR relational_expression .  (64)
+	relational_expression : relational_expression . '<' additive_expression  (67)
+	relational_expression : relational_expression . '>' additive_expression  (68)
+	relational_expression : relational_expression . GREATER_THAN_OR_EQUAL_OPERATOR additive_expression  (69)
+	relational_expression : relational_expression . LESS_THAN_OR_EQUAL_OPERATOR additive_expression  (70)
+
+	GREATER_THAN_OR_EQUAL_OPERATOR  shift 156
+	LESS_THAN_OR_EQUAL_OPERATOR  shift 157
+	'<'  shift 158
+	'>'  shift 159
 	EQUAL_OPERATOR  reduce 64
 	NOT_EQUAL_OPERATOR  reduce 64
 	')'  reduce 64
 
 
-state 210
-	relational_expression : relational_expression GREATER_THAN_OR_EQUAL_OPERATOR additive_expression .  (68)
-	additive_expression : additive_expression . '+' multiplicative_expression  (72)
-	additive_expression : additive_expression . '-' multiplicative_expression  (73)
-
-	'+'  shift 158
-	'-'  shift 159
-	EQUAL_OPERATOR  reduce 68
-	NOT_EQUAL_OPERATOR  reduce 68
-	GREATER_THAN_OR_EQUAL_OPERATOR  reduce 68
-	LESS_THAN_OR_EQUAL_OPERATOR  reduce 68
-	')'  reduce 68
-	'<'  reduce 68
-	'>'  reduce 68
-
-
 state 211
-	relational_expression : relational_expression LESS_THAN_OR_EQUAL_OPERATOR additive_expression .  (69)
-	additive_expression : additive_expression . '+' multiplicative_expression  (72)
-	additive_expression : additive_expression . '-' multiplicative_expression  (73)
+	equality_expression : equality_expression NOT_EQUAL_OPERATOR relational_expression .  (65)
+	relational_expression : relational_expression . '<' additive_expression  (67)
+	relational_expression : relational_expression . '>' additive_expression  (68)
+	relational_expression : relational_expression . GREATER_THAN_OR_EQUAL_OPERATOR additive_expression  (69)
+	relational_expression : relational_expression . LESS_THAN_OR_EQUAL_OPERATOR additive_expression  (70)
 
-	'+'  shift 158
-	'-'  shift 159
+	GREATER_THAN_OR_EQUAL_OPERATOR  shift 156
+	LESS_THAN_OR_EQUAL_OPERATOR  shift 157
+	'<'  shift 158
+	'>'  shift 159
+	EQUAL_OPERATOR  reduce 65
+	NOT_EQUAL_OPERATOR  reduce 65
+	')'  reduce 65
+
+
+state 212
+	relational_expression : relational_expression GREATER_THAN_OR_EQUAL_OPERATOR additive_expression .  (69)
+	additive_expression : additive_expression . '+' multiplicative_expression  (73)
+	additive_expression : additive_expression . '-' multiplicative_expression  (74)
+
+	'+'  shift 160
+	'-'  shift 161
 	EQUAL_OPERATOR  reduce 69
 	NOT_EQUAL_OPERATOR  reduce 69
 	GREATER_THAN_OR_EQUAL_OPERATOR  reduce 69
@@ -2507,29 +2508,29 @@ state 211
 	'>'  reduce 69
 
 
-state 212
-	relational_expression : relational_expression '<' additive_expression .  (66)
-	additive_expression : additive_expression . '+' multiplicative_expression  (72)
-	additive_expression : additive_expression . '-' multiplicative_expression  (73)
-
-	'+'  shift 158
-	'-'  shift 159
-	EQUAL_OPERATOR  reduce 66
-	NOT_EQUAL_OPERATOR  reduce 66
-	GREATER_THAN_OR_EQUAL_OPERATOR  reduce 66
-	LESS_THAN_OR_EQUAL_OPERATOR  reduce 66
-	')'  reduce 66
-	'<'  reduce 66
-	'>'  reduce 66
-
-
 state 213
-	relational_expression : relational_expression '>' additive_expression .  (67)
-	additive_expression : additive_expression . '+' multiplicative_expression  (72)
-	additive_expression : additive_expression . '-' multiplicative_expression  (73)
+	relational_expression : relational_expression LESS_THAN_OR_EQUAL_OPERATOR additive_expression .  (70)
+	additive_expression : additive_expression . '+' multiplicative_expression  (73)
+	additive_expression : additive_expression . '-' multiplicative_expression  (74)
 
-	'+'  shift 158
-	'-'  shift 159
+	'+'  shift 160
+	'-'  shift 161
+	EQUAL_OPERATOR  reduce 70
+	NOT_EQUAL_OPERATOR  reduce 70
+	GREATER_THAN_OR_EQUAL_OPERATOR  reduce 70
+	LESS_THAN_OR_EQUAL_OPERATOR  reduce 70
+	')'  reduce 70
+	'<'  reduce 70
+	'>'  reduce 70
+
+
+state 214
+	relational_expression : relational_expression '<' additive_expression .  (67)
+	additive_expression : additive_expression . '+' multiplicative_expression  (73)
+	additive_expression : additive_expression . '-' multiplicative_expression  (74)
+
+	'+'  shift 160
+	'-'  shift 161
 	EQUAL_OPERATOR  reduce 67
 	NOT_EQUAL_OPERATOR  reduce 67
 	GREATER_THAN_OR_EQUAL_OPERATOR  reduce 67
@@ -2539,55 +2540,31 @@ state 213
 	'>'  reduce 67
 
 
-state 214
-	additive_expression : additive_expression '+' multiplicative_expression .  (72)
-	multiplicative_expression : multiplicative_expression . '*' unary_expression  (76)
-	multiplicative_expression : multiplicative_expression . '/' unary_expression  (77)
-	multiplicative_expression : multiplicative_expression . '%' unary_expression  (78)
-
-	'*'  shift 160
-	'/'  shift 161
-	'%'  shift 162
-	$end  reduce 72
-	error  reduce 72
-	CLASS  reduce 72
-	INTERFACE  reduce 72
-	RETURN  reduce 72
-	IF  reduce 72
-	ELSE  reduce 72
-	END_IF  reduce 72
-	FOR  reduce 72
-	IMPL  reduce 72
-	PRINT  reduce 72
-	EQUAL_OPERATOR  reduce 72
-	NOT_EQUAL_OPERATOR  reduce 72
-	GREATER_THAN_OR_EQUAL_OPERATOR  reduce 72
-	LESS_THAN_OR_EQUAL_OPERATOR  reduce 72
-	VOID  reduce 72
-	LONG  reduce 72
-	UINT  reduce 72
-	DOUBLE  reduce 72
-	ID  reduce 72
-	'+'  reduce 72
-	'-'  reduce 72
-	'{'  reduce 72
-	'}'  reduce 72
-	','  reduce 72
-	';'  reduce 72
-	')'  reduce 72
-	'<'  reduce 72
-	'>'  reduce 72
-
-
 state 215
-	additive_expression : additive_expression '-' multiplicative_expression .  (73)
-	multiplicative_expression : multiplicative_expression . '*' unary_expression  (76)
-	multiplicative_expression : multiplicative_expression . '/' unary_expression  (77)
-	multiplicative_expression : multiplicative_expression . '%' unary_expression  (78)
+	relational_expression : relational_expression '>' additive_expression .  (68)
+	additive_expression : additive_expression . '+' multiplicative_expression  (73)
+	additive_expression : additive_expression . '-' multiplicative_expression  (74)
 
-	'*'  shift 160
-	'/'  shift 161
-	'%'  shift 162
+	'+'  shift 160
+	'-'  shift 161
+	EQUAL_OPERATOR  reduce 68
+	NOT_EQUAL_OPERATOR  reduce 68
+	GREATER_THAN_OR_EQUAL_OPERATOR  reduce 68
+	LESS_THAN_OR_EQUAL_OPERATOR  reduce 68
+	')'  reduce 68
+	'<'  reduce 68
+	'>'  reduce 68
+
+
+state 216
+	additive_expression : additive_expression '+' multiplicative_expression .  (73)
+	multiplicative_expression : multiplicative_expression . '*' unary_expression  (77)
+	multiplicative_expression : multiplicative_expression . '/' unary_expression  (78)
+	multiplicative_expression : multiplicative_expression . '%' unary_expression  (79)
+
+	'*'  shift 162
+	'/'  shift 163
+	'%'  shift 164
 	$end  reduce 73
 	error  reduce 73
 	CLASS  reduce 73
@@ -2619,792 +2596,869 @@ state 215
 	'>'  reduce 73
 
 
-state 216
-	multiplicative_expression : multiplicative_expression '*' unary_expression .  (76)
-
-	.  reduce 76
-
-
 state 217
-	multiplicative_expression : multiplicative_expression '/' unary_expression .  (77)
+	additive_expression : additive_expression '-' multiplicative_expression .  (74)
+	multiplicative_expression : multiplicative_expression . '*' unary_expression  (77)
+	multiplicative_expression : multiplicative_expression . '/' unary_expression  (78)
+	multiplicative_expression : multiplicative_expression . '%' unary_expression  (79)
+
+	'*'  shift 162
+	'/'  shift 163
+	'%'  shift 164
+	$end  reduce 74
+	error  reduce 74
+	CLASS  reduce 74
+	INTERFACE  reduce 74
+	RETURN  reduce 74
+	IF  reduce 74
+	ELSE  reduce 74
+	END_IF  reduce 74
+	FOR  reduce 74
+	IMPL  reduce 74
+	PRINT  reduce 74
+	EQUAL_OPERATOR  reduce 74
+	NOT_EQUAL_OPERATOR  reduce 74
+	GREATER_THAN_OR_EQUAL_OPERATOR  reduce 74
+	LESS_THAN_OR_EQUAL_OPERATOR  reduce 74
+	VOID  reduce 74
+	LONG  reduce 74
+	UINT  reduce 74
+	DOUBLE  reduce 74
+	ID  reduce 74
+	'+'  reduce 74
+	'-'  reduce 74
+	'{'  reduce 74
+	'}'  reduce 74
+	','  reduce 74
+	';'  reduce 74
+	')'  reduce 74
+	'<'  reduce 74
+	'>'  reduce 74
+
+
+state 218
+	multiplicative_expression : multiplicative_expression '*' unary_expression .  (77)
 
 	.  reduce 77
 
 
-state 218
-	multiplicative_expression : multiplicative_expression '%' unary_expression .  (78)
+state 219
+	multiplicative_expression : multiplicative_expression '/' unary_expression .  (78)
 
 	.  reduce 78
 
 
-state 219
-	for_in_range_statement : FOR for_variable IN RANGE '(' . for_init for_end for_update ')' executable_block ','  (154)
-	for_in_range_statement : FOR for_variable IN RANGE '(' . for_init for_end for_update ')' executable_statament ','  (155)
-	for_in_range_statement : FOR for_variable IN RANGE '(' . for_init for_end for_update ')' error ','  (156)
-	for_in_range_statement : FOR for_variable IN RANGE '(' . error ')' executable_block ','  (157)
-	for_in_range_statement : FOR for_variable IN RANGE '(' . error ')' executable_statament ','  (158)
-
-	error  shift 251
-	CTE_DOUBLE  shift 93
-	CTE_UINT  shift 94
-	CTE_LONG  shift 95
-	'-'  shift 96
-	.  error
-
-	factor  goto 252
-	for_init  goto 253
-
-
 state 220
-	implement_for_declaration : IMPL FOR error ':' implement_for_body . ','  (51)
+	multiplicative_expression : multiplicative_expression '%' unary_expression .  (79)
 
-	','  shift 254
-	.  error
+	.  reduce 79
 
 
 state 221
-	implement_for_declaration : IMPL FOR reference_type ':' error . ','  (50)
+	for_in_range_statement : FOR for_variable IN RANGE '(' . for_init for_end for_update ')' executable_block ','  (155)
+	for_in_range_statement : FOR for_variable IN RANGE '(' . for_init for_end for_update ')' executable_statament ','  (156)
+	for_in_range_statement : FOR for_variable IN RANGE '(' . for_init for_end for_update ')' error ','  (157)
+	for_in_range_statement : FOR for_variable IN RANGE '(' . error ')' executable_block ','  (158)
+	for_in_range_statement : FOR for_variable IN RANGE '(' . error ')' executable_statament ','  (159)
 
-	','  shift 255
+	error  shift 256
+	CTE_DOUBLE  shift 94
+	CTE_UINT  shift 95
+	CTE_LONG  shift 96
+	'-'  shift 97
 	.  error
+
+	factor  goto 257
+	for_init  goto 258
 
 
 state 222
-	implement_for_declaration : IMPL FOR reference_type ':' implement_for_body .  (49)
+	implement_for_declaration : IMPL FOR error ':' implement_for_body . ','  (52)
 
-	.  reduce 49
+	','  shift 259
+	.  error
 
 
 state 223
-	method_invocation : ID '(' real_parameter ',' error . ')' ','  (93)
+	implement_for_declaration : IMPL FOR reference_type ':' error . ','  (51)
 
-	')'  shift 256
+	','  shift 260
 	.  error
 
 
 state 224
-	method_invocation : ID '(' real_parameter ')' ',' .  (91)
+	implement_for_declaration : IMPL FOR reference_type ':' implement_for_body .  (50)
 
-	.  reduce 91
+	.  reduce 50
 
 
 state 225
-	block : '{' block_statements RETURN ',' '}' .  (104)
+	method_invocation : ID '(' real_parameter ',' error . ')' ','  (95)
 
-	.  reduce 104
+	')'  shift 261
+	.  error
 
 
 state 226
+	method_invocation : ID '(' real_parameter ')' ',' .  (93)
+
+	.  reduce 93
+
+
+state 227
+	block : '{' block_statements RETURN ',' '}' .  (106)
+
+	.  reduce 106
+
+
+state 228
+	method_declarator : ID '{' '}' ',' .  (31)
+
+	.  reduce 31
+
+
+state 229
 	formal_parameter : type variable_declarator_id .  (34)
 
 	.  reduce 34
 
 
-state 227
-	method_declarator : ID '{' formal_parameter '}' .  (28)
-
-	.  reduce 28
-
-
-state 228
-	method_declarator : ID '(' formal_parameter ',' . error ')'  (29)
-
-	error  shift 257
-	.  error
-
-
-state 229
-	method_declarator : ID '(' formal_parameter ')' .  (27)
-
-	.  reduce 27
-
-
 state 230
-	field_declaration : type variable_declarators ',' .  (17)
-
-	.  reduce 17
-
-
-state 231
-	implement_for_method_body : method_body .  (58)
-
-	.  reduce 58
-
-
-state 232
-	implement_for_method_declaration : method_header implement_for_method_body .  (57)
-
-	.  reduce 57
-
-
-state 233
-	implement_for_body : '{' implement_for_body_declarations '}' .  (53)
-
-	.  reduce 53
-
-
-state 234
-	implement_for_body_declarations : implement_for_body_declarations implement_for_body_declaration .  (55)
-
-	.  reduce 55
-
-
-state 235
-	interface_type_list : interface_type_list ';' type_name .  (38)
-
-	.  reduce 38
-
-
-state 236
-	executable_block : '{' '}' .  (109)
-
-	.  reduce 109
-
-
-state 237
-	executable_block : '{' executable_block_statements . '}'  (108)
-	executable_block_statements : executable_block_statements . executable_statament  (113)
-
-	error  shift 58
-	IF  shift 4
-	FOR  shift 5
-	PRINT  shift 7
-	ID  shift 193
-	'}'  shift 258
-	','  shift 14
-	.  error
-
-	assignment  goto 28
-	left_hand_side  goto 29
-	method_invocation  goto 30
-	executable_statament  goto 259
-	if_then_statement  goto 197
-	if_then_else_statement  goto 198
-	for_in_range_statement  goto 199
-	print_statement  goto 200
-	expression_statement  goto 201
-	empty_statement  goto 202
-	statement_expression  goto 45
-
-
-state 238
-	executable_block_statements : executable_statament .  (112)
-
-	.  reduce 112
-
-
-state 239
-	if_then_else_statement : IF '(' error ')' executable_block ELSE . executable_block END_IF ','  (149)
-	if_then_else_statement : IF '(' error ')' executable_block ELSE . executable_statament END_IF ','  (150)
-
-	error  shift 58
-	IF  shift 4
-	FOR  shift 5
-	PRINT  shift 7
-	ID  shift 193
-	'{'  shift 194
-	','  shift 14
-	.  error
-
-	assignment  goto 28
-	left_hand_side  goto 29
-	method_invocation  goto 30
-	executable_block  goto 260
-	executable_statament  goto 261
-	if_then_statement  goto 197
-	if_then_else_statement  goto 198
-	for_in_range_statement  goto 199
-	print_statement  goto 200
-	expression_statement  goto 201
-	empty_statement  goto 202
-	statement_expression  goto 45
-
-
-state 240
-	if_then_statement : IF '(' error ')' executable_block END_IF . ','  (142)
+	method_declarator : ID '{' formal_parameter '}' . ','  (28)
 
 	','  shift 262
 	.  error
 
 
-state 241
-	if_then_else_statement : IF '(' error ')' executable_statament ELSE . executable_statament END_IF ','  (151)
-	if_then_else_statement : IF '(' error ')' executable_statament ELSE . executable_block END_IF ','  (152)
+state 231
+	method_declarator : ID '(' ')' ',' .  (30)
 
-	error  shift 58
-	IF  shift 4
-	FOR  shift 5
-	PRINT  shift 7
-	ID  shift 193
-	'{'  shift 194
-	','  shift 14
+	.  reduce 30
+
+
+state 232
+	method_declarator : ID '(' formal_parameter ',' . error ')' ','  (29)
+
+	error  shift 263
 	.  error
 
-	assignment  goto 28
-	left_hand_side  goto 29
-	method_invocation  goto 30
-	executable_block  goto 263
-	executable_statament  goto 264
-	if_then_statement  goto 197
-	if_then_else_statement  goto 198
-	for_in_range_statement  goto 199
-	print_statement  goto 200
-	expression_statement  goto 201
-	empty_statement  goto 202
-	statement_expression  goto 45
+
+state 233
+	method_declarator : ID '(' formal_parameter ')' . ','  (27)
+
+	','  shift 264
+	.  error
+
+
+state 234
+	field_declaration : type variable_declarators ',' .  (17)
+
+	.  reduce 17
+
+
+state 235
+	interface_method_declaration : result_type error ',' .  (49)
+
+	.  reduce 49
+
+
+state 236
+	implement_for_method_body : method_body .  (59)
+
+	.  reduce 59
+
+
+state 237
+	implement_for_method_declaration : method_header implement_for_method_body .  (58)
+
+	.  reduce 58
+
+
+state 238
+	implement_for_body : '{' implement_for_body_declarations '}' .  (54)
+
+	.  reduce 54
+
+
+state 239
+	implement_for_body_declarations : implement_for_body_declarations implement_for_body_declaration .  (56)
+
+	.  reduce 56
+
+
+state 240
+	interface_type_list : interface_type_list ';' type_name .  (38)
+
+	.  reduce 38
+
+
+state 241
+	executable_block : '{' '}' .  (111)
+
+	.  reduce 111
 
 
 state 242
-	if_then_statement : IF '(' error ')' executable_statament END_IF . ','  (143)
+	executable_block : '{' executable_block_statements . '}'  (110)
+	executable_block_statements : executable_block_statements . executable_statament  (115)
 
-	','  shift 265
-	.  error
-
-
-state 243
-	multiplicative_expression : TOD '(' unary_expression ')' .  (75)
-
-	.  reduce 75
-
-
-state 244
-	if_then_statement : IF '(' expression ')' error END_IF . ','  (141)
-
-	','  shift 266
-	.  error
-
-
-state 245
-	if_then_else_statement : IF '(' expression ')' executable_block ELSE . executable_block END_IF ','  (144)
-	if_then_else_statement : IF '(' expression ')' executable_block ELSE . executable_statament END_IF ','  (145)
-	if_then_else_statement : IF '(' expression ')' executable_block ELSE . executable_block ','  (153)
-
-	error  shift 58
+	error  shift 59
 	IF  shift 4
 	FOR  shift 5
 	PRINT  shift 7
-	ID  shift 193
-	'{'  shift 194
+	ID  shift 12
+	'}'  shift 265
 	','  shift 14
 	.  error
 
+	reference_type  goto 196
+	assignment  goto 28
+	left_hand_side  goto 29
+	method_invocation  goto 30
+	executable_statament  goto 266
+	if_then_statement  goto 199
+	if_then_else_statement  goto 200
+	for_in_range_statement  goto 201
+	print_statement  goto 202
+	expression_statement  goto 203
+	empty_statement  goto 204
+	statement_expression  goto 45
+
+
+state 243
+	executable_block_statements : executable_statament .  (114)
+
+	.  reduce 114
+
+
+state 244
+	if_then_else_statement : IF '(' error ')' executable_block ELSE . executable_block END_IF ','  (151)
+	if_then_else_statement : IF '(' error ')' executable_block ELSE . executable_statament END_IF ','  (152)
+
+	error  shift 59
+	IF  shift 4
+	FOR  shift 5
+	PRINT  shift 7
+	ID  shift 12
+	'{'  shift 195
+	','  shift 14
+	.  error
+
+	reference_type  goto 196
 	assignment  goto 28
 	left_hand_side  goto 29
 	method_invocation  goto 30
 	executable_block  goto 267
 	executable_statament  goto 268
-	if_then_statement  goto 197
-	if_then_else_statement  goto 198
-	for_in_range_statement  goto 199
-	print_statement  goto 200
-	expression_statement  goto 201
-	empty_statement  goto 202
+	if_then_statement  goto 199
+	if_then_else_statement  goto 200
+	for_in_range_statement  goto 201
+	print_statement  goto 202
+	expression_statement  goto 203
+	empty_statement  goto 204
 	statement_expression  goto 45
 
 
-state 246
-	if_then_statement : IF '(' expression ')' executable_block END_IF . ','  (137)
+state 245
+	if_then_statement : IF '(' error ')' executable_block END_IF . ','  (144)
 
 	','  shift 269
 	.  error
 
 
-state 247
-	if_then_statement : IF '(' expression ')' executable_block ',' .  (140)
+state 246
+	if_then_else_statement : IF '(' error ')' executable_statament ELSE . executable_statament END_IF ','  (153)
+	if_then_else_statement : IF '(' error ')' executable_statament ELSE . executable_block END_IF ','  (154)
 
-	.  reduce 140
-
-
-state 248
-	if_then_else_statement : IF '(' expression ')' executable_statament ELSE . executable_statament END_IF ','  (146)
-	if_then_else_statement : IF '(' expression ')' executable_statament ELSE . executable_block END_IF ','  (147)
-	if_then_else_statement : IF '(' expression ')' executable_statament ELSE . executable_block error ','  (148)
-
-	error  shift 58
+	error  shift 59
 	IF  shift 4
 	FOR  shift 5
 	PRINT  shift 7
-	ID  shift 193
-	'{'  shift 194
+	ID  shift 12
+	'{'  shift 195
 	','  shift 14
 	.  error
 
+	reference_type  goto 196
 	assignment  goto 28
 	left_hand_side  goto 29
 	method_invocation  goto 30
 	executable_block  goto 270
 	executable_statament  goto 271
-	if_then_statement  goto 197
-	if_then_else_statement  goto 198
-	for_in_range_statement  goto 199
-	print_statement  goto 200
-	expression_statement  goto 201
-	empty_statement  goto 202
+	if_then_statement  goto 199
+	if_then_else_statement  goto 200
+	for_in_range_statement  goto 201
+	print_statement  goto 202
+	expression_statement  goto 203
+	empty_statement  goto 204
 	statement_expression  goto 45
 
 
-state 249
-	if_then_statement : IF '(' expression ')' executable_statament END_IF . ','  (138)
+state 247
+	if_then_statement : IF '(' error ')' executable_statament END_IF . ','  (145)
 
 	','  shift 272
 	.  error
 
 
-state 250
-	if_then_statement : IF '(' expression ')' executable_statament ',' .  (139)
+state 248
+	multiplicative_expression : TOD '(' unary_expression ')' .  (76)
 
-	.  reduce 139
+	.  reduce 76
+
+
+state 249
+	if_then_statement : IF '(' expression ')' error END_IF . ','  (143)
+
+	','  shift 273
+	.  error
+
+
+state 250
+	if_then_else_statement : IF '(' expression ')' executable_block ELSE . executable_block END_IF ','  (146)
+	if_then_else_statement : IF '(' expression ')' executable_block ELSE . executable_statament END_IF ','  (147)
+
+	error  shift 59
+	IF  shift 4
+	FOR  shift 5
+	PRINT  shift 7
+	ID  shift 12
+	'{'  shift 195
+	','  shift 14
+	.  error
+
+	reference_type  goto 196
+	assignment  goto 28
+	left_hand_side  goto 29
+	method_invocation  goto 30
+	executable_block  goto 274
+	executable_statament  goto 275
+	if_then_statement  goto 199
+	if_then_else_statement  goto 200
+	for_in_range_statement  goto 201
+	print_statement  goto 202
+	expression_statement  goto 203
+	empty_statement  goto 204
+	statement_expression  goto 45
 
 
 state 251
-	for_in_range_statement : FOR for_variable IN RANGE '(' error . ')' executable_block ','  (157)
-	for_in_range_statement : FOR for_variable IN RANGE '(' error . ')' executable_statament ','  (158)
-
-	')'  shift 273
-	.  error
-
-
-state 252
-	for_init : factor .  (160)
-
-	.  reduce 160
-
-
-state 253
-	for_in_range_statement : FOR for_variable IN RANGE '(' for_init . for_end for_update ')' executable_block ','  (154)
-	for_in_range_statement : FOR for_variable IN RANGE '(' for_init . for_end for_update ')' executable_statament ','  (155)
-	for_in_range_statement : FOR for_variable IN RANGE '(' for_init . for_end for_update ')' error ','  (156)
-
-	CTE_DOUBLE  shift 93
-	CTE_UINT  shift 94
-	CTE_LONG  shift 95
-	'-'  shift 96
-	.  error
-
-	factor  goto 274
-	for_end  goto 275
-
-
-state 254
-	implement_for_declaration : IMPL FOR error ':' implement_for_body ',' .  (51)
-
-	.  reduce 51
-
-
-state 255
-	implement_for_declaration : IMPL FOR reference_type ':' error ',' .  (50)
-
-	.  reduce 50
-
-
-state 256
-	method_invocation : ID '(' real_parameter ',' error ')' . ','  (93)
+	if_then_statement : IF '(' expression ')' executable_block END_IF . ','  (139)
 
 	','  shift 276
 	.  error
 
 
-state 257
-	method_declarator : ID '(' formal_parameter ',' error . ')'  (29)
-
-	')'  shift 277
-	.  error
-
-
-state 258
-	executable_block : '{' executable_block_statements '}' .  (108)
-
-	.  reduce 108
-
-
-state 259
-	executable_block_statements : executable_block_statements executable_statament .  (113)
-
-	.  reduce 113
-
-
-state 260
-	if_then_else_statement : IF '(' error ')' executable_block ELSE executable_block . END_IF ','  (149)
-
-	END_IF  shift 278
-	.  error
-
-
-state 261
-	if_then_else_statement : IF '(' error ')' executable_block ELSE executable_statament . END_IF ','  (150)
-
-	END_IF  shift 279
-	.  error
-
-
-state 262
-	if_then_statement : IF '(' error ')' executable_block END_IF ',' .  (142)
+state 252
+	if_then_statement : IF '(' expression ')' executable_block ',' .  (142)
 
 	.  reduce 142
 
 
-state 263
-	if_then_else_statement : IF '(' error ')' executable_statament ELSE executable_block . END_IF ','  (152)
+state 253
+	if_then_else_statement : IF '(' expression ')' executable_statament ELSE . executable_statament END_IF ','  (148)
+	if_then_else_statement : IF '(' expression ')' executable_statament ELSE . executable_block END_IF ','  (149)
+	if_then_else_statement : IF '(' expression ')' executable_statament ELSE . executable_block error ','  (150)
 
-	END_IF  shift 280
+	error  shift 59
+	IF  shift 4
+	FOR  shift 5
+	PRINT  shift 7
+	ID  shift 12
+	'{'  shift 195
+	','  shift 14
+	.  error
+
+	reference_type  goto 196
+	assignment  goto 28
+	left_hand_side  goto 29
+	method_invocation  goto 30
+	executable_block  goto 277
+	executable_statament  goto 278
+	if_then_statement  goto 199
+	if_then_else_statement  goto 200
+	for_in_range_statement  goto 201
+	print_statement  goto 202
+	expression_statement  goto 203
+	empty_statement  goto 204
+	statement_expression  goto 45
+
+
+state 254
+	if_then_statement : IF '(' expression ')' executable_statament END_IF . ','  (140)
+
+	','  shift 279
 	.  error
 
 
-state 264
-	if_then_else_statement : IF '(' error ')' executable_statament ELSE executable_statament . END_IF ','  (151)
-
-	END_IF  shift 281
-	.  error
-
-
-state 265
-	if_then_statement : IF '(' error ')' executable_statament END_IF ',' .  (143)
-
-	.  reduce 143
-
-
-state 266
-	if_then_statement : IF '(' expression ')' error END_IF ',' .  (141)
+state 255
+	if_then_statement : IF '(' expression ')' executable_statament ',' .  (141)
 
 	.  reduce 141
 
 
-state 267
-	if_then_else_statement : IF '(' expression ')' executable_block ELSE executable_block . END_IF ','  (144)
-	if_then_else_statement : IF '(' expression ')' executable_block ELSE executable_block . ','  (153)
+state 256
+	for_in_range_statement : FOR for_variable IN RANGE '(' error . ')' executable_block ','  (158)
+	for_in_range_statement : FOR for_variable IN RANGE '(' error . ')' executable_statament ','  (159)
 
-	END_IF  shift 282
+	')'  shift 280
+	.  error
+
+
+state 257
+	for_init : factor .  (161)
+
+	.  reduce 161
+
+
+state 258
+	for_in_range_statement : FOR for_variable IN RANGE '(' for_init . for_end for_update ')' executable_block ','  (155)
+	for_in_range_statement : FOR for_variable IN RANGE '(' for_init . for_end for_update ')' executable_statament ','  (156)
+	for_in_range_statement : FOR for_variable IN RANGE '(' for_init . for_end for_update ')' error ','  (157)
+
+	CTE_DOUBLE  shift 94
+	CTE_UINT  shift 95
+	CTE_LONG  shift 96
+	'-'  shift 97
+	.  error
+
+	factor  goto 281
+	for_end  goto 282
+
+
+state 259
+	implement_for_declaration : IMPL FOR error ':' implement_for_body ',' .  (52)
+
+	.  reduce 52
+
+
+state 260
+	implement_for_declaration : IMPL FOR reference_type ':' error ',' .  (51)
+
+	.  reduce 51
+
+
+state 261
+	method_invocation : ID '(' real_parameter ',' error ')' . ','  (95)
+
 	','  shift 283
 	.  error
 
 
-state 268
-	if_then_else_statement : IF '(' expression ')' executable_block ELSE executable_statament . END_IF ','  (145)
+state 262
+	method_declarator : ID '{' formal_parameter '}' ',' .  (28)
 
-	END_IF  shift 284
+	.  reduce 28
+
+
+state 263
+	method_declarator : ID '(' formal_parameter ',' error . ')' ','  (29)
+
+	')'  shift 284
 	.  error
 
 
-state 269
-	if_then_statement : IF '(' expression ')' executable_block END_IF ',' .  (137)
+state 264
+	method_declarator : ID '(' formal_parameter ')' ',' .  (27)
 
-	.  reduce 137
+	.  reduce 27
 
 
-state 270
-	if_then_else_statement : IF '(' expression ')' executable_statament ELSE executable_block . END_IF ','  (147)
-	if_then_else_statement : IF '(' expression ')' executable_statament ELSE executable_block . error ','  (148)
+state 265
+	executable_block : '{' executable_block_statements '}' .  (110)
 
-	error  shift 285
+	.  reduce 110
+
+
+state 266
+	executable_block_statements : executable_block_statements executable_statament .  (115)
+
+	.  reduce 115
+
+
+state 267
+	if_then_else_statement : IF '(' error ')' executable_block ELSE executable_block . END_IF ','  (151)
+
+	END_IF  shift 285
+	.  error
+
+
+state 268
+	if_then_else_statement : IF '(' error ')' executable_block ELSE executable_statament . END_IF ','  (152)
+
 	END_IF  shift 286
 	.  error
 
 
-state 271
-	if_then_else_statement : IF '(' expression ')' executable_statament ELSE executable_statament . END_IF ','  (146)
+state 269
+	if_then_statement : IF '(' error ')' executable_block END_IF ',' .  (144)
+
+	.  reduce 144
+
+
+state 270
+	if_then_else_statement : IF '(' error ')' executable_statament ELSE executable_block . END_IF ','  (154)
 
 	END_IF  shift 287
 	.  error
 
 
-state 272
-	if_then_statement : IF '(' expression ')' executable_statament END_IF ',' .  (138)
+state 271
+	if_then_else_statement : IF '(' error ')' executable_statament ELSE executable_statament . END_IF ','  (153)
 
-	.  reduce 138
+	END_IF  shift 288
+	.  error
+
+
+state 272
+	if_then_statement : IF '(' error ')' executable_statament END_IF ',' .  (145)
+
+	.  reduce 145
 
 
 state 273
-	for_in_range_statement : FOR for_variable IN RANGE '(' error ')' . executable_block ','  (157)
-	for_in_range_statement : FOR for_variable IN RANGE '(' error ')' . executable_statament ','  (158)
+	if_then_statement : IF '(' expression ')' error END_IF ',' .  (143)
 
-	error  shift 58
-	IF  shift 4
-	FOR  shift 5
-	PRINT  shift 7
-	ID  shift 193
-	'{'  shift 194
-	','  shift 14
-	.  error
-
-	assignment  goto 28
-	left_hand_side  goto 29
-	method_invocation  goto 30
-	executable_block  goto 288
-	executable_statament  goto 289
-	if_then_statement  goto 197
-	if_then_else_statement  goto 198
-	for_in_range_statement  goto 199
-	print_statement  goto 200
-	expression_statement  goto 201
-	empty_statement  goto 202
-	statement_expression  goto 45
+	.  reduce 143
 
 
 state 274
-	for_end : factor .  (162)
+	if_then_else_statement : IF '(' expression ')' executable_block ELSE executable_block . END_IF ','  (146)
 
-	.  reduce 162
+	END_IF  shift 289
+	.  error
 
 
 state 275
-	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end . for_update ')' executable_block ','  (154)
-	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end . for_update ')' executable_statament ','  (155)
-	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end . for_update ')' error ','  (156)
+	if_then_else_statement : IF '(' expression ')' executable_block ELSE executable_statament . END_IF ','  (147)
 
-	CTE_DOUBLE  shift 93
-	CTE_UINT  shift 94
-	CTE_LONG  shift 95
-	'-'  shift 96
+	END_IF  shift 290
 	.  error
-
-	factor  goto 290
-	for_update  goto 291
 
 
 state 276
-	method_invocation : ID '(' real_parameter ',' error ')' ',' .  (93)
+	if_then_statement : IF '(' expression ')' executable_block END_IF ',' .  (139)
 
-	.  reduce 93
+	.  reduce 139
 
 
 state 277
-	method_declarator : ID '(' formal_parameter ',' error ')' .  (29)
+	if_then_else_statement : IF '(' expression ')' executable_statament ELSE executable_block . END_IF ','  (149)
+	if_then_else_statement : IF '(' expression ')' executable_statament ELSE executable_block . error ','  (150)
 
-	.  reduce 29
+	error  shift 291
+	END_IF  shift 292
+	.  error
 
 
 state 278
-	if_then_else_statement : IF '(' error ')' executable_block ELSE executable_block END_IF . ','  (149)
+	if_then_else_statement : IF '(' expression ')' executable_statament ELSE executable_statament . END_IF ','  (148)
 
-	','  shift 292
+	END_IF  shift 293
 	.  error
 
 
 state 279
-	if_then_else_statement : IF '(' error ')' executable_block ELSE executable_statament END_IF . ','  (150)
+	if_then_statement : IF '(' expression ')' executable_statament END_IF ',' .  (140)
 
-	','  shift 293
-	.  error
+	.  reduce 140
 
 
 state 280
-	if_then_else_statement : IF '(' error ')' executable_statament ELSE executable_block END_IF . ','  (152)
+	for_in_range_statement : FOR for_variable IN RANGE '(' error ')' . executable_block ','  (158)
+	for_in_range_statement : FOR for_variable IN RANGE '(' error ')' . executable_statament ','  (159)
 
-	','  shift 294
+	error  shift 59
+	IF  shift 4
+	FOR  shift 5
+	PRINT  shift 7
+	ID  shift 12
+	'{'  shift 195
+	','  shift 14
 	.  error
+
+	reference_type  goto 196
+	assignment  goto 28
+	left_hand_side  goto 29
+	method_invocation  goto 30
+	executable_block  goto 294
+	executable_statament  goto 295
+	if_then_statement  goto 199
+	if_then_else_statement  goto 200
+	for_in_range_statement  goto 201
+	print_statement  goto 202
+	expression_statement  goto 203
+	empty_statement  goto 204
+	statement_expression  goto 45
 
 
 state 281
-	if_then_else_statement : IF '(' error ')' executable_statament ELSE executable_statament END_IF . ','  (151)
+	for_end : factor .  (163)
 
-	','  shift 295
-	.  error
+	.  reduce 163
 
 
 state 282
-	if_then_else_statement : IF '(' expression ')' executable_block ELSE executable_block END_IF . ','  (144)
+	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end . for_update ')' executable_block ','  (155)
+	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end . for_update ')' executable_statament ','  (156)
+	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end . for_update ')' error ','  (157)
 
-	','  shift 296
+	CTE_DOUBLE  shift 94
+	CTE_UINT  shift 95
+	CTE_LONG  shift 96
+	'-'  shift 97
 	.  error
+
+	factor  goto 296
+	for_update  goto 297
 
 
 state 283
-	if_then_else_statement : IF '(' expression ')' executable_block ELSE executable_block ',' .  (153)
+	method_invocation : ID '(' real_parameter ',' error ')' ',' .  (95)
 
-	.  reduce 153
+	.  reduce 95
 
 
 state 284
-	if_then_else_statement : IF '(' expression ')' executable_block ELSE executable_statament END_IF . ','  (145)
-
-	','  shift 297
-	.  error
-
-
-state 285
-	if_then_else_statement : IF '(' expression ')' executable_statament ELSE executable_block error . ','  (148)
+	method_declarator : ID '(' formal_parameter ',' error ')' . ','  (29)
 
 	','  shift 298
 	.  error
 
 
-state 286
-	if_then_else_statement : IF '(' expression ')' executable_statament ELSE executable_block END_IF . ','  (147)
+state 285
+	if_then_else_statement : IF '(' error ')' executable_block ELSE executable_block END_IF . ','  (151)
 
 	','  shift 299
 	.  error
 
 
-state 287
-	if_then_else_statement : IF '(' expression ')' executable_statament ELSE executable_statament END_IF . ','  (146)
+state 286
+	if_then_else_statement : IF '(' error ')' executable_block ELSE executable_statament END_IF . ','  (152)
 
 	','  shift 300
 	.  error
 
 
-state 288
-	for_in_range_statement : FOR for_variable IN RANGE '(' error ')' executable_block . ','  (157)
+state 287
+	if_then_else_statement : IF '(' error ')' executable_statament ELSE executable_block END_IF . ','  (154)
 
 	','  shift 301
 	.  error
 
 
-state 289
-	for_in_range_statement : FOR for_variable IN RANGE '(' error ')' executable_statament . ','  (158)
+state 288
+	if_then_else_statement : IF '(' error ')' executable_statament ELSE executable_statament END_IF . ','  (153)
 
 	','  shift 302
 	.  error
 
 
-state 290
-	for_update : factor .  (161)
+state 289
+	if_then_else_statement : IF '(' expression ')' executable_block ELSE executable_block END_IF . ','  (146)
 
-	.  reduce 161
+	','  shift 303
+	.  error
+
+
+state 290
+	if_then_else_statement : IF '(' expression ')' executable_block ELSE executable_statament END_IF . ','  (147)
+
+	','  shift 304
+	.  error
 
 
 state 291
-	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update . ')' executable_block ','  (154)
-	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update . ')' executable_statament ','  (155)
-	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update . ')' error ','  (156)
+	if_then_else_statement : IF '(' expression ')' executable_statament ELSE executable_block error . ','  (150)
 
-	')'  shift 303
+	','  shift 305
 	.  error
 
 
 state 292
-	if_then_else_statement : IF '(' error ')' executable_block ELSE executable_block END_IF ',' .  (149)
+	if_then_else_statement : IF '(' expression ')' executable_statament ELSE executable_block END_IF . ','  (149)
 
-	.  reduce 149
+	','  shift 306
+	.  error
 
 
 state 293
-	if_then_else_statement : IF '(' error ')' executable_block ELSE executable_statament END_IF ',' .  (150)
+	if_then_else_statement : IF '(' expression ')' executable_statament ELSE executable_statament END_IF . ','  (148)
 
-	.  reduce 150
-
-
-state 294
-	if_then_else_statement : IF '(' error ')' executable_statament ELSE executable_block END_IF ',' .  (152)
-
-	.  reduce 152
-
-
-state 295
-	if_then_else_statement : IF '(' error ')' executable_statament ELSE executable_statament END_IF ',' .  (151)
-
-	.  reduce 151
-
-
-state 296
-	if_then_else_statement : IF '(' expression ')' executable_block ELSE executable_block END_IF ',' .  (144)
-
-	.  reduce 144
-
-
-state 297
-	if_then_else_statement : IF '(' expression ')' executable_block ELSE executable_statament END_IF ',' .  (145)
-
-	.  reduce 145
-
-
-state 298
-	if_then_else_statement : IF '(' expression ')' executable_statament ELSE executable_block error ',' .  (148)
-
-	.  reduce 148
-
-
-state 299
-	if_then_else_statement : IF '(' expression ')' executable_statament ELSE executable_block END_IF ',' .  (147)
-
-	.  reduce 147
-
-
-state 300
-	if_then_else_statement : IF '(' expression ')' executable_statament ELSE executable_statament END_IF ',' .  (146)
-
-	.  reduce 146
-
-
-state 301
-	for_in_range_statement : FOR for_variable IN RANGE '(' error ')' executable_block ',' .  (157)
-
-	.  reduce 157
-
-
-state 302
-	for_in_range_statement : FOR for_variable IN RANGE '(' error ')' executable_statament ',' .  (158)
-
-	.  reduce 158
-
-
-state 303
-	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update ')' . executable_block ','  (154)
-	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update ')' . executable_statament ','  (155)
-	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update ')' . error ','  (156)
-
-	error  shift 304
-	IF  shift 4
-	FOR  shift 5
-	PRINT  shift 7
-	ID  shift 193
-	'{'  shift 194
-	','  shift 14
-	.  error
-
-	assignment  goto 28
-	left_hand_side  goto 29
-	method_invocation  goto 30
-	executable_block  goto 305
-	executable_statament  goto 306
-	if_then_statement  goto 197
-	if_then_else_statement  goto 198
-	for_in_range_statement  goto 199
-	print_statement  goto 200
-	expression_statement  goto 201
-	empty_statement  goto 202
-	statement_expression  goto 45
-
-
-state 304
-	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update ')' error . ','  (156)
-	print_statement : error . CADENA ','  (165)
-
-	CADENA  shift 46
 	','  shift 307
 	.  error
 
 
-state 305
-	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update ')' executable_block . ','  (154)
+state 294
+	for_in_range_statement : FOR for_variable IN RANGE '(' error ')' executable_block . ','  (158)
 
 	','  shift 308
 	.  error
 
 
-state 306
-	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update ')' executable_statament . ','  (155)
+state 295
+	for_in_range_statement : FOR for_variable IN RANGE '(' error ')' executable_statament . ','  (159)
 
 	','  shift 309
 	.  error
 
 
-state 307
-	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update ')' error ',' .  (156)
+state 296
+	for_update : factor .  (162)
 
-	.  reduce 156
+	.  reduce 162
 
 
-state 308
-	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update ')' executable_block ',' .  (154)
+state 297
+	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update . ')' executable_block ','  (155)
+	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update . ')' executable_statament ','  (156)
+	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update . ')' error ','  (157)
+
+	')'  shift 310
+	.  error
+
+
+state 298
+	method_declarator : ID '(' formal_parameter ',' error ')' ',' .  (29)
+
+	.  reduce 29
+
+
+state 299
+	if_then_else_statement : IF '(' error ')' executable_block ELSE executable_block END_IF ',' .  (151)
+
+	.  reduce 151
+
+
+state 300
+	if_then_else_statement : IF '(' error ')' executable_block ELSE executable_statament END_IF ',' .  (152)
+
+	.  reduce 152
+
+
+state 301
+	if_then_else_statement : IF '(' error ')' executable_statament ELSE executable_block END_IF ',' .  (154)
 
 	.  reduce 154
 
 
+state 302
+	if_then_else_statement : IF '(' error ')' executable_statament ELSE executable_statament END_IF ',' .  (153)
+
+	.  reduce 153
+
+
+state 303
+	if_then_else_statement : IF '(' expression ')' executable_block ELSE executable_block END_IF ',' .  (146)
+
+	.  reduce 146
+
+
+state 304
+	if_then_else_statement : IF '(' expression ')' executable_block ELSE executable_statament END_IF ',' .  (147)
+
+	.  reduce 147
+
+
+state 305
+	if_then_else_statement : IF '(' expression ')' executable_statament ELSE executable_block error ',' .  (150)
+
+	.  reduce 150
+
+
+state 306
+	if_then_else_statement : IF '(' expression ')' executable_statament ELSE executable_block END_IF ',' .  (149)
+
+	.  reduce 149
+
+
+state 307
+	if_then_else_statement : IF '(' expression ')' executable_statament ELSE executable_statament END_IF ',' .  (148)
+
+	.  reduce 148
+
+
+state 308
+	for_in_range_statement : FOR for_variable IN RANGE '(' error ')' executable_block ',' .  (158)
+
+	.  reduce 158
+
+
 state 309
-	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update ')' executable_statament ',' .  (155)
+	for_in_range_statement : FOR for_variable IN RANGE '(' error ')' executable_statament ',' .  (159)
+
+	.  reduce 159
+
+
+state 310
+	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update ')' . executable_block ','  (155)
+	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update ')' . executable_statament ','  (156)
+	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update ')' . error ','  (157)
+
+	error  shift 311
+	IF  shift 4
+	FOR  shift 5
+	PRINT  shift 7
+	ID  shift 12
+	'{'  shift 195
+	','  shift 14
+	.  error
+
+	reference_type  goto 196
+	assignment  goto 28
+	left_hand_side  goto 29
+	method_invocation  goto 30
+	executable_block  goto 312
+	executable_statament  goto 313
+	if_then_statement  goto 199
+	if_then_else_statement  goto 200
+	for_in_range_statement  goto 201
+	print_statement  goto 202
+	expression_statement  goto 203
+	empty_statement  goto 204
+	statement_expression  goto 45
+
+
+state 311
+	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update ')' error . ','  (157)
+	print_statement : error . CADENA ','  (166)
+
+	CADENA  shift 46
+	','  shift 314
+	.  error
+
+
+state 312
+	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update ')' executable_block . ','  (155)
+
+	','  shift 315
+	.  error
+
+
+state 313
+	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update ')' executable_statament . ','  (156)
+
+	','  shift 316
+	.  error
+
+
+state 314
+	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update ')' error ',' .  (157)
+
+	.  reduce 157
+
+
+state 315
+	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update ')' executable_block ',' .  (155)
 
 	.  reduce 155
 
 
+state 316
+	for_in_range_statement : FOR for_variable IN RANGE '(' for_init for_end for_update ')' executable_statament ',' .  (156)
+
+	.  reduce 156
+
+
 44 terminals, 74 nonterminals
-166 grammar rules, 310 states
+167 grammar rules, 317 states

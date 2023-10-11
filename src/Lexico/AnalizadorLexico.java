@@ -107,7 +107,8 @@ public class AnalizadorLexico {
         }
 
         Logger.logToken(getProgramPosition(),
-                (token.getFirst() != null) ? "[" + token.getSecond() + ", " + token.getFirst() + "]"
+                (token.getFirst() != null) ? "[" + token.getSecond() + ", " +
+                        token.getFirst() + "]"
                         : "[" + token.getSecond() + ", " + getLexema(token.getSecond()) + "]");
 
         return token;

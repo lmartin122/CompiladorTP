@@ -31,11 +31,11 @@ public final class Logger {
     }
 
     public static void logToken(int line, Object message) {
-        warnings.add("Se encontro un " + LogType.TOKEN + " en la linea " + line + ": " + message + ".\n");
+        tokens.add("Se encontro un " + LogType.TOKEN + " en la linea " + line + ": " + message + ".\n");
     }
 
     public static void logRule(int line, Object message) {
-        warnings.add("Se encontro un " + LogType.RULE + " en la linea " + line + ": " + message + ".\n");
+        rules.add("Se encontro un " + LogType.RULE + " en la linea " + line + ": " + message + ".\n");
     }
 
     public static String dumpLog() throws IOException {

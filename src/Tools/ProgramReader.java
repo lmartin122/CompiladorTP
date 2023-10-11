@@ -18,6 +18,12 @@ public class ProgramReader {
 
     }
 
+    public boolean isNextEndProgram() {
+        return (currentColumn + 1 == program.get(currentLine).size())
+                ? (currentLine + 1 == program.size() ? true : false)
+                : false;
+    }
+
     public void next() {
         if (currentLine < program.size() && currentColumn < program.get(currentLine).size() - 1) {
             // Avanzamos a la siguiente columna en la misma línea
@@ -27,8 +33,6 @@ public class ProgramReader {
             currentLine++;
             currentColumn = 0;
         }
-
-
     }
 
     public String programToString() {
@@ -54,12 +58,13 @@ public class ProgramReader {
     public void nextCol() {
         this.currentColumn++;
     }
+
     public void returnCharacter() {
         currentColumn = currentColumn - 1;
     }
 
     public boolean hasFinished() {
-        if (currentLine == program.size()){ //si estoy en la ultima linea de codigo
+        if (currentLine == program.size()) { // si estoy en la ultima linea de codigo
             return true;
         }
         return false;
