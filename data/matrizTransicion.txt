@@ -25,7 +25,7 @@
 0;24;1;ASAnadirBuffer
 0;25;1;ASAnadirBuffer
 0;26;1;ASAnadirBuffer
-0;27;-1;-1
+0;27;-1;ASSimbolError
 0;28;20;ASLiterales
 1;0;20;ASDevolverIdentificador
 1;1;20;ASDevolverIdentificador

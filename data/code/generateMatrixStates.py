@@ -20,7 +20,8 @@ change = {"F": 20,
           "A10": "ASCadena",
           "A11": "ASLimpiarBuffer",
           "EE":"ASIntegerError",
-          "EF":"ASFloatError"
+          "EF":"ASFloatError",
+          "ES":"ASSimbolError"
           }
         
 df_e = pd.read_csv(f"https://docs.google.com/spreadsheets/d/{sheet_id['e']}/export?format=csv")

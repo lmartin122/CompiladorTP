@@ -99,11 +99,11 @@ public class AnalizadorLexico {
                     error = true;
                     estado_error = 1;
                 }
+            }
                 if(estado == -1){ //error simbomlo desconocido
                     estado = 0;
                     error = true;
                 }
-            }
             System.out.println();
             reader.next();
         }
