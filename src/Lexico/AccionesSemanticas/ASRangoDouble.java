@@ -46,6 +46,8 @@ public class ASRangoDouble implements AccionSemantica {
 
                 TablaSimbolos.addDouble(numero);
                 TablaSimbolos.addContador(numero);
+            } else {
+                TablaSimbolos.increaseCounter(numero);
             }
         }
 

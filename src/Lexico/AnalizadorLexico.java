@@ -110,7 +110,7 @@ public class AnalizadorLexico {
             Logger.logError(reader.getCurrentLine(), "El string nunca se cierra y finaliza el programa");
             return new Tupla<>("Fin del programa.", (short) 0);
         }
-        ;
+
         Logger.logToken(getProgramPosition(),
                 (token.getFirst() != null) ? "[" + token.getSecond() + ", " +
                         token.getFirst() + "]"

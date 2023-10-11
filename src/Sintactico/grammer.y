@@ -47,8 +47,6 @@ type_declaration : class_declaration
 ;
 
 
-
-
 class_declaration : CLASS ID class_body {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una CLASS.");}
                   | CLASS ID interfaces class_body {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una CLASS que implementa una interface.");}
                   | error ID class_body {Logger.logRule(aLexico.getProgramPosition(), "Declaracion de CLASS no valida.");}
@@ -96,7 +94,7 @@ result_type : VOID
 
 method_declarator : ID '(' formal_parameter ')'{Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo.");}
                   | ID '{' formal_parameter '}'{Logger.logError(aLexico.getProgramPosition(), "La declaracion de un metodo debe estar limitado por parentesis \"(...)\".");}
-                  | ID '(' formal_parameter ',' error ')' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite la declaracion de un unico parametro formal.");}
+                  | ID '(' formal_parameter ';' error ')' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite la declaracion de un unico parametro formal.");}
                   | ID '(' ')' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo.");}
                   | ID '{' '}' {Logger.logError(aLexico.getProgramPosition(), "La declaracion de un metodo debe estar limitado por parentesis \"(...)\".");}
 ;
@@ -212,7 +210,7 @@ term : factor
 
 factor : CTE_DOUBLE
        | CTE_UINT 
-       | CTE_LONG
+       | CTE_LONG {$$ = new ParserVal(ChequeoRangoEntero($1.sval));}
        | '-'CTE_DOUBLE {System.out.println("Posicion 1: " + $1.sval + ", Posicion 2: " + $2.sval); $$ = new ParserVal(negarDouble($2.sval));}
        | '-'CTE_LONG {System.out.println($2.sval); $$ = new ParserVal(negarLong($2.sval));}
        | '-'CTE_UINT {Logger.logWarning(aLexico.getProgramPosition() ,"Los tipos enteros deben ser sin signo."); $$ = new ParserVal($2.sval);}
@@ -224,7 +222,8 @@ assignment_operator : '='
 
 method_invocation : ID '(' real_parameter ')' ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo.");}
                   | ID '(' ')' ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo.");}
-                  | ID '(' real_parameter ',' error ')' ',' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
+                  | ID '(' real_parameter ';' error ')' ',' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
+                  | ID 
 ;
 
 /*
@@ -404,20 +403,26 @@ void yyerror(String msg) {
 
 private String negarDouble(String lexema) {
       
-    double RDN_MIN = -2.2250738585072014D * -Math.pow(10, 308);
+    double RDN_MIN = -2.2250738585072014D * Math.pow(10, 308);
     double RDN_MAX = -1.7976931348623157D * Math.pow(10, 308);
 
-    String n_lexema = '-'+lexema;
-    double numero = 0.0;
+    System.out.println("Numero dentro de negar doble: " + lexema);
+
+    double number = 0.0;
+    String n_lexema;
 
     try {
-        numero = Double.parseDouble(n_lexema);
+        number = -Double.parseDouble(lexema);
     } catch (Exception ex) {}
 
-    if (numero > RDN_MAX || numero < RDN_MIN ){
+    System.out.println("Numero dentro de negar doble: " + number);
+
+    if (number > RDN_MAX || number < RDN_MIN){
       Logger.logWarning(aLexico.getProgramPosition(), "El DOUBLE se excedio de rango, el mismo fue truncado al valor " + RDN_MAX + ".");
-      n_lexema = "" + RDN_MAX;
+      n_lexema = String.valueOf(RDN_MAX);
     } 
+
+    n_lexema = String.valueOf(number);
 
     addTablaSimbolos(lexema, n_lexema, "D");
 
@@ -429,30 +434,48 @@ private void addTablaSimbolos(String lexema, String n_lexema, String tipo) {
 
   if (!TablaSimbolos.containsKey(n_lexema)) {
 
-    if (tipo == "D") { // Perdon Luis por hacer un if por tipos T_T
+    if (tipo == "D") { // Perdon Luis por hacer un if por tipos
       TablaSimbolos.addDouble(n_lexema);
-
     } else {
       TablaSimbolos.addLong(n_lexema);
     }
-
     TablaSimbolos.addContador(n_lexema);
-    TablaSimbolos.decreaseCounter(lexema);
-
   } else {
     TablaSimbolos.increaseCounter(n_lexema);
   }
+
+  TablaSimbolos.decreaseCounter(lexema);
+}
+
+private String ChequeoRangoEntero(String lexema){
+
+    long RDN_MAX = (long) Math.pow(2, 31);
+    long number = 0;
+
+    try {
+        number = Long.parseLong(lexema);
+    } catch (Exception ex) {}
+
+    if (number >= RDN_MAX){
+      Logger.logWarning(aLexico.getProgramPosition(), "El LONG se excedio de rango, el mismo fue truncado al valor " + RDN_MAX + ".");
+      TablaSimbolos.decreaseCounter(lexema);
+      lexema = String.valueOf(RDN_MAX - 1);
+      TablaSimbolos.addContador(lexema);
+    }
+    
+    return lexema;
 }
 
 
 private String negarLong(String lexema) {
-
-    String n_lexema = '-'+lexema;
-    long numero = 0;
+  
+    long number = 0;
 
     try {
-        numero = Long.parseLong(n_lexema);
+        number = -Long.parseLong(lexema);
     } catch (Exception ex) {}
+
+    String n_lexema = String.valueOf(number);
 
     addTablaSimbolos(lexema, n_lexema, "L");
 
