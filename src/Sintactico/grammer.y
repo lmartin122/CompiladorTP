@@ -117,7 +117,6 @@ interface_type_list : type_name
 ;
 
 interface_declaration : INTERFACE ID interface_body {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una INTERFACE.");}
-                      | INTERFACE ID error ',' {Logger.logError(aLexico.getProgramPosition(), "Es necesario definir el cuerpo de la interface.");}
 ;
 
 interface_body : '{' interface_member_declaration '}'
@@ -130,8 +129,14 @@ interface_member_declaration : interface_method_declaration
                              | interface_member_declaration interface_method_declaration
 ;
 
-interface_method_declaration : result_type method_declarator
-                             | result_type error ',' {Logger.logError(aLexico.getProgramPosition(), "Es necesario generar la declaracion del metodo");}
+interface_method_declaration : constant_declaration
+                             | abstract_method_declaration
+;
+
+constant_declaration : type variable_declarators
+;
+
+abstract_method_declaration : result_type method_declarator ','
 ;
 
 implement_for_declaration : IMPL FOR reference_type ':' implement_for_body {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un IMPL FOR.");}
