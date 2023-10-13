@@ -10,6 +10,7 @@ import Tools.TablaSimbolos;
 import java.io.IOException;
 %}
 
+
 %token       
 CLASS INTERFACE IMPLEMENT RETURN
 IF ELSE END_IF FOR IN RANGE IMPL PRINT TOD
@@ -28,7 +29,8 @@ VOID LONG UINT DOUBLE CADENA ID CTE_DOUBLE CTE_UINT CTE_LONG
 >>>     PROGRAM
 
 */
-program : type_declarations {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio el programa");}
+program : type_declarations {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio el programa.");}
+        | error {Logger.logRule(aLexico.getProgramPosition(), "No se reconocio el programa.");} 
 ;
 
 /*
@@ -91,10 +93,10 @@ result_type : VOID
 ;
 
 method_declarator : ID '(' formal_parameter ')'{Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo.");}
-                  | ID '{' formal_parameter '}'{Logger.logError(aLexico.getProgramPosition(), "La declaracion de un metodo debe estar limitado por parentesis \"(...)\".");}
+                  | ID '{' formal_parameter '}'{Logger.logError(aLexico.getProgramPosition(), "La declaracion de un metodo debe estar delimitado por parentesis \"(...)\".");}
                   | ID '(' formal_parameter ';' error ')' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite la declaracion de un unico parametro formal.");}
                   | ID '(' ')' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo.");}
-                  | ID '{' '}' {Logger.logError(aLexico.getProgramPosition(), "La declaracion de un metodo debe estar limitado por parentesis \"(...)\".");}
+                  | ID '{' '}' {Logger.logError(aLexico.getProgramPosition(), "La declaracion de un metodo debe estar delimitado por parentesis \"(...)\".");}
 ;
 
 // Permito la creacion de multiples block en un metodo, se debe chequear que luego permita
@@ -120,9 +122,9 @@ interface_declaration : INTERFACE ID interface_body {Logger.logRule(aLexico.getP
 ;
 
 interface_body : '{' interface_member_declaration '}'
-               | '(' interface_member_declaration ')'{Logger.logError(aLexico.getProgramPosition(), "El cuerpo de la interface debe estar limitado por llaves \"{...}\".");}
+               | '(' interface_member_declaration ')'{Logger.logError(aLexico.getProgramPosition(), "El cuerpo de la interface debe estar delimitado por llaves \"{...}\".");}
                | '{' '}'
-               | '(' ')' {Logger.logError(aLexico.getProgramPosition(), "El cuerpo de la interface debe estar limitado por llaves \"{...}\".");}
+               | '(' ')' {Logger.logError(aLexico.getProgramPosition(), "El cuerpo de la interface debe estar delimitado por llaves \"{...}\".");}
 ;
 
 interface_member_declaration : interface_method_declaration 
@@ -142,10 +144,12 @@ abstract_method_declaration : result_type method_declarator ','
 implement_for_declaration : IMPL FOR reference_type ':' implement_for_body {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un IMPL FOR.");}
                           | IMPL FOR reference_type ':' error ',' {Logger.logError(aLexico.getProgramPosition(), "Es necesario implementar el cuerpo del metodo.");}
                           | IMPL FOR error ':' implement_for_body ',' {Logger.logError(aLexico.getProgramPosition(), "Se debe referenciar a una clase.");}
-                          | error reference_type ':' implement_for_body {Logger.logRule(aLexico.getProgramPosition(), "Declaracion de IMPL FOR no valida.");}
+                          | IMPL FOR reference_type error ':' implement_for_body {Logger.logRule(aLexico.getProgramPosition(), "Declaracion de IMPL FOR no valida, no es correcta la signatura.");}
+                          | error ':' implement_for_body {Logger.logRule(aLexico.getProgramPosition(), "Declaracion de IMPL FOR no valida, no es correcta la signatura.");}
 ;
 
-implement_for_body : '{' implement_for_body_declarations '}' 
+implement_for_body : '{' implement_for_body_declarations '}'
+                   | '(' implement_for_body_declarations ')' {Logger.logError(aLexico.getProgramPosition(), "El cuerpo de la interface debe estar delimitado por llaves \"{...}\".");}
 ;
 
 implement_for_body_declarations : implement_for_body_declaration 
@@ -158,7 +162,8 @@ implement_for_body_declaration : implement_for_method_declaration
 implement_for_method_declaration : method_header implement_for_method_body 
 ;
 
-implement_for_method_body : method_body
+implement_for_method_body : block 
+                          | ',' {Logger.logError(aLexico.getProgramPosition(), "Es necesario implementar el metodo de la clase.");}
 ;
 
 /*
@@ -180,12 +185,9 @@ primary : reference_type
         | field_acces
 ;
 
-expression : equality_expression  {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica.");}
-;
-
 equality_expression : relational_expression 
-                    | equality_expression EQUAL_OPERATOR relational_expression 
-                    | equality_expression NOT_EQUAL_OPERATOR relational_expression
+                    | equality_expression EQUAL_OPERATOR relational_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica.");}
+                    | equality_expression NOT_EQUAL_OPERATOR relational_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica.");}
 ;
 
 relational_expression : additive_expression 
@@ -196,6 +198,8 @@ relational_expression : additive_expression
 ;
 
 arithmetic_operation : additive_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion aritmetica.");}
+                     | TOD '(' additive_expression ')'
+                     | TOD '(' error ')'
 ;
 
 additive_expression : multiplicative_expression 
@@ -204,20 +208,18 @@ additive_expression : multiplicative_expression
 ;
 
 multiplicative_expression : unary_expression 
-                          | TOD '(' unary_expression ')' // Conversion explicita
                           | multiplicative_expression '*' unary_expression
                           | multiplicative_expression '/' unary_expression
                           | multiplicative_expression '%' unary_expression
 ;
 
-unary_expression : term 
+unary_expression : factor 
+                 | '(' arithmetic_operation ')' 
+                 | '(' ')' {Logger.logError(aLexico.getProgramPosition(), "Termino vacio.");}
                  | ID
 ;
 
-term : factor
-     | '(' expression ')'
-     | '(' ')' {Logger.logError(aLexico.getProgramPosition(), "Termino vacio.");}
-;
+
 
 factor : CTE_DOUBLE
        | CTE_UINT 
@@ -226,6 +228,8 @@ factor : CTE_DOUBLE
        | '-'CTE_LONG {System.out.println($2.sval); $$ = new ParserVal(negarLong($2.sval));}
        | '-'CTE_UINT {Logger.logWarning(aLexico.getProgramPosition() ,"Los tipos enteros deben ser sin signo."); $$ = new ParserVal($2.sval);}
 ;
+
+
 
 assignment_operator : '=' 
                     | MINUS_ASSIGN 
@@ -248,14 +252,12 @@ type : primitive_type
      | reference_type
 ;
 
-
 primitive_type : numeric_type
 ;
 
 // Se puede utilizar impl for para una interfaz? supongo que no
 reference_type : ID 
 ;
-
 
 numeric_type : integral_type 
              | floating_type
@@ -279,8 +281,11 @@ type_name : ID
 */
 block : '{' block_statements RETURN',' '}'
       | '{' block_statements '}' {Logger.logError(aLexico.getProgramPosition(), "Es necesario declarar el retorno del bloque.");}
+      | '(' block_statements RETURN',' ')' {Logger.logError(aLexico.getProgramPosition(), "Un bloque debe estar delimitado por llaves \"{...} y es necesario declarar el retorno del bloque.");}
       | '{' RETURN',' '}'
+      | '(' RETURN',' ')' {Logger.logError(aLexico.getProgramPosition(), "Un bloque debe estar delimitado por llaves \"{...}\".");}
       | '{' '}' {Logger.logError(aLexico.getProgramPosition(), "Es necesario declarar el retorno del bloque.");}
+      | '(' ')' {Logger.logError(aLexico.getProgramPosition(), "Un bloque debe estar delimitado por llaves \"{...}\".");}
 ;
 
 executable_block : '{' executable_block_statements '}' 
@@ -329,6 +334,7 @@ statement_without_trailing_substatement : block
 ;
 
 expression_statement : statement_expression ','
+                     | statement_expression ';' {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' en el final de la sentencia.");}
 ;
 
 statement_expression : assignment 
@@ -339,21 +345,21 @@ empty_statement : ','
 ;
 
 
-if_then_statement : IF '(' expression ')' executable_block END_IF ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia IF.");}
-                  | IF '(' expression ')' executable_statament END_IF ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia IF.");}
-                  | IF '(' expression ')' executable_statament ',' {Logger.logError(aLexico.getProgramPosition(), "Es necesario declarar el final de la sentencia de control IF.");}
-                  | IF '(' expression ')' executable_block ',' {Logger.logError(aLexico.getProgramPosition(), "Es necesario declarar el final de la sentencia de control IF.");}
-                  | IF '(' expression ')' error END_IF ',' {Logger.logError(aLexico.getProgramPosition(), "Es necesario declarar el cuerpo de la sentencia de control IF.");}
+if_then_statement : IF '(' equality_expression ')' executable_block END_IF ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia IF.");}
+                  | IF '(' equality_expression ')' executable_statament END_IF ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia IF.");}
+                  | IF '(' equality_expression ')' executable_statament ',' {Logger.logError(aLexico.getProgramPosition(), "Es necesario declarar el final de la sentencia de control IF.");}
+                  | IF '(' equality_expression ')' executable_block ',' {Logger.logError(aLexico.getProgramPosition(), "Es necesario declarar el final de la sentencia de control IF.");}
+                  | IF '(' equality_expression ')' error END_IF ',' {Logger.logError(aLexico.getProgramPosition(), "Es necesario declarar el cuerpo de la sentencia de control IF.");}
                   | IF '(' error ')' executable_block END_IF ',' {Logger.logError(aLexico.getProgramPosition(), "La condicion de la sentencia de control IF no es correcta.");}
                   | IF '(' error ')' executable_statament END_IF ',' {Logger.logError(aLexico.getProgramPosition(), "La condicion de la sentencia de control IF no es correcta.");}
 
 ;   
 
-if_then_else_statement : IF '(' expression ')' executable_block ELSE executable_block END_IF ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia IF ELSE.");}
-                       | IF '(' expression ')' executable_block ELSE executable_statament END_IF ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia IF ELSE.");}
-                       | IF '(' expression ')' executable_statament ELSE executable_statament END_IF ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia IF ELSE.");}
-                       | IF '(' expression ')' executable_statament ELSE executable_block END_IF ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia IF ELSE.");}
-                       | IF '(' expression ')' executable_statament ELSE executable_block error ',' {Logger.logError(aLexico.getProgramPosition(), "Es necesario declarar el END_IF de la sentencia de control IF.");} 
+if_then_else_statement : IF '(' equality_expression ')' executable_block ELSE executable_block END_IF ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia IF ELSE.");}
+                       | IF '(' equality_expression ')' executable_block ELSE executable_statament END_IF ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia IF ELSE.");}
+                       | IF '(' equality_expression ')' executable_statament ELSE executable_statament END_IF ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia IF ELSE.");}
+                       | IF '(' equality_expression ')' executable_statament ELSE executable_block END_IF ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia IF ELSE.");}
+                       | IF '(' equality_expression ')' executable_statament ELSE executable_block error ',' {Logger.logError(aLexico.getProgramPosition(), "Es necesario declarar el END_IF de la sentencia de control IF.");} 
                        | IF '(' error ')' executable_block ELSE executable_block END_IF ',' {Logger.logError(aLexico.getProgramPosition(), "La condicion de la sentencia de control IF no es correcta.");}
                        | IF '(' error ')' executable_block ELSE executable_statament END_IF ',' {Logger.logError(aLexico.getProgramPosition(), "La condicion de la sentencia de control IF no es correcta.");}
                        | IF '(' error ')' executable_statament ELSE executable_statament END_IF ',' {Logger.logError(aLexico.getProgramPosition(), "La condicion de la sentencia de control IF no es correcta.");}
@@ -364,8 +370,8 @@ if_then_else_statement : IF '(' expression ')' executable_block ELSE executable_
 for_in_range_statement : FOR for_variable IN RANGE '(' for_init ';' for_end ';' for_update ')' executable_block {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia FOR IN RANGE.");}
                        | FOR for_variable IN RANGE '(' for_init ';' for_end ';' for_update ')' executable_statament {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia FOR IN RANGE.");}
                        | FOR for_variable IN RANGE '(' for_init ';' for_end ';' for_update ')' error ',' {Logger.logError(aLexico.getProgramPosition(), "Cuerpo del FOR IN RANGE no valido.");} 
-                       | FOR for_variable IN RANGE '('error')'  executable_block {Logger.logError(aLexico.getProgramPosition(), "Condicion del FOR IN RANGE no valido.");} 
-                       | FOR for_variable IN RANGE '('error')' executable_statament {Logger.logError(aLexico.getProgramPosition(), "Condicion del FOR IN RANGE no valido.");} 
+                       | FOR for_variable IN RANGE '(' error ')'  executable_block {Logger.logError(aLexico.getProgramPosition(), "Condicion del FOR IN RANGE no valido.");} 
+                       | FOR for_variable IN RANGE '(' error ')' executable_statament {Logger.logError(aLexico.getProgramPosition(), "Condicion del FOR IN RANGE no valido.");} 
 ;
 
 for_variable : reference_type
@@ -374,15 +380,18 @@ for_variable : reference_type
 for_init : factor
 ;
 
-for_update : factor
+for_update : factor 
 ;
 
-for_end : factor
+for_end : factor 
 ;
+
 
 print_statement : PRINT CADENA ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia PRINT.");}
-                | PRINT error ','{Logger.logError(aLexico.getProgramPosition(), "Se esperaba una cadena.");}
+                | PRINT CADENA error {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' en el final de la sentencia.");}
+                /* | PRINT error ','{Logger.logError(aLexico.getProgramPosition(), "Se esperaba una cadena.");} */
                 | error CADENA ',' {Logger.logRule(aLexico.getProgramPosition(), "Declaracion de PRINT no valida.");}
+                | PRINT '\0' {Logger.logRule(aLexico.getProgramPosition(), "Se esperaba un % que cierre la cadena.");}
 ;
 %%
 
@@ -595,7 +604,7 @@ public static void main (String [] args) throws IOException {
 
     Parser aSintactico = new Parser();
     aSintactico.run();
-    aSintactico.dump_stacks(yylval_recognition);
+    //aSintactico.dump_stacks(yylval_recognition);
 
     System.out.println(Logger.dumpLog());
     System.out.println(aLexico.getProgram());
