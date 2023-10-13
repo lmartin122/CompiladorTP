@@ -1,0 +1,8 @@
+UINT a = (),
+UINT b = 123_ui < 200_ui,
+UINT c = (123_ui / () ) < 200_ui,
+UINT d := b,
+UINT f = 123_ui * 10_ui,
+UINT h == f,
+UINT j <= 2_ui,
+UINT z = (123_ui * 3_ui) / 5_ui + 10_ui,

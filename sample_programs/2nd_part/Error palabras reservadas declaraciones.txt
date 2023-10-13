@@ -1,0 +1,11 @@
+IF ( abcdefghijklmnopqufjtkgilhokd < bglhotkgiu ) {
+    print % El primer identificador es menor. 
+} else {
+    print El primer identificador no es menor. %,
+},
+
+impl for a : {},
+
+for a in range (0_ui; 10_ui; 1_ui)
+    PRINT % hola %,
+

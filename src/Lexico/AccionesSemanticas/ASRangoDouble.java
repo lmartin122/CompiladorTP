@@ -15,7 +15,7 @@ public class ASRangoDouble implements AccionSemantica {
      */
 
     // Rango double positivo
-    public static final double RDP_MIN = 2.2250738585072014D * -Math.pow(10, 308);
+    public static final double RDP_MIN = 2.2250738585072014D * Math.pow(10, -308);
     public static final double RDP_MAX = 1.7976931348623157D * Math.pow(10, 308);
 
     @Override
@@ -37,22 +37,23 @@ public class ASRangoDouble implements AccionSemantica {
         }
 
         if (numero > RDP_MAX || numero < RDP_MIN || error) {
-            System.out.print(" double fuera de rango");
-            Logger.logError(reader.getCurrentLine(), "Float fuera de rango");
+            // System.out.print(" double fuera de rango");
+            Logger.logWarning(reader.getCurrentLine(),
+                    "El DOUBLE se excedio de rango, el mismo fue truncado al valor " + (RDP_MAX - 1) + ".");
+            numero = RDP_MAX - 1;
+            auxBuffer = String.valueOf(RDP_MAX - 1);
+        }
 
+        if (!TablaSimbolos.containsKey(auxBuffer)) {
+            // System.out.print(" DOUBLE AÑADIDO");
+            TablaSimbolos.addDouble(auxBuffer);
+            TablaSimbolos.addContador(auxBuffer);
         } else {
-            if (!TablaSimbolos.containsKey(numero)) {
-                System.out.print(" DOUBLE AÑADIDO");
-
-                TablaSimbolos.addDouble(numero);
-                TablaSimbolos.addContador(numero);
-            } else {
-                TablaSimbolos.increaseCounter(numero);
-            }
+            TablaSimbolos.increaseCounter(auxBuffer);
         }
 
         reader.returnCharacter();
         buffer.setLength(0);
-        return new Tupla<>(auxBuffer, Parser.CTE_DOUBLE);
+        return new Tupla<>(String.valueOf(auxBuffer), Parser.CTE_DOUBLE);
     }
 }

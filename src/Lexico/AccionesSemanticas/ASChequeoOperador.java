@@ -69,6 +69,10 @@ public class ASChequeoOperador implements AccionSemantica {
                     Logger.logError(reader.getCurrentLine(), "Se leyo el caracter '!' ");
                     return new Tupla<>(null, (short) '!');
                 }
+            case "*":
+                buffer.setLength(0);
+                reader.returnCharacter();
+                return new Tupla<>(null, (short) '*');
             case ".":
                 buffer.setLength(0);
                 reader.returnCharacter();

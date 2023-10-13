@@ -74,9 +74,6 @@ public class AnalizadorLexico {
 
     public Tupla<String, Short> generateToken() {
 
-        if (hasFinishedTokenizer())
-            return new Tupla<>("Fin del programa.", (short) 0);
-
         // Variables
         int estado = 0;
 
@@ -102,12 +99,11 @@ public class AnalizadorLexico {
                 estado = 0;
                 error = true;
             }
-            System.out.println();
+            // System.out.println();
             reader.next();
         }
 
-        if (token == null) {
-            Logger.logError(reader.getCurrentLine(), "El string nunca se cierra y finaliza el programa");
+        if (hasFinishedTokenizer()) {
             return new Tupla<>("Fin del programa.", (short) 0);
         }
 

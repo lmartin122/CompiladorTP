@@ -10,7 +10,7 @@ public class ASIntegerError implements AccionSemantica {
 
     @Override
     public Tupla<String, Short> run(char simbolo, ProgramReader reader) {
-        Logger.logError(reader.getCurrentLine(), " integer mal escrito.");
+        Logger.logError(reader.getCurrentLine(), "El integer esta mal escrito.");
 
         reader.returnCharacter();
         this.buffer.setLength(0);

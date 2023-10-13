@@ -57,7 +57,7 @@ public class TablaSimbolos {
             if (tablaSimbolos.get(key).containsKey("contador")) {
                 int counter = Integer.valueOf(tablaSimbolos.get(key).get("contador"));
                 if (counter == 1) {
-                    System.out.println("Eliminado referencia de la tabla de simbolos...");
+                    // System.out.println("Eliminado referencia de la tabla de simbolos...");
                     tablaSimbolos.remove(key);
                 } else {
                     counter -= 1;
@@ -86,17 +86,20 @@ public class TablaSimbolos {
      * }
      */
 
-    public static void printTable() {
-        System.out.println("Tabla de símbolos: ");
+    public static String printTable() {
+        // System.out.println("Tabla de símbolos: ");
+        String out = "";
 
         for (HashMap.Entry<String, HashMap<String, String>> m : tablaSimbolos.entrySet()) {
             HashMap<String, String> values = m.getValue();
-            System.out.print(m.getKey() + ": ");
+            out += "Clave " + m.getKey() + ": ";
             for (HashMap.Entry<String, String> v : values.entrySet()) {
-                System.out.print("(" + v.getKey() + ": " + v.getValue() + ") ");
+                out += "(" + v.getKey() + ": " + v.getValue() + ") ";
             }
-            System.out.println();
+            out += "\n";
         }
+
+        return out;
     }
 
 }

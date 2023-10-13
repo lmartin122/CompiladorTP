@@ -1,4 +1,4 @@
-VOID f ( UINT a ) { 
+VOID f ( UINT a; UINT b ) { 
     UINT c = 0_ui,
 
     FOR a IN RANGE (0_ui; 10_ui; 2_ui){

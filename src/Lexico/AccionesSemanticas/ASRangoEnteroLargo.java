@@ -15,6 +15,7 @@ public class ASRangoEnteroLargo implements AccionSemantica {
     public Tupla<String, Short> run(char simbolo, ProgramReader reader) {
         String aux = buffer.toString();
         boolean error = false;
+
         Long numero = 0L;
         try {
             numero = Long.parseLong(aux);
@@ -25,17 +26,15 @@ public class ASRangoEnteroLargo implements AccionSemantica {
         if (!error && numero <= (int) Math.pow(2, 31)) {
 
             if (!TablaSimbolos.tablaSimbolos.containsKey(String.valueOf(numero))) { // si la constante no está
-                System.out.print(" ENTERO LARGO AÑADIDO");
-                HashMap<String, String> auxMap = new HashMap<String, String>();
-                auxMap.put("tipo", TablaTipos.LONG_TYPE);
+                // System.out.print(" ENTERO LARGO AÑADIDO");
 
-                TablaSimbolos.tablaSimbolos.put(String.valueOf(numero), auxMap);
+                TablaSimbolos.addLong(numero);
                 TablaSimbolos.addContador(numero);
             }
         } else {
             TablaSimbolos.addLong(String.valueOf(Math.pow(2, 31)));
-            System.out.print(" LONG entero fuera de rango, se convirtio al maximo permitido");
-            Logger.logError(reader.getCurrentLine(), "Entero LONG fuera de rango");
+            // System.out.print("LONG fuera de rango, se convirtio al maximo permitido");
+            Logger.logError(reader.getCurrentLine(), "LONG fuera de rango");
 
         }
 

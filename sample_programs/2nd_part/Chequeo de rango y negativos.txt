@@ -1,0 +1,6 @@
+UINT a = -1_ui,
+LONG b = -10_l,
+LONG c = 2147483648_l,
+LONG e = -2147483648_l,
+DOUBLE g = -15.0D+10,
+DOUBLE i = -15.0D+308,

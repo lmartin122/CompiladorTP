@@ -74,11 +74,11 @@ public class MatrizTransicion {
 
     public Integer nextEstado(Integer estado, char simbolo) {
         int col = convertir(simbolo);
-        if (col == 2) {
-            System.out.print("simbolo: " + col + "/" + "\\n" + "  estado: " + estado);
-        } else {
-            System.out.print("simbolo: " + col + "/" + simbolo + "  estado: " + estado);
-        }
+        // if (col == 2) {
+        // System.out.print("simbolo: " + col + "/" + "\\n" + " estado: " + estado);
+        // } else {
+        // System.out.print("simbolo: " + col + "/" + simbolo + " estado: " + estado);
+        // }
         return matriz[estado][col].getEstado();
     };
 

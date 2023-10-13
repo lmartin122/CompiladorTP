@@ -10,7 +10,7 @@ public class ASFloatError implements AccionSemantica {
 
     @Override
     public Tupla<String, Short> run(char simbolo, ProgramReader reader) {
-        Logger.logError(reader.getCurrentLine(), " flotante mal escrito.");
+        Logger.logError(reader.getCurrentLine(), "El flotante esta mal escrito.");
         reader.returnCharacter();
         this.buffer.setLength(0);
         AnalizadorLexico.estado_error = -1;

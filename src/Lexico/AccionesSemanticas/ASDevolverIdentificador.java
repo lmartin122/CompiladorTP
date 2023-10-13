@@ -17,7 +17,7 @@ public class ASDevolverIdentificador implements AccionSemantica {
         String aux = buffer.toString();
 
         if (!PalabrasReservadasTabla.contienePalabra(aux)) {
-            System.out.println(" IDENTIFICADOR ENCONTRADO: " + aux);
+            // System.out.println(" IDENTIFICADOR ENCONTRADO: " + aux);
             if (aux.length() > 20) {
                 Logger.logWarning(reader.getCurrentLine(), "Identificador truncado.");
                 aux = aux.substring(0, 20);
@@ -32,7 +32,7 @@ public class ASDevolverIdentificador implements AccionSemantica {
             return new Tupla<>(aux, Parser.ID);
 
         } else {
-            System.out.println(" PALABRA RESERVADA: " + aux);
+            // System.out.println(" PALABRA RESERVADA: " + aux);
             reader.returnCharacter(); // devuelvo el caracter leido de mas
             buffer.setLength(0);
             return new Tupla<>(aux, PalabrasReservadasTabla.getClave(aux));
