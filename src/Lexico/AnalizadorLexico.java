@@ -15,7 +15,6 @@ public class AnalizadorLexico {
     private final int SIMBOLOS = 29; // el 27 seria el simbolo "otros"
 
     public static int estado_error = 0;
-    public static boolean error = false;
     MatrizTransicion matrizTransicion;
     private ProgramReader reader;
 
@@ -91,13 +90,11 @@ public class AnalizadorLexico {
                 token = as.run(s, reader);
                 if (token != null && AnalizadorLexico.estado_error < 0) {
                     estado = 20; // terminó de leer en caso de error
-                    error = true;
                     estado_error = 1;
                 }
             }
             if (estado == -1) { // error simbomlo desconocido
                 estado = 0;
-                error = true;
             }
             // System.out.println();
             reader.next();

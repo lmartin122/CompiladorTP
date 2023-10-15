@@ -1,0 +1,2 @@
+UINT precio = flete + costo * 5_ui,
+UINT precio2 = costo * 10_ui,

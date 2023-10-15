@@ -72,6 +72,16 @@ public class TablaSimbolos {
         return out;
     }
 
+    public static void changeKey(String lexema, String n_lexema) {
+        if (tablaSimbolos.containsKey(lexema)) {
+            HashMap<String, String> attributes = tablaSimbolos.get(lexema);
+            tablaSimbolos.remove(lexema);
+            tablaSimbolos.put(n_lexema, attributes);
+        } else {
+            System.out.println("No existe " + lexema + " en la tabla de simbolos.");
+        }
+    }
+
     /*
      * public static int getSymbol(String lex) {
      * for (Map.Entry<String, Map<String, String>> m : tablaSimbolos.entrySet()) {

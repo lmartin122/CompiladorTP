@@ -1,3 +1,4 @@
+{
 INTERFACE my_interface {
    VOID my_method (),
 }
@@ -10,6 +11,7 @@ CLASS my_class IMPLEMENT my_interface {
 
         RETURN,
     }
+}
 }
 
 IMPL FOR my_class : {

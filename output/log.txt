@@ -1,78 +1,49 @@
 >>>    LOG 
-Se encontro un ERROR en la linea [1] : Termino vacio.
-Se encontro un ERROR en la linea [2] : No es una expresion aritmetica valida.
-Se encontro un ERROR en la linea [3] : Termino vacio.
-Se encontro un ERROR en la linea [3] : No es una expresion aritmetica valida.
-Se encontro un ERROR en la linea [5] : Las declaraciones de variables se deben hacer con el caracter '='.
-Se encontro un ERROR en la linea [7] : Declaracion de variable no valida. El caracter == no se permite en una declaracion...
-Se encontro un ERROR en la linea [8] : Declaracion de variable no valida. El caracter <= no se permite en una declaracion.
-Se encontro un TOKEN en la linea [1] : [277, UINT]
-Se encontro un TOKEN en la linea [1] : [280, a]
-Se encontro un TOKEN en la linea [1] : [61, =]
-Se encontro un TOKEN en la linea [1] : [40, (]
-Se encontro un TOKEN en la linea [1] : [41, )]
-Se encontro un TOKEN en la linea [2] : [44, ,]
+Se encontro un WARNING en la linea [4] : El LONG se excedio de rango, el mismo fue truncado al valor 2147483647.
+Se encontro un WARNING en la linea [7] : El DOUBLE se excedio de rango, el mismo fue truncado al valor 1.7976931348623157E308.
+Se encontro un ERROR en la linea [2] : Los tipos UINT deben ser sin signo.
+Se encontro un ERROR en la linea [4] : LONG fuera de rango
+Se encontro un ERROR en la linea [5] : LONG fuera de rango
+Se encontro un TOKEN en la linea [2] : [123, {]
 Se encontro un TOKEN en la linea [2] : [277, UINT]
-Se encontro un TOKEN en la linea [2] : [280, b]
+Se encontro un TOKEN en la linea [2] : [280, a]
 Se encontro un TOKEN en la linea [2] : [61, =]
-Se encontro un TOKEN en la linea [2] : [282, 123]
-Se encontro un TOKEN en la linea [2] : [60, <]
-Se encontro un TOKEN en la linea [2] : [282, 200]
+Se encontro un TOKEN en la linea [2] : [45, -]
+Se encontro un TOKEN en la linea [2] : [282, 1]
 Se encontro un TOKEN en la linea [3] : [44, ,]
-Se encontro un TOKEN en la linea [3] : [277, UINT]
-Se encontro un TOKEN en la linea [3] : [280, c]
+Se encontro un TOKEN en la linea [3] : [276, LONG]
+Se encontro un TOKEN en la linea [3] : [280, b]
 Se encontro un TOKEN en la linea [3] : [61, =]
-Se encontro un TOKEN en la linea [3] : [40, (]
-Se encontro un TOKEN en la linea [3] : [282, 123]
-Se encontro un TOKEN en la linea [3] : [47, /]
-Se encontro un TOKEN en la linea [3] : [40, (]
-Se encontro un TOKEN en la linea [3] : [41, )]
-Se encontro un TOKEN en la linea [3] : [41, )]
-Se encontro un TOKEN en la linea [3] : [60, <]
-Se encontro un TOKEN en la linea [3] : [282, 200]
+Se encontro un TOKEN en la linea [3] : [45, -]
+Se encontro un TOKEN en la linea [3] : [283, 10]
 Se encontro un TOKEN en la linea [4] : [44, ,]
-Se encontro un TOKEN en la linea [4] : [277, UINT]
-Se encontro un TOKEN en la linea [4] : [280, d]
-Se encontro un TOKEN en la linea [4] : [58, :]
+Se encontro un TOKEN en la linea [4] : [276, LONG]
+Se encontro un TOKEN en la linea [4] : [280, c]
 Se encontro un TOKEN en la linea [4] : [61, =]
-Se encontro un TOKEN en la linea [4] : [280, b]
+Se encontro un TOKEN en la linea [4] : [283, 2147483648]
 Se encontro un TOKEN en la linea [5] : [44, ,]
-Se encontro un TOKEN en la linea [5] : [277, UINT]
-Se encontro un TOKEN en la linea [5] : [280, f]
+Se encontro un TOKEN en la linea [5] : [276, LONG]
+Se encontro un TOKEN en la linea [5] : [280, e]
 Se encontro un TOKEN en la linea [5] : [61, =]
-Se encontro un TOKEN en la linea [5] : [282, 123]
-Se encontro un TOKEN en la linea [5] : [42, *]
-Se encontro un TOKEN en la linea [5] : [282, 10]
+Se encontro un TOKEN en la linea [5] : [45, -]
+Se encontro un TOKEN en la linea [5] : [283, 2147483648]
 Se encontro un TOKEN en la linea [6] : [44, ,]
-Se encontro un TOKEN en la linea [6] : [277, UINT]
-Se encontro un TOKEN en la linea [6] : [280, h]
-Se encontro un TOKEN en la linea [6] : [270, ==]
-Se encontro un TOKEN en la linea [6] : [280, f]
+Se encontro un TOKEN en la linea [6] : [278, DOUBLE]
+Se encontro un TOKEN en la linea [6] : [280, g]
+Se encontro un TOKEN en la linea [6] : [61, =]
+Se encontro un TOKEN en la linea [6] : [45, -]
+Se encontro un TOKEN en la linea [6] : [281, 15.0e+10]
 Se encontro un TOKEN en la linea [7] : [44, ,]
-Se encontro un TOKEN en la linea [7] : [277, UINT]
-Se encontro un TOKEN en la linea [7] : [280, j]
-Se encontro un TOKEN en la linea [7] : [273, >=]
-Se encontro un TOKEN en la linea [7] : [282, 2]
+Se encontro un TOKEN en la linea [7] : [278, DOUBLE]
+Se encontro un TOKEN en la linea [7] : [280, i]
+Se encontro un TOKEN en la linea [7] : [61, =]
+Se encontro un TOKEN en la linea [7] : [45, -]
+Se encontro un TOKEN en la linea [7] : [281, 1.7976931348623157E308]
 Se encontro un TOKEN en la linea [8] : [44, ,]
-Se encontro un TOKEN en la linea [8] : [277, UINT]
-Se encontro un TOKEN en la linea [8] : [280, z]
-Se encontro un TOKEN en la linea [8] : [61, =]
-Se encontro un TOKEN en la linea [8] : [40, (]
-Se encontro un TOKEN en la linea [8] : [282, 123]
-Se encontro un TOKEN en la linea [8] : [42, *]
-Se encontro un TOKEN en la linea [8] : [282, 3]
-Se encontro un TOKEN en la linea [8] : [41, )]
-Se encontro un TOKEN en la linea [8] : [47, /]
-Se encontro un TOKEN en la linea [8] : [282, 5]
-Se encontro un TOKEN en la linea [8] : [43, +]
-Se encontro un TOKEN en la linea [8] : [282, 10]
-Se encontro un TOKEN en la linea [9] : [44, ,]
-Se encontro un RULE en la linea [2] : Se reconocio una operacion aritmetica.
-Se encontro un RULE en la linea [2] : Se reconocio una declaracion de variable local.
-Se encontro un RULE en la linea [2] : Se reconocio una operacion aritmetica.
+Se encontro un TOKEN en la linea [8] : [125, }]
+Se encontro un RULE en la linea [3] : Se reconocio una operacion aritmetica.
 Se encontro un RULE en la linea [3] : Se reconocio una declaracion de variable local.
-Se encontro un RULE en la linea [3] : Se reconocio una operacion aritmetica.
-Se encontro un RULE en la linea [3] : Se reconocio una operacion aritmetica.
+Se encontro un RULE en la linea [4] : Se reconocio una operacion aritmetica.
 Se encontro un RULE en la linea [4] : Se reconocio una declaracion de variable local.
 Se encontro un RULE en la linea [5] : Se reconocio una operacion aritmetica.
 Se encontro un RULE en la linea [5] : Se reconocio una declaracion de variable local.
@@ -82,22 +53,18 @@ Se encontro un RULE en la linea [7] : Se reconocio una operacion aritmetica.
 Se encontro un RULE en la linea [7] : Se reconocio una declaracion de variable local.
 Se encontro un RULE en la linea [8] : Se reconocio una operacion aritmetica.
 Se encontro un RULE en la linea [8] : Se reconocio una declaracion de variable local.
-Se encontro un RULE en la linea [8] : Se reconocio una operacion aritmetica.
-Se encontro un RULE en la linea [8] : Se reconocio una operacion aritmetica.
-Se encontro un RULE en la linea [9] : Se reconocio una declaracion de variable local.
-Se encontro un RULE en la linea [10] : Se reconocio el programa.
+Se encontro un RULE en la linea [8] : Se reconocio el programa.
 >>>    TABLA DE SIMBOLOS
 Clave a: (uso: identificador) 
 Clave b: (uso: identificador) 
+Clave 2147483647: (tipo: LONG) (contador: 1) 
 Clave c: (uso: identificador) 
-Clave d: (uso: identificador) 
-Clave f: (uso: identificador) 
-Clave h: (uso: identificador) 
-Clave j: (uso: identificador) 
-Clave 123: (tipo: UINT) 
-Clave 200: (tipo: UINT) 
-Clave 2: (tipo: UINT) 
-Clave 3: (tipo: UINT) 
-Clave 5: (tipo: UINT) 
-Clave z: (uso: identificador) 
-Clave 10: (tipo: UINT) 
+Clave e: (uso: identificador) 
+Clave g: (uso: identificador) 
+Clave i: (uso: identificador) 
+Clave -10: (tipo: LONG) (contador: 1) 
+Clave 2.147483648E9: (tipo: LONG) 
+Clave -1.5E11: (tipo: DOUBLE) (contador: 1) 
+Clave 1: (tipo: UINT) 
+Clave -1.7976931348623157E308: (tipo: DOUBLE) (contador: 1) 
+Clave -2147483648: (tipo: LONG) (contador: 1) 

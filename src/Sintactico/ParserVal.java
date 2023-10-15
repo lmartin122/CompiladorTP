@@ -67,7 +67,6 @@ public class ParserVal {
     obj = val;
   }
 
-  @Override
   public String toString() {
     return sval;
   }

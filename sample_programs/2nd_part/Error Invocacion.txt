@@ -1,3 +1,4 @@
+{
 VOID f ( UINT a; UINT b ) { 
     UINT c = 0_ui,
 
@@ -10,3 +11,4 @@ VOID f ( UINT a; UINT b ) {
 }
 UINT a; b = 12_ui,
 f(a; b),
+}

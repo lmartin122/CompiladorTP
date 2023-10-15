@@ -38,6 +38,10 @@ public final class Logger {
         rules.add("Se encontro un " + LogType.RULE + " en la linea [" + line + "] : " + message + "\n");
     }
 
+    public static boolean errorsOcurred() {
+        return !errors.isEmpty();
+    }
+
     public static String dumpLog() throws IOException {
         String path = System.getProperty("user.dir");
 

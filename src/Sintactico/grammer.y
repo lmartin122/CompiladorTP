@@ -1,13 +1,21 @@
 %{
 package Sintactico;
-import Lexico.AnalizadorLexico;
+
+import java.util.Collections;
 import java.util.Scanner;
-import Tools.Logger;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.io.File;
+
+import Lexico.AnalizadorLexico;
+
+import GCodigo.PolacaInversa;
+import GCodigo.Scope;
+
+import Tools.Logger;
 import Tools.Tupla;
 import Tools.TablaSimbolos;
-import java.io.IOException;
+
 %}
 
 
@@ -29,7 +37,7 @@ VOID LONG UINT DOUBLE CADENA ID CTE_DOUBLE CTE_UINT CTE_LONG
 >>>     PROGRAM
 
 */
-program : type_declarations {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio el programa.");}
+program : '{' type_declarations '}' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio el programa.");}
         | error {Logger.logRule(aLexico.getProgramPosition(), "No se reconocio el programa.");} 
 ;
 
@@ -38,18 +46,21 @@ program : type_declarations {Logger.logRule(aLexico.getProgramPosition(), "Se re
 >>>     DECLARATIONS
 
 */
-type_declarations : type_declaration 
+type_declarations : type_declaration {scope.reset();}
                   | type_declarations type_declaration
 ;
 
-type_declaration : class_declaration 
+type_declaration : class_declaration
                  | interface_declaration
                  | implement_for_declaration
                  | block_statement
 ;
 
-class_declaration : CLASS ID class_body {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una CLASS.");}
-                  | CLASS ID interfaces class_body {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una CLASS que implementa una interface.");}
+class_declaration : CLASS class_name class_body {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una CLASS.");}
+                  | CLASS class_name interfaces class_body {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una CLASS que implementa una interface.");}
+;
+
+class_name : ID {scope.stack($1.sval);} 
 ;
 
 class_body : '{' class_body_declarations '}' 
@@ -64,19 +75,20 @@ class_body_declaration : class_member_declaration
 ;
 
 class_member_declaration : field_declaration 
-                         | method_declaration
+                         | method_declaration 
 ;
 
 field_declaration : type variable_declarators ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una declaracion de atributo/s.");}
                   | type variable_declarators {Logger.logError(aLexico.getProgramPosition(), "La sentencia debe terminar con ','.");}
 ;
 
+
 variable_declarators : variable_declarator 
                      | variable_declarators ';' variable_declarator
 ;
 
 variable_declarator : variable_declarator_id 
-                    | variable_declarator_id '=' variable_initializer
+                    | variable_declarator_id '=' variable_initializer {pInversa.add($1.sval, "=");}
                     | variable_declarator_id error '=' variable_initializer {Logger.logError(aLexico.getProgramPosition(), "Las declaraciones de variables se deben hacer con el caracter '='.");}
                     | variable_declarator_id EQUAL_OPERATOR variable_initializer {Logger.logError(aLexico.getProgramPosition(), "Declaracion de variable no valida. El caracter == no se permite en una declaracion.");}
                     | variable_declarator_id NOT_EQUAL_OPERATOR variable_initializer {Logger.logError(aLexico.getProgramPosition(), "Declaracion de variable no valida. El caracter !! no se permite en una declaracion.");}
@@ -84,7 +96,7 @@ variable_declarator : variable_declarator_id
                     | variable_declarator_id GREATER_THAN_OR_EQUAL_OPERATOR variable_initializer {Logger.logError(aLexico.getProgramPosition(), "Declaracion de variable no valida. El caracter >= no se permite en una declaracion.");}
 ;
 
-variable_declarator_id : ID
+variable_declarator_id : ID {scope.changeScope($1.sval);}
 ;
 
 variable_initializer : arithmetic_operation
@@ -99,11 +111,14 @@ method_header : result_type method_declarator
 result_type : VOID 
 ;
 
-method_declarator : ID '(' formal_parameter ')'{Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo.");}
-                  | ID '{' formal_parameter '}'{Logger.logError(aLexico.getProgramPosition(), "La declaracion de un metodo debe estar delimitado por parentesis \"(...)\".");}
-                  | ID '(' formal_parameter error ')' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite la declaracion de un unico parametro formal.");}
-                  | ID '(' ')' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo.");}
-                  | ID '{' '}' {Logger.logError(aLexico.getProgramPosition(), "La declaracion de un metodo debe estar delimitado por parentesis \"(...)\".");}
+method_declarator : method_name '(' formal_parameter ')'{Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo.");}
+                  | method_name '{' formal_parameter '}'{Logger.logError(aLexico.getProgramPosition(), "La declaracion de un metodo debe estar delimitado por parentesis \"(...)\".");}
+                  | method_name '(' formal_parameter error ')' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite la declaracion de un unico parametro formal.");}
+                  | method_name '(' ')' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo.");}
+                  | method_name '{' '}' {Logger.logError(aLexico.getProgramPosition(), "La declaracion de un metodo debe estar delimitado por parentesis \"(...)\".");}
+;
+
+method_name : ID {scope.stack($1.sval);}
 ;
 
 // Permito la creacion de multiples block en un metodo, se debe chequear que luego permita
@@ -147,6 +162,8 @@ constant_declaration : type variable_declarators
 ;
 
 abstract_method_declaration : result_type method_declarator ','
+                            | result_type method_declarator {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' en el final de la sentencia.");}
+                            | result_type method_declarator ';' {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' no \';\'en el final de la sentencia.");}
 ;
 
 implement_for_declaration : IMPL FOR reference_type ':' implement_for_body {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un IMPL FOR.");}
@@ -186,7 +203,7 @@ left_hand_side : reference_type
                | field_acces
 ;
 
-field_acces : primary '.' ID
+field_acces : primary '.' ID {pInversa.add(".", $3.sval);}
 ;
 
 primary : reference_type
@@ -206,7 +223,7 @@ relational_expression : additive_expression
 ;
 
 arithmetic_operation : additive_expression
-                     | TOD '(' additive_expression ')' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una conversion explicita.");}
+                     | TOD '(' additive_expression ')' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una conversion explicita.");} {pInversa.add($1.sval);}
                      | TOD '(' error ')' {Logger.logError(aLexico.getProgramPosition(), "No se puede convertir la expresion declarada.");}
                      | TOD '{' error '}' {Logger.logError(aLexico.getProgramPosition(), "El metodo TOD debe estar delimitado por parentesis \"(...)\".");}
                      | TOD '{' '}' {Logger.logError(aLexico.getProgramPosition(), "El metodo TOD debe estar delimitado por parentesis \"(...)\".");}
@@ -215,36 +232,34 @@ arithmetic_operation : additive_expression
 ;
 
 additive_expression : multiplicative_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion aritmetica.");}
-                    | additive_expression '+' multiplicative_expression 
-                    | additive_expression '-' multiplicative_expression
+                    | additive_expression '+' multiplicative_expression {pInversa.add("+");}
+                    | additive_expression '-' multiplicative_expression {pInversa.add("-");}
 ;
 
 multiplicative_expression : unary_expression 
-                          | multiplicative_expression '*' unary_expression
-                          | multiplicative_expression '/' unary_expression
-                          | multiplicative_expression '%' unary_expression
+                          | multiplicative_expression '*' unary_expression {pInversa.add("*");}
+                          | multiplicative_expression '/' unary_expression {pInversa.add("/");}
+                          | multiplicative_expression '%' unary_expression {Logger.logError(aLexico.getProgramPosition(), "El operator % no es valido.");}
 ;
 
 unary_expression : factor 
                  | '(' arithmetic_operation ')' 
                  | '(' ')' {Logger.logError(aLexico.getProgramPosition(), "Termino vacio.");}
-                 | ID
+                 | ID {pInversa.add($1.sval);}
 ;
 
-
-
-factor : CTE_DOUBLE
-       | CTE_UINT 
-       | CTE_LONG {$$ = new ParserVal(chequearRangoLong($1.sval));}
-       | '-'CTE_DOUBLE {$$ = new ParserVal(negarDouble($2.sval));}
-       | '-'CTE_LONG {System.out.println($2.sval); $$ = new ParserVal(negarLong($2.sval));}
+factor : CTE_DOUBLE {pInversa.add($1.sval);}
+       | CTE_UINT {pInversa.add($1.sval);}
+       | CTE_LONG {$$ = new ParserVal(chequearRangoLong($1.sval)); pInversa.add($1.sval);} 
+       | '-'CTE_DOUBLE {$$ = new ParserVal(negarDouble($2.sval)); pInversa.add($1.sval);}
+       | '-'CTE_LONG {System.out.println($2.sval); $$ = new ParserVal(negarLong($2.sval)); pInversa.add($1.sval);}
        | '-'CTE_UINT {Logger.logError(aLexico.getProgramPosition() ,"Los tipos UINT deben ser sin signo."); $$ = new ParserVal($2.sval);}
 ;
 
 
 
-assignment_operator : '='
-                    | MINUS_ASSIGN
+assignment_operator : '=' {pInversa.add("=");}
+                    | MINUS_ASSIGN {pInversa.add("-=");}
                     | error '=' {Logger.logError(aLexico.getProgramPosition(), "Las asignaciones se deben hacer con el caracter '=' o '-='.");}
                     | EQUAL_OPERATOR {Logger.logError(aLexico.getProgramPosition(), "Las asignaciones se deben hacer con el caracter '=' o '-='.");}
                     | NOT_EQUAL_OPERATOR {Logger.logError(aLexico.getProgramPosition(), "Las asignaciones se deben hacer con el caracter '=' o '-='.");}
@@ -272,8 +287,7 @@ type : primitive_type
 primitive_type : numeric_type
 ;
 
-// Se puede utilizar impl for para una interfaz? supongo que no
-reference_type : ID 
+reference_type : ID {pInversa.add($1.sval); scope.changeScope($1.sval);}
 ;
 
 numeric_type : integral_type 
@@ -419,8 +433,9 @@ print_statement : PRINT CADENA ',' {Logger.logRule(aLexico.getProgramPosition(),
 %%
 
 private static AnalizadorLexico aLexico;
+private static PolacaInversa pInversa;
+private static Scope scope;
 private static int yylval_recognition = 0;
-public static boolean error = false;
 
 // This method is the one where BYACC/J expects to obtain its input tokens. 
 // Wrap any file/string scanning code you have in this function. This method should return <0 if there is an error, and 0 when it encounters the end of input. See the examples to clarify what we mean.
@@ -446,14 +461,13 @@ void yyerror(String msg) {
 // metodos auxiliares a la gramatica
 // ###############################################################
 
-  private String negarDouble(String lexema) {
+private String negarDouble(String lexema) {
 
     String n_lexema = lexema;
 
     try {
       n_lexema = String.valueOf(-Double.parseDouble(lexema));
-    } catch (Exception ex) {
-    }
+    } catch (Exception ex) {}
 
     addTablaSimbolos(lexema, n_lexema, "D");
 
@@ -461,7 +475,7 @@ void yyerror(String msg) {
   }
 
 
-  private void addTablaSimbolos(String lexema, String n_lexema, String tipo) {
+private void addTablaSimbolos(String lexema, String n_lexema, String tipo) {
 
     if (!TablaSimbolos.containsKey(n_lexema)) {
       if (tipo == "D") { // Perdon Luis por hacer un if por tipos
@@ -475,17 +489,16 @@ void yyerror(String msg) {
     }
 
     TablaSimbolos.decreaseCounter(lexema);
-  }
+}
 
-  private String chequearRangoLong(String lexema) {
+private String chequearRangoLong(String lexema) {
 
     long RDN_MAX = (long) Math.pow(2, 31) - 1;
     long number = 0;
 
     try {
       number = Long.parseLong(lexema);
-    } catch (Exception ex) {
-    }
+    } catch (Exception ex) {}
 
     if (number > RDN_MAX) {
       Logger.logWarning(aLexico.getProgramPosition(),
@@ -497,7 +510,7 @@ void yyerror(String msg) {
     }
 
     return lexema;
-  }
+}
 
 
 private String negarLong(String lexema) {
@@ -522,28 +535,33 @@ private String negarLong(String lexema) {
 private static ArrayList<String> listFilesInDirectory(String path) {
   // Obtén el directorio actual
   File element = new File(System.getProperty("user.dir") + "/" + path);
-  ArrayList<String> out = new ArrayList<>();
 
   // Verifica si es un directorio o archivo válido
   if (element.isDirectory() || element.isFile()) {
     // Lista de archivos y directorios en el directorio actual
     File[] filesAndDirs = element.listFiles();
+    ArrayList<String> out = new ArrayList<>();
+
+    for (File fileOrDir : filesAndDirs) {
+      out.add(fileOrDir.getName());
+    }
+
+    Collections.sort(out);
 
     // Itera a través de los archivos y directorios
     int i = 0;
-    for (File fileOrDir : filesAndDirs) {
-      String name = fileOrDir.getName();
+    for (String name : out) {
       System.out.println("[" + i + "]" + ": " + name);
-      out.add(name);
       i++;
     }
+
+    return out;
   } else {
     System.err.println("No es un directorio válido.");
   }
 
-  return out;
+  return null;
 }
-
 
 private static String generatePath() {
   ArrayList<String> directories = listFilesInDirectory("sample_programs");
@@ -602,7 +620,7 @@ private static String generatePath() {
 }
 
 public static void main (String [] args) throws IOException {
-    System.out.println("Iniciando compilacion... ");
+    System.out.println("Iniciando compilacion...");
 
     String input = generatePath();
 
@@ -612,13 +630,22 @@ public static void main (String [] args) throws IOException {
         return;
     }
 
-
     Parser aSintactico = new Parser();
+    pInversa = new PolacaInversa();
+    scope = new Scope();
+    
     aSintactico.run();
-    //aSintactico.dump_stacks(yylval_recognition);
 
+    //aSintactico.dump_stacks(yylval_recognition);
     System.out.println(Logger.dumpLog());
+
+    if(!Logger.errorsOcurred()){
+      System.out.println("No se produjieron errores."); //Para la parte 4, generacion de codigo maquina
+    }
+
+    pInversa.printRules();
     System.out.println(aLexico.getProgram());
+
 }
 
 

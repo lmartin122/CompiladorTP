@@ -1,0 +1,19 @@
+VOID f(){
+
+    UINT precio = flete + costo * 5_ui,
+    VOID g(){
+        UINT a = 5_ui,
+
+        RETURN,
+    }
+
+    RETURN, 
+}
+UINT flete = 1_ui, 
+
+VOID h(){
+
+    UINT c = 1_ui,
+
+    RETURN,
+}

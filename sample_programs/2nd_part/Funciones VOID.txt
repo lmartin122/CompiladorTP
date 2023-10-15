@@ -1,3 +1,4 @@
+{
 VOID f ( ) { 
      VOID g () {
 
@@ -9,4 +10,5 @@ VOID f ( ) {
      }
     g(),
     RETURN,
+}
 }

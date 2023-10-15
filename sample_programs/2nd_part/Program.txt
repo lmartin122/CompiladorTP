@@ -1,3 +1,4 @@
+{
 LONG abcdefghijklmnopq = -214748_l, *{ primer valor permitido dentro del rango, 17 caracteres  }*
 UINT bglhotkgiu = 65535_ui, *{ ultimo valor permitido dentro del rango, 10 caracteres }*
 UINT _identificador1 = 10_ui,
@@ -42,3 +43,4 @@ VOID f ( ) {
 }
 
 *{Aca termina el programa}*
+}
