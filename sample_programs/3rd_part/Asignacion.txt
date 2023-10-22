@@ -1,2 +1,4 @@
-UINT precio = flete + costo * 5_ui,
-UINT precio2 = costo * 10_ui,
+{
+    precio = flete + costo * 5_ui,
+    z = a * b * 2.5D+0 + c * 5_ui,
+}

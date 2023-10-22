@@ -1,0 +1,9 @@
+{
+    IF ( a - b > c + 1_ui ){
+        a = b + c,
+    }
+    ELSE {
+        a = b - c,   
+    }
+    END_IF,
+}

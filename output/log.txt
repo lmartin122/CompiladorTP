@@ -1,70 +1,67 @@
 >>>    LOG 
-Se encontro un WARNING en la linea [4] : El LONG se excedio de rango, el mismo fue truncado al valor 2147483647.
-Se encontro un WARNING en la linea [7] : El DOUBLE se excedio de rango, el mismo fue truncado al valor 1.7976931348623157E308.
-Se encontro un ERROR en la linea [2] : Los tipos UINT deben ser sin signo.
-Se encontro un ERROR en la linea [4] : LONG fuera de rango
-Se encontro un ERROR en la linea [5] : LONG fuera de rango
 Se encontro un TOKEN en la linea [2] : [123, {]
-Se encontro un TOKEN en la linea [2] : [277, UINT]
+Se encontro un TOKEN en la linea [2] : [261, IF]
+Se encontro un TOKEN en la linea [2] : [40, (]
 Se encontro un TOKEN en la linea [2] : [280, a]
-Se encontro un TOKEN en la linea [2] : [61, =]
 Se encontro un TOKEN en la linea [2] : [45, -]
+Se encontro un TOKEN en la linea [2] : [280, b]
+Se encontro un TOKEN en la linea [2] : [62, >]
+Se encontro un TOKEN en la linea [2] : [280, c]
+Se encontro un TOKEN en la linea [2] : [43, +]
 Se encontro un TOKEN en la linea [2] : [282, 1]
-Se encontro un TOKEN en la linea [3] : [44, ,]
-Se encontro un TOKEN en la linea [3] : [276, LONG]
-Se encontro un TOKEN en la linea [3] : [280, b]
+Se encontro un TOKEN en la linea [2] : [41, )]
+Se encontro un TOKEN en la linea [3] : [123, {]
+Se encontro un TOKEN en la linea [3] : [280, a]
 Se encontro un TOKEN en la linea [3] : [61, =]
-Se encontro un TOKEN en la linea [3] : [45, -]
-Se encontro un TOKEN en la linea [3] : [283, 10]
+Se encontro un TOKEN en la linea [3] : [280, b]
+Se encontro un TOKEN en la linea [3] : [43, +]
+Se encontro un TOKEN en la linea [3] : [280, c]
 Se encontro un TOKEN en la linea [4] : [44, ,]
-Se encontro un TOKEN en la linea [4] : [276, LONG]
-Se encontro un TOKEN en la linea [4] : [280, c]
-Se encontro un TOKEN en la linea [4] : [61, =]
-Se encontro un TOKEN en la linea [4] : [283, 2147483648]
-Se encontro un TOKEN en la linea [5] : [44, ,]
-Se encontro un TOKEN en la linea [5] : [276, LONG]
-Se encontro un TOKEN en la linea [5] : [280, e]
-Se encontro un TOKEN en la linea [5] : [61, =]
-Se encontro un TOKEN en la linea [5] : [45, -]
-Se encontro un TOKEN en la linea [5] : [283, 2147483648]
-Se encontro un TOKEN en la linea [6] : [44, ,]
-Se encontro un TOKEN en la linea [6] : [278, DOUBLE]
-Se encontro un TOKEN en la linea [6] : [280, g]
+Se encontro un TOKEN en la linea [5] : [125, }]
+Se encontro un TOKEN en la linea [5] : [262, ELSE]
+Se encontro un TOKEN en la linea [6] : [123, {]
+Se encontro un TOKEN en la linea [6] : [280, a]
 Se encontro un TOKEN en la linea [6] : [61, =]
+Se encontro un TOKEN en la linea [6] : [280, b]
 Se encontro un TOKEN en la linea [6] : [45, -]
-Se encontro un TOKEN en la linea [6] : [281, 15.0e+10]
-Se encontro un TOKEN en la linea [7] : [44, ,]
-Se encontro un TOKEN en la linea [7] : [278, DOUBLE]
-Se encontro un TOKEN en la linea [7] : [280, i]
-Se encontro un TOKEN en la linea [7] : [61, =]
-Se encontro un TOKEN en la linea [7] : [45, -]
-Se encontro un TOKEN en la linea [7] : [281, 1.7976931348623157E308]
-Se encontro un TOKEN en la linea [8] : [44, ,]
+Se encontro un TOKEN en la linea [6] : [280, c]
+Se encontro un TOKEN en la linea [6] : [44, ,]
 Se encontro un TOKEN en la linea [8] : [125, }]
+Se encontro un TOKEN en la linea [8] : [263, END_IF]
+Se encontro un TOKEN en la linea [9] : [44, ,]
+Se encontro un TOKEN en la linea [10] : [261, IF]
+Se encontro un TOKEN en la linea [10] : [40, (]
+Se encontro un TOKEN en la linea [10] : [280, a]
+Se encontro un TOKEN en la linea [10] : [45, -]
+Se encontro un TOKEN en la linea [10] : [280, b]
+Se encontro un TOKEN en la linea [10] : [270, ==]
+Se encontro un TOKEN en la linea [10] : [280, c]
+Se encontro un TOKEN en la linea [11] : [41, )]
+Se encontro un TOKEN en la linea [11] : [280, a]
+Se encontro un TOKEN en la linea [11] : [61, =]
+Se encontro un TOKEN en la linea [11] : [282, 4]
+Se encontro un TOKEN en la linea [12] : [44, ,]
+Se encontro un TOKEN en la linea [12] : [263, END_IF]
+Se encontro un TOKEN en la linea [13] : [44, ,]
+Se encontro un TOKEN en la linea [14] : [125, }]
+Se encontro un RULE en la linea [2] : Se reconocio una operacion aritmetica.
+Se encontro un RULE en la linea [2] : Se reconocio una operacion aritmetica.
+Se encontro un RULE en la linea [2] : Se reconocio una operacion logica.
 Se encontro un RULE en la linea [3] : Se reconocio una operacion aritmetica.
-Se encontro un RULE en la linea [3] : Se reconocio una declaracion de variable local.
-Se encontro un RULE en la linea [4] : Se reconocio una operacion aritmetica.
-Se encontro un RULE en la linea [4] : Se reconocio una declaracion de variable local.
-Se encontro un RULE en la linea [5] : Se reconocio una operacion aritmetica.
-Se encontro un RULE en la linea [5] : Se reconocio una declaracion de variable local.
+Se encontro un RULE en la linea [4] : Se reconocio una asignacion.
 Se encontro un RULE en la linea [6] : Se reconocio una operacion aritmetica.
-Se encontro un RULE en la linea [6] : Se reconocio una declaracion de variable local.
-Se encontro un RULE en la linea [7] : Se reconocio una operacion aritmetica.
-Se encontro un RULE en la linea [7] : Se reconocio una declaracion de variable local.
-Se encontro un RULE en la linea [8] : Se reconocio una operacion aritmetica.
-Se encontro un RULE en la linea [8] : Se reconocio una declaracion de variable local.
-Se encontro un RULE en la linea [8] : Se reconocio el programa.
+Se encontro un RULE en la linea [6] : Se reconocio una asignacion.
+Se encontro un RULE en la linea [9] : Se reconocio una sentencia IF ELSE.
+Se encontro un RULE en la linea [10] : Se reconocio una operacion aritmetica.
+Se encontro un RULE en la linea [11] : Se reconocio una operacion aritmetica.
+Se encontro un RULE en la linea [11] : Se reconocio una operacion logica.
+Se encontro un RULE en la linea [12] : Se reconocio una operacion aritmetica.
+Se encontro un RULE en la linea [12] : Se reconocio una asignacion.
+Se encontro un RULE en la linea [13] : Se reconocio una sentencia IF.
+Se encontro un RULE en la linea [14] : Se reconocio el programa.
 >>>    TABLA DE SIMBOLOS
+Clave 1: (tipo: UINT) 
 Clave a: (uso: identificador) 
 Clave b: (uso: identificador) 
-Clave 2147483647: (tipo: LONG) (contador: 1) 
 Clave c: (uso: identificador) 
-Clave e: (uso: identificador) 
-Clave g: (uso: identificador) 
-Clave i: (uso: identificador) 
-Clave -10: (tipo: LONG) (contador: 1) 
-Clave 2.147483648E9: (tipo: LONG) 
-Clave -1.5E11: (tipo: DOUBLE) (contador: 1) 
-Clave 1: (tipo: UINT) 
-Clave -1.7976931348623157E308: (tipo: DOUBLE) (contador: 1) 
-Clave -2147483648: (tipo: LONG) (contador: 1) 
+Clave 4: (tipo: UINT) 
