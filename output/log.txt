@@ -17,51 +17,31 @@ Se encontro un TOKEN en la linea [3] : [280, b]
 Se encontro un TOKEN en la linea [3] : [43, +]
 Se encontro un TOKEN en la linea [3] : [280, c]
 Se encontro un TOKEN en la linea [4] : [44, ,]
-Se encontro un TOKEN en la linea [5] : [125, }]
-Se encontro un TOKEN en la linea [5] : [262, ELSE]
-Se encontro un TOKEN en la linea [6] : [123, {]
-Se encontro un TOKEN en la linea [6] : [280, a]
-Se encontro un TOKEN en la linea [6] : [61, =]
-Se encontro un TOKEN en la linea [6] : [280, b]
-Se encontro un TOKEN en la linea [6] : [45, -]
-Se encontro un TOKEN en la linea [6] : [280, c]
+Se encontro un TOKEN en la linea [4] : [125, }]
+Se encontro un TOKEN en la linea [4] : [262, ELSE]
+Se encontro un TOKEN en la linea [5] : [123, {]
+Se encontro un TOKEN en la linea [5] : [280, c]
+Se encontro un TOKEN en la linea [5] : [61, =]
+Se encontro un TOKEN en la linea [5] : [280, t]
+Se encontro un TOKEN en la linea [5] : [43, +]
+Se encontro un TOKEN en la linea [5] : [280, a]
 Se encontro un TOKEN en la linea [6] : [44, ,]
-Se encontro un TOKEN en la linea [8] : [125, }]
-Se encontro un TOKEN en la linea [8] : [263, END_IF]
-Se encontro un TOKEN en la linea [9] : [44, ,]
-Se encontro un TOKEN en la linea [10] : [261, IF]
-Se encontro un TOKEN en la linea [10] : [40, (]
-Se encontro un TOKEN en la linea [10] : [280, a]
-Se encontro un TOKEN en la linea [10] : [45, -]
-Se encontro un TOKEN en la linea [10] : [280, b]
-Se encontro un TOKEN en la linea [10] : [270, ==]
-Se encontro un TOKEN en la linea [10] : [280, c]
-Se encontro un TOKEN en la linea [11] : [41, )]
-Se encontro un TOKEN en la linea [11] : [280, a]
-Se encontro un TOKEN en la linea [11] : [61, =]
-Se encontro un TOKEN en la linea [11] : [282, 4]
-Se encontro un TOKEN en la linea [12] : [44, ,]
-Se encontro un TOKEN en la linea [12] : [263, END_IF]
-Se encontro un TOKEN en la linea [13] : [44, ,]
-Se encontro un TOKEN en la linea [14] : [125, }]
+Se encontro un TOKEN en la linea [7] : [125, }]
+Se encontro un TOKEN en la linea [7] : [263, END_IF]
+Se encontro un TOKEN en la linea [8] : [44, ,]
+Se encontro un TOKEN en la linea [9] : [125, }]
 Se encontro un RULE en la linea [2] : Se reconocio una operacion aritmetica.
 Se encontro un RULE en la linea [2] : Se reconocio una operacion aritmetica.
 Se encontro un RULE en la linea [2] : Se reconocio una operacion logica.
 Se encontro un RULE en la linea [3] : Se reconocio una operacion aritmetica.
 Se encontro un RULE en la linea [4] : Se reconocio una asignacion.
-Se encontro un RULE en la linea [6] : Se reconocio una operacion aritmetica.
+Se encontro un RULE en la linea [5] : Se reconocio una operacion aritmetica.
 Se encontro un RULE en la linea [6] : Se reconocio una asignacion.
-Se encontro un RULE en la linea [9] : Se reconocio una sentencia IF ELSE.
-Se encontro un RULE en la linea [10] : Se reconocio una operacion aritmetica.
-Se encontro un RULE en la linea [11] : Se reconocio una operacion aritmetica.
-Se encontro un RULE en la linea [11] : Se reconocio una operacion logica.
-Se encontro un RULE en la linea [12] : Se reconocio una operacion aritmetica.
-Se encontro un RULE en la linea [12] : Se reconocio una asignacion.
-Se encontro un RULE en la linea [13] : Se reconocio una sentencia IF.
-Se encontro un RULE en la linea [14] : Se reconocio el programa.
+Se encontro un RULE en la linea [8] : Se reconocio una sentencia IF ELSE.
+Se encontro un RULE en la linea [9] : Se reconocio el programa.
 >>>    TABLA DE SIMBOLOS
 Clave 1: (tipo: UINT) 
 Clave a: (uso: identificador) 
 Clave b: (uso: identificador) 
 Clave c: (uso: identificador) 
-Clave 4: (tipo: UINT) 
+Clave t: (uso: identificador) 
