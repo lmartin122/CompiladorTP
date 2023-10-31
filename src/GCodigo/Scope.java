@@ -8,7 +8,7 @@ public class Scope {
 
     public Scope() {
         ambito = new StringBuilder();
-        separator = ":";
+        separator = "@";
     }
 
     public void changeScope(String lexema) {
@@ -21,7 +21,7 @@ public class Scope {
 
     public void reset(String ambito) {
         this.ambito.setLength(0);
-        this.ambito.append(separator + ambito);
+        this.ambito.append(ambito);
     }
 
     public void reset() {

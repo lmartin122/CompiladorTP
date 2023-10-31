@@ -11,6 +11,7 @@ CLASS my_class IMPLEMENT my_interface {
 
         RETURN,
     }
+    my_inherence; my_inherence2,
 }
 }
 

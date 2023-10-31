@@ -75,15 +75,16 @@ class_body_declaration : class_member_declaration
 ;
 
 class_member_declaration : field_declaration 
-                         | method_declaration 
+                         | method_declaration
+                         | inheritance_declaration
 ;
 
-field_declaration : type variable_declarators ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una declaracion de atributo/s.");}
+field_declaration : type variable_declarators ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una declaracion de atributo/s."); $$ = new ParserVal("TablaSimbolos.agregarAtribulo($1, $2)");}
                   | type variable_declarators {Logger.logError(aLexico.getProgramPosition(), "La sentencia debe terminar con ','.");}
 ;
 
 
-variable_declarators : variable_declarator 
+variable_declarators : variable_declarator {$$ = new ParserVal($$ + ";" + $1);}
                      | variable_declarators ';' variable_declarator
 ;
 
@@ -131,6 +132,10 @@ formal_parameter : type variable_declarator_id
 ;
 
 real_parameter : arithmetic_operation
+;
+
+inheritance_declaration : reference_type ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una herencia compuesta.");}
+                        | reference_type ';' error ',' {Logger.logError(aLexico.getProgramPosition(), "No se permite herencia multiple.");}
 ;
 
 interfaces : IMPLEMENT interface_type_list
@@ -223,7 +228,7 @@ relational_expression : additive_expression {$$ = new ParserVal($1.sval);}
 ;
 
 arithmetic_operation : additive_expression {$$ = new ParserVal($1.sval);}
-                     | TOD '(' additive_expression ')' 
+                     | TOD '(' additive_expression ')' {$$ = new ParserVal(tercetos.add("TOD", $3.sval, "-"));}
                        {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una conversion explicita.");}
                      | TOD '(' error ')' {Logger.logError(aLexico.getProgramPosition(), "No se puede convertir la expresion declarada.");}
                      | TOD '{' error '}' {Logger.logError(aLexico.getProgramPosition(), "El metodo TOD debe estar delimitado por parentesis \"(...)\".");}
@@ -232,19 +237,20 @@ arithmetic_operation : additive_expression {$$ = new ParserVal($1.sval);}
                      | error {Logger.logError(aLexico.getProgramPosition(), "No es una expresion aritmetica valida.");}
 ;
 
+
 additive_expression : multiplicative_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion aritmetica.");}
                     | additive_expression '+' multiplicative_expression {$$ = new ParserVal(tercetos.add("+", $1.sval, $3.sval));}
                     | additive_expression '-' multiplicative_expression {$$ = new ParserVal(tercetos.add("-", $1.sval, $3.sval));}
-;
+; 
 
-multiplicative_expression : unary_expression {$$ = new ParserVal($1.sval);}
+multiplicative_expression : unary_expression {$$ = new ParserVal($1.sval);} 
                           | multiplicative_expression '*' unary_expression {$$ = new ParserVal(tercetos.add("*", $1.sval, $3.sval));}
                           | multiplicative_expression '/' unary_expression {$$ = new ParserVal(tercetos.add("/", $1.sval, $3.sval));}
                           | multiplicative_expression '%' unary_expression {Logger.logError(aLexico.getProgramPosition(), "El operator % no es valido.");}
 ;
 
 unary_expression : factor 
-                 | '(' arithmetic_operation ')' 
+                 | '(' arithmetic_operation ')' //Aca se debe chequear que sea un nivel de ()?
                  | '(' ')' {Logger.logError(aLexico.getProgramPosition(), "Termino vacio.");}
                  | ID
 ;
@@ -295,11 +301,11 @@ numeric_type : integral_type
              | floating_type
 ;
 
-integral_type : UINT 
-              | LONG 
+integral_type : UINT {$$ = new ParserVal("UINT");}
+              | LONG {$$ = new ParserVal("LONG");}
 ;
 
-floating_type : DOUBLE
+floating_type : DOUBLE {$$ = new ParserVal("DOUBLE");}
 ;
 
 
@@ -388,11 +394,18 @@ if_then_cond : '(' equality_expression ')' {tercetos.addCondBranch($2.sval);}
              | '(' ')'
 ;
 
-if_then_body : executable_statement {tercetos.backPatching(1); tercetos.addUncondBranch(); tercetos.addLabel();}
-             | executable_block {tercetos.backPatching(1); tercetos.addUncondBranch(); tercetos.addLabel();}
+if_then_body : executable_statement {tercetos.backPatching(0);}
+             | executable_block {tercetos.backPatching(0);}
              | local_variable_declaration_statement {Logger.logError(aLexico.getProgramPosition(), "No se permiten sentencias declarativas en una sentencia IF.");}
              | error END_IF {Logger.logError(aLexico.getProgramPosition(), "Cuerpo de la sentencia IF invalido.");}
              | error ',' {Logger.logError(aLexico.getProgramPosition(), "Cuerpo de la sentencia IF invalido.");}
+;
+
+if_else_then_body : executable_statement {tercetos.backPatching(1); tercetos.addUncondBranch(); tercetos.addLabel();}
+                  | executable_block {tercetos.backPatching(1); tercetos.addUncondBranch(); tercetos.addLabel();}
+                  | local_variable_declaration_statement {Logger.logError(aLexico.getProgramPosition(), "No se permiten sentencias declarativas en una sentencia IF.");}
+                  | error END_IF {Logger.logError(aLexico.getProgramPosition(), "Cuerpo de la sentencia IF invalido.");}
+                  | error ',' {Logger.logError(aLexico.getProgramPosition(), "Cuerpo de la sentencia IF invalido.");}
 ;
 
 if_else_body : executable_statement
@@ -402,13 +415,13 @@ if_else_body : executable_statement
              | error ',' {Logger.logError(aLexico.getProgramPosition(), "Cuerpo de la sentencia IF ELSE invalido.");}
 ;
 
+if_then_else_body : if_else_then_body ELSE if_else_body
+;
+
 if_then_else_declaration : IF if_then_cond if_then_else_body END_IF ',' 
                          {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia IF ELSE."); tercetos.backPatching(0); tercetos.addLabel();}
                          | IF if_then_cond if_then_else_body ',' {Logger.logRule(aLexico.getProgramPosition(), "Es necesario declarar el final END_IF de la sentencia IF.");}
 ; 
-
-if_then_else_body : if_then_body ELSE if_else_body
-;
 
 
 for_in_range_statement : FOR for_variable IN RANGE '(' for_init ';' for_end ';' for_update ')' executable_block {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia FOR IN RANGE.");}
@@ -653,7 +666,7 @@ public static void main (String [] args) throws IOException {
     System.out.println(Logger.dumpLog());
 
     if(!Logger.errorsOcurred()){
-      System.out.println("No se producieron errores."); //Para la parte 4, generacion de codigo maquina
+      System.out.println("No se produjeron errores."); //Para la parte 4, generacion de codigo maquina
     }
 
     tercetos.printRules();

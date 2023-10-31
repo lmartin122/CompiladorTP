@@ -1,9 +1,8 @@
 {
     IF ( a - b > c + 1_ui ){
         a = b + c,
-    }
-    ELSE {
-        a = b - c,   
+    } ELSE {
+        c = t + a,
     }
     END_IF,
 }
