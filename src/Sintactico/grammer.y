@@ -46,21 +46,21 @@ program : '{' type_declarations '}' {Logger.logRule(aLexico.getProgramPosition()
 >>>     DECLARATIONS
 
 */
-type_declarations : type_declaration {scope.reset();}
+type_declarations : type_declaration {scope.reset(); scope.changeScope($1.sval);}
                   | type_declarations type_declaration
 ;
 
-type_declaration : class_declaration
-                 | interface_declaration
-                 | implement_for_declaration
+type_declaration : class_declaration {$$ = new ParserVal($1.sval);}
+                 | interface_declaration {$$ = new ParserVal($1.sval);}
+                 | implement_for_declaration {$$ = new ParserVal($1.sval);}
                  | block_statement
 ;
 
-class_declaration : CLASS class_name class_body {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una CLASS.");}
+class_declaration : CLASS class_name class_body {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una CLASS.");  $$ = new ParserVal($2.sval); System.out.println("CLASS: " + $2.sval);}
                   | CLASS class_name interfaces class_body {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una CLASS que implementa una interface.");}
 ;
 
-class_name : ID {scope.stack($1.sval);} 
+class_name : ID {scope.stack($1.sval); TablaSimbolos.addClase($1.sval);}
 ;
 
 class_body : '{' class_body_declarations '}' 
@@ -79,16 +79,16 @@ class_member_declaration : field_declaration
                          | inheritance_declaration
 ;
 
-field_declaration : type variable_declarators ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una declaracion de atributo/s."); $$ = new ParserVal("TablaSimbolos.agregarAtribulo($1, $2)");}
+field_declaration : type variable_declarators ',' {$$ = new ParserVal($1.sval + ";" + $3.sval ); Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una declaracion de atributo/s."); TablaSimbolos.addTipoVariable($1.sval, $2.sval,scope.getCurrentScope());}
                   | type variable_declarators {Logger.logError(aLexico.getProgramPosition(), "La sentencia debe terminar con ','.");}
 ;
 
 
-variable_declarators : variable_declarator {$$ = new ParserVal($$ + ";" + $1);}
-                     | variable_declarators ';' variable_declarator
+variable_declarators : variable_declarator
+                     | variable_declarators ';' variable_declarator { $$ = new ParserVal($1.sval + ";" + $3.sval );}
 ;
 
-variable_declarator : variable_declarator_id 
+variable_declarator : variable_declarator_id
                     | variable_declarator_id '=' variable_initializer
                     | variable_declarator_id error '=' variable_initializer {Logger.logError(aLexico.getProgramPosition(), "Las declaraciones de variables se deben hacer con el caracter '='.");}
                     | variable_declarator_id EQUAL_OPERATOR variable_initializer {Logger.logError(aLexico.getProgramPosition(), "Declaracion de variable no valida. El caracter == no se permite en una declaracion.");}
@@ -103,7 +103,7 @@ variable_declarator_id : ID {scope.changeScope($1.sval);}
 variable_initializer : arithmetic_operation
 ;
 
-method_declaration : method_header method_body 
+method_declaration : method_header method_body {scope.deleteLastScope();}
 ;
 
 method_header : result_type method_declarator
@@ -119,13 +119,13 @@ method_declarator : method_name '(' formal_parameter ')'{Logger.logRule(aLexico.
                   | method_name '{' '}' {Logger.logError(aLexico.getProgramPosition(), "La declaracion de un metodo debe estar delimitado por parentesis \"(...)\".");}
 ;
 
-method_name : ID {scope.stack($1.sval);}
+method_name : ID {$$ = new ParserVal(scope.changeScope($1.sval)); TablaSimbolos.addFunction($$.sval); TablaSimbolos.addClasePerteneciente($$.sval,scope.getLastScope()); scope.stack($1.sval);}
 ;
 
 // Permito la creacion de multiples block en un metodo, se debe chequear que luego permita
 // un nivel de anidamiento
-method_body : block 
-            | ',' // Propotipo de metodo -> ID '(' ')' ',' sin block
+method_body : block {setMetodoDeclarado(scope.getCurrentScope(),"true");}
+            | ',' {setMetodoDeclarado(scope.getCurrentScope(),"false");} // Propotipo de metodo -> ID '(' ')' ',' sin block
 ;
 
 formal_parameter : type variable_declarator_id
@@ -294,7 +294,7 @@ type : primitive_type
 primitive_type : numeric_type
 ;
 
-reference_type : ID {scope.changeScope($1.sval);}
+reference_type : ID {/*scope.changeScope($1.sval);*/}
 ;
 
 numeric_type : integral_type 
@@ -354,7 +354,7 @@ executable_statement : if_then_declaration
 local_variable_declaration_statement : local_variable_declaration ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una declaracion de variable local.");}
 ;
 
-local_variable_declaration : type variable_declarators
+local_variable_declaration : type variable_declarators {TablaSimbolos.addTipoVariable($1.sval, $2.sval,scope.getCurrentScope());}
 ;
 
 
@@ -486,6 +486,19 @@ void yyerror(String msg) {
 // ###############################################################
 // metodos auxiliares a la gramatica
 // ###############################################################
+
+private void setMetodoDeclarado(String lexema, String declarado){
+    //Acá yo voy a recibir @ambitos@funcion y la debo buscar en la tabla de simbolos como
+    //funcion@ambitos
+    String[] ambitos = lexema.split("@");
+    String resultado = ambitos[ambitos.length-1];
+    for(int i = 1; i <= ambitos.length-2; i++){
+        resultado += "@" + ambitos[i];
+    };
+    TablaSimbolos.addAtributo(resultado,"declarado",declarado);
+};
+
+
 
 private String negarDouble(String lexema) {
 
