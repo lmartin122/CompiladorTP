@@ -1,8 +1,13 @@
 {
-    IF ( a - b > c + 1_ui ){
-        a = b + c,
-    } ELSE {
-        c = t + a,
+    FOR a IN RANGE (0_ui; 10_ui; 1_ui){
+        b = c + d,
+        c = d - 3_ui,
+        d -= 1_ui,
     }
-    END_IF,
+
+    IF (a !! c){
+
+    } ELSE {
+
+    } END_IF,
 }

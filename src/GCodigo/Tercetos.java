@@ -9,6 +9,7 @@ public class Tercetos {
 
     private class Terceto {
         private String first, second, third;
+        public static final String TOD = "TOD";
 
         public Terceto(String... values) {
             first = values[0];
@@ -35,6 +36,53 @@ public class Tercetos {
         public String toString() {
             return "(" + first + ", " + second + ", " + third + ")";
         }
+
+        public static int getRefPos(String ref) {
+            ref = ref.replace("[", "").replace("]", "");
+
+            try {
+                return Integer.parseInt(ref);
+            } catch (NumberFormatException e) {
+                return -1;
+            }
+        }
+
+        public boolean hasReferefence(String s) {
+            return s.contains("[") && s.contains("]");
+        }
+
+        public boolean isUndefined(String s) {
+            return s.equals("-");
+        }
+
+        public boolean hasConversion() {
+            return first.equals(TOD);
+        }
+
+        public ArrayList<String> getFactors() {
+            ArrayList<String> out = new ArrayList<>();
+
+            if (!hasReferefence(second) && !isUndefined(second))
+                out.add(second);
+
+            if (!hasReferefence(third) && !isUndefined(third))
+                out.add(third);
+
+            return out;
+        }
+
+        public ArrayList<Integer> getReferences() {
+            ArrayList<Integer> out = new ArrayList<>();
+
+            if (hasReferefence(second) && !isUndefined(second))
+                out.add(getRefPos(second));
+
+            if (hasReferefence(third) && !isUndefined(third))
+                out.add(getRefPos(third));
+
+            return out;
+        }
+
     }
 
     public Tercetos() {
@@ -48,16 +96,41 @@ public class Tercetos {
         return "[" + (rules.size() - 1) + "]";
     }
 
+    public void stack() {
+        stack.push(rules.size() - 1);
+    }
+
+    public String changeLast(String in) {
+        if (!rules.isEmpty()) {
+            Terceto t = rules.get(rules.size() - 1);
+            t.setThird(in);
+            return t.second;
+        }
+
+        return "";
+    }
+
     public void addCondBranch(String ref) {
         Terceto t = new Terceto("CB", ref, "[-]");
         rules.add(t);
-        this.stack.push(rules.size() - 1);
+        stack();
     }
 
     public void addUncondBranch() {
         Terceto t = new Terceto("UB", "[-]", "[-]");
         rules.add(t);
-        stack.push(rules.size() - 1);
+        stack();
+    }
+
+    public void addUBFIR() {
+        if (stack.isEmpty())
+            return;
+
+        Integer i = stack.pop();
+        Terceto t = new Terceto("UB", "[" + i + "]", "[-]");
+
+        rules.add(t);
+
     }
 
     public void addLabel() {
@@ -73,6 +146,49 @@ public class Tercetos {
 
         Integer i = stack.pop();
         rules.get(i).setThird("[" + (rules.size() + d) + "]");
+    }
+
+    private boolean isLeaf(Terceto t) {
+        return !t.hasReferefence(t.toString());
+    }
+
+    public ArrayList<String> getFactors(String ref) {
+        if (rules.isEmpty())
+            return new ArrayList<>();
+
+        ArrayList<String> out = new ArrayList<>();
+
+        int pos = Terceto.getRefPos(ref);
+        boolean flagTOD = false;
+        Terceto t = rules.get(pos);
+        Stack<Integer> references = new Stack<>();
+
+        while (!isLeaf(t) || !references.empty()) {
+            for (Integer r : t.getReferences()) {
+                references.push(r);
+            }
+
+            if (t.hasConversion()) {
+                flagTOD = true;
+                out.add(Terceto.TOD);
+            }
+
+            out.addAll(t.getFactors());
+
+            if (flagTOD && isLeaf(t)) {
+                out.add(")");
+                flagTOD = false;
+            }
+
+            t = rules.get(references.pop());
+        }
+
+        out.addAll(t.getFactors());
+
+        if (flagTOD)
+            out.add(")");
+
+        return out;
     }
 
     public void printRules() {

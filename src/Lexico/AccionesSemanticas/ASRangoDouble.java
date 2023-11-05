@@ -47,10 +47,8 @@ public class ASRangoDouble implements AccionSemantica {
         if (!TablaSimbolos.containsKey(auxBuffer)) {
             // System.out.print(" DOUBLE AÑADIDO");
             TablaSimbolos.addDouble(auxBuffer);
-            TablaSimbolos.addContador(auxBuffer);
-        } else {
-            TablaSimbolos.increaseCounter(auxBuffer);
         }
+        TablaSimbolos.increaseCounter(auxBuffer, "contador");
 
         reader.returnCharacter();
         buffer.setLength(0);

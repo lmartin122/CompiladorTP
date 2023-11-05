@@ -29,7 +29,7 @@ public class ASRangoEnteroLargo implements AccionSemantica {
                 // System.out.print(" ENTERO LARGO AÑADIDO");
 
                 TablaSimbolos.addLong(numero);
-                TablaSimbolos.addContador(numero);
+                TablaSimbolos.increaseCounter(numero, "contador");
             }
         } else {
             TablaSimbolos.addLong(String.valueOf(Math.pow(2, 31)));

@@ -34,34 +34,35 @@ public class TablaSimbolos {
         return tablaSimbolos.containsKey(String.valueOf(key));
     }
 
-    public static void addContador(Object key) {
+    public static boolean increaseCounter(Object key, String name) {
         key = String.valueOf(key);
-        if (tablaSimbolos.containsKey(key))
-            if (!tablaSimbolos.get(key).containsKey("contador"))
-                tablaSimbolos.get(key).put("contador", "1");
-    }
-
-    public static void increaseCounter(Object key) {
-        key = String.valueOf(key);
-        if (tablaSimbolos.containsKey(key))
-            if (tablaSimbolos.get(key).containsKey("contador")) {
-                int counter = Integer.valueOf(tablaSimbolos.get(key).get("contador"));
+        if (tablaSimbolos.containsKey(key)) {
+            if (tablaSimbolos.get(key).containsKey(name)) {
+                int counter = Integer.valueOf(tablaSimbolos.get(key).get(name));
                 counter += 1;
-                tablaSimbolos.get(key).replace("contador", String.valueOf(counter));
+                tablaSimbolos.get(key).replace(name, String.valueOf(counter));
+            } else {
+                tablaSimbolos.get(key).put(name, "1");
             }
+
+            return true;
+        }
+
+        return false;
+
     }
 
-    public static void decreaseCounter(Object key) {
+    public static void decreaseCounter(Object key, String name) {
         key = String.valueOf(key);
         if (tablaSimbolos.containsKey(key))
-            if (tablaSimbolos.get(key).containsKey("contador")) {
-                int counter = Integer.valueOf(tablaSimbolos.get(key).get("contador"));
+            if (tablaSimbolos.get(key).containsKey(name)) {
+                int counter = Integer.valueOf(tablaSimbolos.get(key).get(name));
                 if (counter == 1) {
                     // System.out.println("Eliminado referencia de la tabla de simbolos...");
                     tablaSimbolos.remove(key);
                 } else {
                     counter -= 1;
-                    tablaSimbolos.get(key).replace("contador", String.valueOf(counter));
+                    tablaSimbolos.get(key).replace(name, String.valueOf(counter));
                 }
             }
     }
@@ -82,22 +83,7 @@ public class TablaSimbolos {
         }
     }
 
-    /*
-     * public static int getSymbol(String lex) {
-     * for (Map.Entry<String, Map<String, String>> m : tablaSimbolos.entrySet()) {
-     * String i = m.getValue().get(lex);
-     * if (i == lex) {
-     * int ref = m.getKey();
-     * return ref;
-     * }
-     * }
-     * return -1;
-     * 
-     * }
-     */
-
     public static String printTable() {
-        // System.out.println("Tabla de símbolos: ");
         String out = "";
 
         for (HashMap.Entry<String, HashMap<String, String>> m : tablaSimbolos.entrySet()) {
