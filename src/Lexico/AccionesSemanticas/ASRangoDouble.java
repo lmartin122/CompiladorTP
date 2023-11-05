@@ -1,10 +1,10 @@
 package Lexico.AccionesSemanticas;
 
-import Lexico.TablaTipos;
 import Sintactico.Parser;
 import Tools.Logger;
 import Tools.ProgramReader;
 import Tools.TablaSimbolos;
+import Tools.TablaTipos;
 import Tools.Tupla;
 
 import java.util.HashMap;

@@ -1,10 +1,10 @@
 package Lexico.AccionesSemanticas;
 
-import Lexico.TablaTipos;
 import Sintactico.Parser;
 import Tools.Logger;
 import Tools.ProgramReader;
 import Tools.TablaSimbolos;
+import Tools.TablaTipos;
 import Tools.Tupla;
 
 import java.util.HashMap;
@@ -24,15 +24,15 @@ public class ASRangoEnteroLargo implements AccionSemantica {
         }
 
         if (!error && numero <= (int) Math.pow(2, 31)) {
-
-            if (!TablaSimbolos.tablaSimbolos.containsKey(String.valueOf(numero))) { // si la constante no está
+            aux = aux + "L";
+            if (!TablaSimbolos.tablaSimbolos.containsKey(aux)) { // si la constante no está
                 // System.out.print(" ENTERO LARGO AÑADIDO");
 
-                TablaSimbolos.addLong(numero);
-                TablaSimbolos.increaseCounter(numero, "contador");
+                TablaSimbolos.addLong(aux);
+                TablaSimbolos.increaseCounter(aux, "contador");
             }
         } else {
-            TablaSimbolos.addLong(String.valueOf(Math.pow(2, 31)));
+            TablaSimbolos.addLong(String.valueOf(Math.pow(2, 31)) + "L");
             // System.out.print("LONG fuera de rango, se convirtio al maximo permitido");
             Logger.logError(reader.getCurrentLine(), "LONG fuera de rango");
 

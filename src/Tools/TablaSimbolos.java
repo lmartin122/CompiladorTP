@@ -1,7 +1,5 @@
 package Tools;
 
-import Lexico.TablaTipos;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,7 +11,7 @@ public class TablaSimbolos {
     public static final String valorLexema = "lexema";
     // private static int identifierNumber = 0;
 
-    private static void addTipo(String tipo, String key){
+    private static void addTipo(String tipo, String key) {
         try {
             tablaSimbolos.get(key).put("tipo", tipo);
         } catch (Exception e) {
@@ -21,39 +19,40 @@ public class TablaSimbolos {
         }
     };
 
-    public static void addTipoVariable(String tipo, String variable,String scope){
+    public static void addTipoVariable(String tipo, String variable, String scope) {
         System.out.println(variable + "  ES DE TIPO: " + tipo + " SCOPE: " + scope);
         String[] identificadores = variable.split(";");
 
-        for(String identificador : identificadores){
-            addTipo(tipo,identificador + scope);
-        };
+        for (String identificador : identificadores) {
+            addTipo(tipo, identificador + scope);
+        }
+        ;
     };
 
     public static void addCadena(String cadena) {
         tablaSimbolos.put(cadena, createAttribute("tipo", TablaTipos.STRING));
     }
 
-    public static void addClase(String key){
+    public static void addClase(String key) {
         System.out.println("ADDCLASE: " + key);
-        tablaSimbolos.put(key, createAttribute("tipo","CLASS"));
+        tablaSimbolos.put(key, createAttribute("tipo", "CLASS"));
     };
-    public static void addClasePerteneciente(String key,String value_atributo ){
+
+    public static void addClasePerteneciente(String key, String value_atributo) {
         String aux = "";
         try {
-            if(tablaSimbolos.get(value_atributo) != null && tablaSimbolos.get(value_atributo).get("tipo") != null) {
-                aux = tablaSimbolos.get(value_atributo).get("tipo"); //si nombre_clase tiene el tipo CLASS
+            if (tablaSimbolos.get(value_atributo) != null && tablaSimbolos.get(value_atributo).get("tipo") != null) {
+                aux = tablaSimbolos.get(value_atributo).get("tipo"); // si nombre_clase tiene el tipo CLASS
             }
-            if (aux.equals("CLASS")){
+            if (aux.equals("CLASS")) {
                 tablaSimbolos.get(key).put("clase", value_atributo);
                 System.out.println("Mi ultimo scope es una CLASEE");
-            }
-            else {
+            } else {
                 String[] aux2 = key.split("@");
-                String abuelo = aux2[aux2.length-2];
+                String abuelo = aux2[aux2.length - 2];
                 System.out.println("MI ABUELO ES: " + abuelo);
                 aux = tablaSimbolos.get(abuelo).get("tipo");
-                if(aux.equals("CLASS")){
+                if (aux.equals("CLASS")) {
                     tablaSimbolos.get(key).put("clase", abuelo);
                 }
             }
@@ -62,15 +61,14 @@ public class TablaSimbolos {
             System.out.println("NO ES UN METODO DE UNA CLASE, NO SE ENCONTRO EN LA TABLA DE SIMBOLOS");
         }
 
-
     }
 
-    public static void addAtributo(String key ,String atributo, String value_atributo){
-        tablaSimbolos.get(key).put(atributo,value_atributo);
+    public static void addAtributo(String key, String atributo, String value_atributo) {
+        tablaSimbolos.get(key).put(atributo, value_atributo);
     }
 
-    public static void addFunction(String cadena){
-        tablaSimbolos.put(cadena,createAttribute("tipo",TablaTipos.FUNCTION));
+    public static void addFunction(String cadena) {
+        tablaSimbolos.put(cadena, createAttribute("tipo", TablaTipos.FUNCTION));
     }
 
     public static void addIdentificador(String new_symbol) {
@@ -139,7 +137,7 @@ public class TablaSimbolos {
             tablaSimbolos.remove(lexema);
             tablaSimbolos.put(n_lexema, attributes);
         } else {
-            tablaSimbolos.put(n_lexema,createAttribute("uso","identificador"));
+            tablaSimbolos.put(n_lexema, createAttribute("uso", "identificador"));
         }
     }
 

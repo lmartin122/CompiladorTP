@@ -15,6 +15,7 @@ import GCodigo.Scope;
 import Tools.Logger;
 import Tools.Tupla;
 import Tools.TablaSimbolos;
+import Tools.TablaTipos;
 
 %}
 
@@ -46,13 +47,13 @@ program : '{' type_declarations '}' {Logger.logRule(aLexico.getProgramPosition()
 >>>     DECLARATIONS
 
 */
-type_declarations : type_declaration {scope.reset(); scope.changeScope($1.sval);}
+type_declarations : type_declaration 
                   | type_declarations type_declaration
 ;
 
-type_declaration : class_declaration {$$ = new ParserVal($1.sval);}
-                 | interface_declaration {$$ = new ParserVal($1.sval);}
-                 | implement_for_declaration {$$ = new ParserVal($1.sval);}
+type_declaration : class_declaration {scope.reset(); scope.changeScope($1.sval);}
+                 | interface_declaration {scope.reset(); scope.changeScope($1.sval);}
+                 | implement_for_declaration {scope.reset(); scope.changeScope($1.sval);}
                  | block_statement
 ;
 
@@ -201,7 +202,7 @@ implement_for_method_body : block
 >>>     EXPRESSIONS
 
 */
-assignment : left_hand_side '=' arithmetic_operation {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una asignacion."); tercetos.add("=", $1.sval, $3.sval); System.out.println("Lista factores de una asignacion " + tercetos.getFactors($3.sval));}
+assignment : left_hand_side '=' arithmetic_operation {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una asignacion.");}
            | left_hand_side MINUS_ASSIGN arithmetic_operation {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una asignacion de resta."); tercetos.add("=", $1.sval, tercetos.add("-", $1.sval, $3.sval));}
            | left_hand_side error '=' arithmetic_operation {Logger.logError(aLexico.getProgramPosition(), "Las asignaciones se deben hacer con el caracter '=' o '-='.");}
            | left_hand_side EQUAL_OPERATOR arithmetic_operation {Logger.logError(aLexico.getProgramPosition(), "Las asignaciones se deben hacer con el caracter '=' o '-='.");}
@@ -254,14 +255,14 @@ unary_expression : factor {$$ = new ParserVal($1.sval);}
 ;
 
 conversion_expression : TOD '(' arithmetic_operation ')' {$$ = new ParserVal(tercetos.add("TOD", $3.sval, "-")); Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una conversion explicita.");}
-                     | TOD '(' error ')' {Logger.logError(aLexico.getProgramPosition(), "No se puede convertir la expresion declarada.");}
-                     | TOD '{' error '}' {Logger.logError(aLexico.getProgramPosition(), "El metodo TOD debe estar delimitado por parentesis \"(...)\".");}
-                     | TOD '{' '}' {Logger.logError(aLexico.getProgramPosition(), "El metodo TOD debe estar delimitado por parentesis \"(...)\".");}
-                     | TOD '(' ')' {Logger.logError(aLexico.getProgramPosition(), "Es necesario pasar una expresion aritmetica.");}
+                      | TOD '(' error ')' {Logger.logError(aLexico.getProgramPosition(), "No se puede convertir la expresion declarada.");}
+                      | TOD '{' error '}' {Logger.logError(aLexico.getProgramPosition(), "El metodo TOD debe estar delimitado por parentesis \"(...)\".");}
+                      | TOD '{' '}' {Logger.logError(aLexico.getProgramPosition(), "El metodo TOD debe estar delimitado por parentesis \"(...)\".");}
+                      | TOD '(' ')' {Logger.logError(aLexico.getProgramPosition(), "Es necesario pasar una expresion aritmetica.");}
 ;
 
 factor : CTE_DOUBLE {$$ = new ParserVal($1.sval); } 
-       | CTE_UINT {$$ = new ParserVal($1.sval); System.out.println($1.sval);} 
+       | CTE_UINT {$$ = new ParserVal($1.sval);} 
        | CTE_LONG {$$ = new ParserVal(chequearRangoLong($1.sval));} 
        | '-'CTE_DOUBLE {$$ = new ParserVal(negarDouble($2.sval));}
        | '-'CTE_LONG {$$ = new ParserVal(negarLong($2.sval));}
@@ -289,7 +290,7 @@ type : primitive_type
 primitive_type : numeric_type
 ;
 
-reference_type : ID {/*scope.changeScope($1.sval);*/}
+reference_type : ID {scope.changeScope($1.sval);}
 ;
 
 numeric_type : integral_type 
@@ -417,16 +418,44 @@ if_else_body : executable_statement
 if_then_else_body : if_else_then_body ELSE if_else_body
 ;
 
-for_in_range_statement : FOR for_in_range_initializer IN RANGE for_in_range_cond for_in_range_body {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia FOR IN RANGE."); tercetos.backPatching(1); tercetos.addUBFIR();}
+for_in_range_statement : FOR for_in_range_initializer IN RANGE for_in_range_cond for_in_range_body {
+                         Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia FOR IN RANGE.");
+                         tercetos.add("+", $2.sval, "-");
+                         tercetos.backPatching();
+                         tercetos.stack();
+                         tercetos.add("=", $2.sval, $$.sval);
+                         tercetos.backPatching();
+                         tercetos.addUncondBranch(false);
+                         tercetos.backPatching(0); //Agrego el salto del CB
+                         tercetos.backPatching(); //Agrego el salgo del UB
+                         tercetos.addLabel();
+                         }
 ;
 
-// FOR a IN RANGE (0; 10; 1)
-// a
-for_in_range_initializer : reference_type {$$ = new ParserVal($1.sval); tercetos.add("=", $1.sval, "-");}
+for_in_range_initializer : reference_type {
+                               $$ = new ParserVal($1.sval);
+                               tercetos.add("=", $1.sval, "-");
+                               tercetos.stack($1.sval);
+                               tercetos.stack();
+                         }
                          | error IN {Logger.logError(aLexico.getProgramPosition(), "Error en la signatura del FOR IN RANGE.");}
 ;
 
-for_in_range_cond : '(' for_init ';' for_end ';' for_update ')' {$$ = new ParserVal(tercetos.add("+", $2.sval, $6.sval)); tercetos.stack(); $$ = new ParserVal(tercetos.add("<=", $$.sval, $4.sval)); tercetos.addCondBranch($$.sval);}
+for_in_range_cond : '(' for_init ';' for_end ';' for_update ')' {
+                      String msj = TablaTipos.checkTypeCondition($2.sval, $4.sval, $6.sval);
+
+                      if (!msj.isEmpty()) {
+                        Logger.logError(aLexico.getProgramPosition(), msj);
+                      } else {
+                        tercetos.backPatching($2.sval);
+                        String ref = tercetos.addLabel();
+                        $$ = new ParserVal(tercetos.add(tercetos.getComparator($6.sval), $4.sval, "-"));
+                        tercetos.backPatching();
+                        tercetos.stack(ref);
+                        tercetos.addCondBranch($$.sval);
+                        tercetos.stack("+" + $6.sval);
+                      }
+                  }
                   | '(' for_init ',' for_end ',' for_update ')' {Logger.logError(aLexico.getProgramPosition(), "Las constantes de actualizacion deben estar separadas por ';'.");}
 ;
 
@@ -434,11 +463,11 @@ for_in_range_cond : '(' for_init ';' for_end ';' for_update ')' {$$ = new Parser
 // aca apilo
 // 2. (+, a, 1)
 // 3. (UB, [1], 10)
-for_in_range_body : executable_block 
+for_in_range_body : executable_block
                   | executable_statement
 ;
 
-for_init : factor {$$ = new ParserVal(tercetos.changeLast($1.sval));}
+for_init : factor {$$ = new ParserVal($1.sval);}
 ;
 
 for_update : factor {$$ = new ParserVal($1.sval);}
@@ -453,7 +482,7 @@ function_declaration : method_header method_body_without_prototype
 method_body_without_prototype : block
 ;
 
-print_statement : PRINT CADENA ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia PRINT.");}
+print_statement : PRINT CADENA ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia PRINT."); tercetos.add("PRINT", $2.sval, "-");}
                 | PRINT CADENA error {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' en el final de la sentencia.");}
                 | PRINT error ','{Logger.logError(aLexico.getProgramPosition(), "Se esperaba una cadena.");}
                 | error CADENA ',' {Logger.logError(aLexico.getProgramPosition(), "Declaracion de PRINT no valida.");}
@@ -543,7 +572,7 @@ private String chequearRangoLong(String lexema) {
     if (number > RDN_MAX) {
       Logger.logWarning(aLexico.getProgramPosition(),
           "El LONG se excedio de rango, el mismo fue truncado al valor " + RDN_MAX + ".");
-      String n_lexema = String.valueOf(RDN_MAX);
+      String n_lexema = String.valueOf(RDN_MAX) + "L";
       addTablaSimbolos(lexema, n_lexema, "L");
 
       return n_lexema;
@@ -558,10 +587,10 @@ private String negarLong(String lexema) {
     long number = 0;
 
     try {
-        number = -Long.parseLong(lexema);
+        number = -Long.parseLong(lexema.replaceAll("L", ""));
     } catch (Exception ex) {}
 
-    String n_lexema = String.valueOf(number);
+    String n_lexema = String.valueOf(number) + "L";
 
     addTablaSimbolos(lexema, n_lexema, "L");
 

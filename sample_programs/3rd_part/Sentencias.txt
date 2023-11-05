@@ -1,13 +1,15 @@
 {
-    FOR a IN RANGE (0_ui; 10_ui; 1_ui){
+    FOR a IN RANGE (10_l; 0_l; -2_l){
         b = c + d,
         c = d - 3_ui,
         d -= 1_ui,
     }
-
-    IF (a !! c){
-
+*{
+    IF (a !! 4_ui){
+        z = 1_ui,
     } ELSE {
-
+        PRINT % estoy en el else %,
+        a = 10_ui,
     } END_IF,
+}*
 }

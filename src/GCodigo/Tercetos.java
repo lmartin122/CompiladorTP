@@ -5,7 +5,7 @@ import java.util.Stack;
 
 public class Tercetos {
     private ArrayList<Terceto> rules;
-    private Stack<Integer> stack; // Apilar los saltos
+    private Stack<String> stack; // Apilar los saltos
 
     private class Terceto {
         private String first, second, third;
@@ -97,17 +97,11 @@ public class Tercetos {
     }
 
     public void stack() {
-        stack.push(rules.size() - 1);
+        stack.push(String.valueOf(rules.size() - 1));
     }
 
-    public String changeLast(String in) {
-        if (!rules.isEmpty()) {
-            Terceto t = rules.get(rules.size() - 1);
-            t.setThird(in);
-            return t.second;
-        }
-
-        return "";
+    public void stack(String r) {
+        stack.push(r);
     }
 
     public void addCondBranch(String ref) {
@@ -122,21 +116,20 @@ public class Tercetos {
         stack();
     }
 
-    public void addUBFIR() {
-        if (stack.isEmpty())
-            return;
-
-        Integer i = stack.pop();
-        Terceto t = new Terceto("UB", "[" + i + "]", "[-]");
-
-        rules.add(t);
-
+    public void addUncondBranch(boolean stack) {
+        if (stack) {
+            addUncondBranch();
+        } else {
+            Terceto t = new Terceto("UB", "[-]", "[-]");
+            rules.add(t);
+        }
     }
 
-    public void addLabel() {
+    public String addLabel() {
         int i = rules.size();
         Terceto t = new Terceto("Label" + i, "[-]", "[-]");
         rules.add(t);
+        return "[" + i + "]";
     }
 
     public void backPatching(int d) {
@@ -144,12 +137,40 @@ public class Tercetos {
         if (stack.isEmpty())
             return;
 
-        Integer i = stack.pop();
+        Integer i = Integer.valueOf(stack.pop());
         rules.get(i).setThird("[" + (rules.size() + d) + "]");
+    }
+
+    public void backPatching() {
+        if (stack.isEmpty())
+            return;
+
+        String ref = stack.pop();
+
+        if (ref.matches("[0-9]+"))
+            ref = "[" + ref + "]";
+
+        ref = ref.replace("+", "");
+
+        rules.get((rules.size() - 1)).setThird(ref);
+
+    }
+
+    public void backPatching(String r) {
+
+        if (stack.isEmpty())
+            return;
+
+        Integer i = Integer.valueOf(stack.pop());
+        rules.get(i).setThird(r);
     }
 
     private boolean isLeaf(Terceto t) {
         return !t.hasReferefence(t.toString());
+    }
+
+    public String getComparator(String f) {
+        return (f.contains("-")) ? "<=" : ">=";
     }
 
     public ArrayList<String> getFactors(String ref) {
