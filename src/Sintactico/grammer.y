@@ -202,7 +202,7 @@ implement_for_method_body : block
 >>>     EXPRESSIONS
 
 */
-assignment : left_hand_side '=' arithmetic_operation {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una asignacion.");}
+assignment : left_hand_side '=' arithmetic_operation {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una asignacion."); tercetos.add("=", $1.sval, $3.sval);}
            | left_hand_side MINUS_ASSIGN arithmetic_operation {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una asignacion de resta."); tercetos.add("=", $1.sval, tercetos.add("-", $1.sval, $3.sval));}
            | left_hand_side error '=' arithmetic_operation {Logger.logError(aLexico.getProgramPosition(), "Las asignaciones se deben hacer con el caracter '=' o '-='.");}
            | left_hand_side EQUAL_OPERATOR arithmetic_operation {Logger.logError(aLexico.getProgramPosition(), "Las asignaciones se deben hacer con el caracter '=' o '-='.");}
@@ -278,6 +278,7 @@ method_invocation : ID '(' real_parameter ')' {Logger.logRule(aLexico.getProgram
                   | field_acces '(' real_parameter error ')' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
 ;
 
+
 /*
 
 >>>     TYPES
@@ -290,7 +291,11 @@ type : primitive_type
 primitive_type : numeric_type
 ;
 
-reference_type : ID {scope.changeScope($1.sval);}
+reference_type : ID {
+                    String msj = scope.searchReference($1.sval);
+                    if(!msj.isEmpty())
+                      Logger.logError(aLexico.getProgramPosition(), msj);
+               }
 ;
 
 numeric_type : integral_type 
@@ -379,8 +384,9 @@ empty_statement : ','
 ;
 
 
-if_then_declaration : IF if_then_cond if_then_body END_IF ',' 
-                    {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia IF."); tercetos.backPatching(0); tercetos.addLabel();}
+if_then_declaration : IF if_then_cond if_then_body END_IF ','  {tercetos.backPatching(0); tercetos.addLabel();}
+                    {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia IF.");}
+                    | IF if_then_cond if_then_body error ',' {Logger.logError(aLexico.getProgramPosition(), "La sentencia de control IF debe terminar con la palabra reservada END_IF.");}
 ;
 
 if_then_cond : '(' equality_expression ')' {tercetos.addCondBranch($2.sval);}
@@ -389,11 +395,9 @@ if_then_cond : '(' equality_expression ')' {tercetos.addCondBranch($2.sval);}
              | '(' ')'
 ;
 
-if_then_body : executable_statement {tercetos.backPatching(0);}
-             | executable_block {tercetos.backPatching(0);}
+if_then_body : executable_statement 
+             | executable_block
              | local_variable_declaration_statement {Logger.logError(aLexico.getProgramPosition(), "No se permiten sentencias declarativas en una sentencia IF.");}
-             | error END_IF {Logger.logError(aLexico.getProgramPosition(), "Cuerpo de la sentencia IF invalido.");}
-             | error ',' {Logger.logError(aLexico.getProgramPosition(), "Cuerpo de la sentencia IF invalido.");}
 ;
 
 

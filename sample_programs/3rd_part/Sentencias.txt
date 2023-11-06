@@ -3,13 +3,20 @@
         b = c + d,
         c = d - 3_ui,
         d -= 1_ui,
+
+        IF (a / 2_l == 4_l){
+            z = 1_ui,
+        } ELSE {
+            PRINT % estoy en el else %,
+        } END_IF,
     }
-*{
-    IF (a !! 4_ui){
-        z = 1_ui,
-    } ELSE {
-        PRINT % estoy en el else %,
-        a = 10_ui,
-    } END_IF,
-}*
+
+    IF (a == 0_l){
+        PRINT % El for in range termino. %,
+        a = 10_l,
+    }
+    END_IF,
+
+
+
 }

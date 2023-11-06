@@ -11,6 +11,31 @@ public class Scope {
         separator = "@";
     }
 
+    private boolean inMain() {
+        return ambito.toString().equals("@main");
+    }
+
+    public String searchReference(String r) {
+        TablaSimbolos.deleteKey(r);
+
+        StringBuilder saveAmbito = new StringBuilder(ambito);
+        String toSearch = r + getCurrentScope();
+
+        while (!inMain() && !TablaSimbolos.containsKey(toSearch)) {
+            deleteLastScope();
+            toSearch = r + getCurrentScope();
+        }
+
+        ambito.setLength(0);
+        ambito.append(saveAmbito);
+
+        if (TablaSimbolos.containsKey(toSearch))
+            return "";
+
+        return "La variable " + r + " no esta al alcance.";
+
+    }
+
     public String changeScope(String lexema) {
         TablaSimbolos.changeKey(lexema, lexema + getCurrentScope());
         return lexema + getCurrentScope();
@@ -25,12 +50,12 @@ public class Scope {
         this.ambito.append("@main@").append(ambito);
     }
 
-
-    public void deleteLastScope(){
+    public void deleteLastScope() {
         int lastIndex = this.ambito.lastIndexOf("@");
-        if (lastIndex != -1){
+        if (lastIndex != -1) {
             this.ambito.delete(lastIndex, this.ambito.length());
-        };
+        }
+        ;
     };
 
     public void reset() {
@@ -41,9 +66,10 @@ public class Scope {
     public String getCurrentScope() {
         return ambito.toString();
     }
+
     public String getLastScope() {
         String[] aux = this.getCurrentScope().split("@");
-        return aux[aux.length-1];
+        return aux[aux.length - 1];
     }
 
 }

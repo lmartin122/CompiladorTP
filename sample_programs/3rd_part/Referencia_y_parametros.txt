@@ -1,0 +1,20 @@
+{
+    UINT a,
+    a = 4_ui,
+
+    VOID f(UINT c){
+        UINT b,
+
+        VOID g (UINT x){
+            a = b + x,
+        
+            RETURN,
+        }
+        b = 10_ui,
+        g(c),
+
+        RETURN,
+    }
+
+    f(),
+}

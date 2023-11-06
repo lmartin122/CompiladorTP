@@ -13,6 +13,7 @@ public class TablaSimbolos {
 
     private static void addTipo(String tipo, String key) {
         try {
+
             tablaSimbolos.get(key).put("tipo", tipo);
         } catch (Exception e) {
             System.out.println("NO SE ENCONTRO LA KEY EN EL MAPA");
@@ -89,6 +90,11 @@ public class TablaSimbolos {
 
     public static boolean containsKey(Object key) {
         return tablaSimbolos.containsKey(String.valueOf(key));
+    }
+
+    public static void deleteKey(Object key) {
+        if (containsKey(key))
+            tablaSimbolos.remove(key);
     }
 
     public static boolean increaseCounter(Object key, String name) {
