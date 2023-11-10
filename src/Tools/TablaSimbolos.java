@@ -1,19 +1,18 @@
 package Tools;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Objects;
+
+import GCodigo.Scope;
 
 public class TablaSimbolos {
 
     public static final HashMap<String, HashMap<String, String>> tablaSimbolos = new HashMap<>();
     public static final String valorLexema = "lexema";
+    private static final HashMap<String, String> toErase = createAttribute("uso", "identificador");
     // private static int identifierNumber = 0;
 
     private static void addTipo(String tipo, String key) {
         try {
-
             tablaSimbolos.get(key).put("tipo", tipo);
         } catch (Exception e) {
             System.out.println("NO SE ENCONTRO LA KEY EN EL MAPA");
@@ -160,6 +159,10 @@ public class TablaSimbolos {
         }
 
         return out;
+    }
+
+    public static void purge() {
+        tablaSimbolos.entrySet().removeIf(entry -> entry.getValue().equals(toErase) && Scope.outMain(entry.getKey()));
     }
 
 }

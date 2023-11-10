@@ -248,7 +248,7 @@ multiplicative_expression : unary_expression {$$ = new ParserVal($1.sval);}
 ;
 
 unary_expression : factor {$$ = new ParserVal($1.sval);} 
-                 | reference_type {$$ = new ParserVal($1.sval);}
+                 | reference_type {$$ = new ParserVal($1.sval); TablaSimbolos.increaseCounter($1.sval, "usado");}
                  | conversion_expression {$$ = new ParserVal($1.sval);} 
                  | '(' arithmetic_operation ')' {$$ = new ParserVal($2.sval);}  //Aca se debe chequear que sea un nivel de ()?
                  | '(' ')' {Logger.logError(aLexico.getProgramPosition(), "Termino vacio.");}
@@ -292,9 +292,11 @@ primitive_type : numeric_type
 ;
 
 reference_type : ID {
-                    String msj = scope.searchReference($1.sval);
-                    if(!msj.isEmpty())
-                      Logger.logError(aLexico.getProgramPosition(), msj);
+                    String reference = scope.searchReference($1.sval);
+                    if(reference == null)
+                      Logger.logError(aLexico.getProgramPosition(), "La variable " + $1.sval + " no esta al alcance.");
+                    else
+                      $$ = new ParserVal(reference);
                }
 ;
 
@@ -463,10 +465,6 @@ for_in_range_cond : '(' for_init ';' for_end ';' for_update ')' {
                   | '(' for_init ',' for_end ',' for_update ')' {Logger.logError(aLexico.getProgramPosition(), "Las constantes de actualizacion deben estar separadas por ';'.");}
 ;
 
-// 1. (=, a, 0)
-// aca apilo
-// 2. (+, a, 1)
-// 3. (UB, [1], 10)
 for_in_range_body : executable_block
                   | executable_statement
 ;
@@ -709,6 +707,9 @@ public static void main (String [] args) throws IOException {
     
     aSintactico.run();
 
+    //Borrado de los identificadores que quedan sin ambito
+    TablaSimbolos.purge();
+
     //aSintactico.dump_stacks(yylval_recognition);
     System.out.println(Logger.dumpLog());
 
@@ -721,5 +722,4 @@ public static void main (String [] args) throws IOException {
 
     System.out.println(aLexico.getProgram());
 }
-
 

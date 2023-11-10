@@ -15,9 +15,11 @@ public class Scope {
         return ambito.toString().equals("@main");
     }
 
-    public String searchReference(String r) {
-        TablaSimbolos.deleteKey(r);
+    public static boolean outMain(String s) {
+        return !s.contains("@main");
+    }
 
+    public String searchReference(String r) {
         StringBuilder saveAmbito = new StringBuilder(ambito);
         String toSearch = r + getCurrentScope();
 
@@ -29,10 +31,12 @@ public class Scope {
         ambito.setLength(0);
         ambito.append(saveAmbito);
 
-        if (TablaSimbolos.containsKey(toSearch))
-            return "";
+        // Deberia devolver el ambito para usarlo en los tercetos
+        if (TablaSimbolos.containsKey(toSearch)) {
+            return toSearch;
+        }
 
-        return "La variable " + r + " no esta al alcance.";
+        return null;
 
     }
 

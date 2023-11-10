@@ -6,8 +6,11 @@ public class TablaTipos {
     public static final String DOUBLE_TYPE = "DOUBLE";
     public static final String UINT_TYPE = "UINT"; // _ui
     public static final String STRING = "STRING"; // cadena multilinea
-
     public static final String FUNCTION = "FUNCTION";
+
+    // public static boolean hasSameType() {
+
+    // }
 
     public static String checkTypeCondition(String... cond) {
         String out = "";
@@ -27,15 +30,3 @@ public class TablaTipos {
         return out;
     }
 }
-
-// if (fi.contains("D") || fe.contains("D") || fu.contains("D"))
-// return "Los parametros de actualizacion no pueden ser del tipo DOUBLE.";
-
-// if (fi.contains("L") && fe.contains("L") && fu.contains("L"))
-// return "";
-
-// if (!fi.contains("L") && !fe.contains("L") && !fu.contains("L"))
-// return "";
-
-// return "Los parametros de actualizacion deben ser del mismo tipo UINT o
-// LONG.";
