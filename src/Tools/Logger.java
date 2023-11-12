@@ -57,9 +57,9 @@ public final class Logger {
     }
 
     private static String generateLog() {
-        String out = "";
+        String out = null;
 
-        out = ">>>    LOG \n";
+        out = "\n>>>    LOG \n";
 
         for (String s : warnings) {
             out += s;
@@ -77,7 +77,7 @@ public final class Logger {
             out += s;
         }
 
-        out += ">>>    TABLA DE SIMBOLOS\n";
+        out += "\n>>>    TABLA DE SIMBOLOS\n";
 
         out += TablaSimbolos.printTable();
 

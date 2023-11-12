@@ -161,6 +161,16 @@ public class TablaSimbolos {
         return out;
     }
 
+    public static boolean isClass(String k) {
+        if (!tablaSimbolos.containsKey(k))
+            return false;
+
+        if (tablaSimbolos.get(k).get("tipo").equals("class"))
+            return true;
+
+        return false;
+    }
+
     public static void purge() {
         tablaSimbolos.entrySet().removeIf(entry -> entry.getValue().equals(toErase) && Scope.outMain(entry.getKey()));
     }

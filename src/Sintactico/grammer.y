@@ -16,11 +16,10 @@ import Tools.Logger;
 import Tools.Tupla;
 import Tools.TablaSimbolos;
 import Tools.TablaTipos;
-
 %}
 
 
-%token       
+%token
 CLASS INTERFACE IMPLEMENT RETURN
 IF ELSE END_IF FOR IN RANGE IMPL PRINT TOD
 EQUAL_OPERATOR NOT_EQUAL_OPERATOR GREATER_THAN_OR_EQUAL_OPERATOR LESS_THAN_OR_EQUAL_OPERATOR MINUS_ASSIGN
@@ -54,7 +53,7 @@ type_declarations : type_declaration
 type_declaration : class_declaration {scope.reset(); scope.changeScope($1.sval);}
                  | interface_declaration {scope.reset(); scope.changeScope($1.sval);}
                  | implement_for_declaration {scope.reset(); scope.changeScope($1.sval);}
-                 | block_statement
+                 | block_statement {/*scope.reset();*/}
 ;
 
 class_declaration : CLASS class_name class_body {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una CLASS.");  $$ = new ParserVal($2.sval); System.out.println("CLASS: " + $2.sval);}
@@ -83,7 +82,6 @@ class_member_declaration : field_declaration
 field_declaration : type variable_declarators ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una declaracion de atributo/s.");}
                   | type variable_declarators {Logger.logError(aLexico.getProgramPosition(), "La sentencia debe terminar con ','.");}
 ;
-
 
 variable_declarators : variable_declarator
                      | variable_declarators ';' variable_declarator
@@ -120,7 +118,17 @@ method_declarator : method_name '(' formal_parameter ')'{Logger.logRule(aLexico.
                   | method_name '{' '}' {Logger.logError(aLexico.getProgramPosition(), "La declaracion de un metodo debe estar delimitado por parentesis \"(...)\".");}
 ;
 
-method_name : ID {$$ = new ParserVal(scope.changeScope($1.sval)); TablaSimbolos.addFunction($$.sval); TablaSimbolos.addClasePerteneciente($$.sval,scope.getLastScope()); scope.stack($1.sval);}
+method_name : ID {
+                if (scope.hasPassedNesting()) 
+                  Logger.logError(aLexico.getProgramPosition(), "Solo se permite 2 niveles de anidamiento en las funciones/metodos.");
+                else {
+                  $$ = new ParserVal(scope.changeScope($1.sval)); 
+                  TablaSimbolos.addFunction($$.sval); 
+                  TablaSimbolos.addClasePerteneciente($$.sval,scope.getLastScope()); 
+                  scope.stack($1.sval);
+                }
+
+              }
 ;
 
 // Permito la creacion de multiples block en un metodo, se debe chequear que luego permita
@@ -176,7 +184,6 @@ implement_for_declaration : IMPL FOR reference_type ':' implement_for_body {Logg
                           | IMPL FOR reference_type ':' error ',' {Logger.logError(aLexico.getProgramPosition(), "Es necesario implementar el cuerpo del metodo.");}
                           | IMPL FOR error ':' implement_for_body ',' {Logger.logError(aLexico.getProgramPosition(), "Se debe referenciar a una clase.");}
                           | IMPL FOR reference_type error ':' implement_for_body {Logger.logError(aLexico.getProgramPosition(), "Declaracion de IMPL FOR no valida, no es correcta la signatura.");}
-                          | error ID ':' implement_for_body {Logger.logError(aLexico.getProgramPosition(), "Declaracion de IMPL FOR no valida, no es correcta la signatura.");}
 ;
 
 implement_for_body : '{' implement_for_body_declarations '}'
@@ -237,7 +244,7 @@ arithmetic_operation : additive_expression {$$ = new ParserVal($1.sval);}
 ;
 
 additive_expression : multiplicative_expression {$$ = new ParserVal($1.sval); Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion aritmetica.");}
-                    | additive_expression '+' multiplicative_expression {$$ = new ParserVal(tercetos.add("+", $1.sval, $3.sval));}
+                    | additive_expression '+' multiplicative_expression {$$ = new ParserVal(tercetos.add("+", $1.sval, $3.sval)); System.out.println(tercetos.getScope() + " es igual? " + scope.getCurrentScope());}
                     | additive_expression '-' multiplicative_expression {$$ = new ParserVal(tercetos.add("-", $1.sval, $3.sval));}
 ; 
 
@@ -269,7 +276,6 @@ factor : CTE_DOUBLE {$$ = new ParserVal($1.sval); }
        | '-'CTE_UINT {Logger.logError(aLexico.getProgramPosition() ,"Los tipos UINT deben ser sin signo."); $$ = new ParserVal($2.sval);}
 ;
 
-
 method_invocation : ID '(' real_parameter ')' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo, con pj de parametro.");}
                   | ID '(' ')' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo, sin pj de parametro.");}
                   | ID '(' real_parameter error ')' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
@@ -277,7 +283,6 @@ method_invocation : ID '(' real_parameter ')' {Logger.logRule(aLexico.getProgram
                   | field_acces '(' ')' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo desde una clase, sin pj de parametro.");}
                   | field_acces '(' real_parameter error ')' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
 ;
-
 
 /*
 
@@ -357,7 +362,7 @@ executable_statement : if_then_declaration
 local_variable_declaration_statement : local_variable_declaration ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una declaracion de variable local.");}
 ;
 
-local_variable_declaration : type variable_declarators {TablaSimbolos.addTipoVariable($1.sval, $2.sval,scope.getCurrentScope());}
+local_variable_declaration : type variable_declarators {TablaSimbolos.addTipoVariable($1.sval, $2.sval, scope.getCurrentScope());}
 ;
 
 
@@ -478,7 +483,7 @@ for_update : factor {$$ = new ParserVal($1.sval);}
 for_end : factor {$$ = new ParserVal($1.sval);}
 ;
 
-function_declaration : method_header method_body_without_prototype
+function_declaration : method_header method_body_without_prototype {scope.deleteLastScope();}
 ;
 
 method_body_without_prototype : block
@@ -486,8 +491,6 @@ method_body_without_prototype : block
 
 print_statement : PRINT CADENA ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia PRINT."); tercetos.add("PRINT", $2.sval, "-");}
                 | PRINT CADENA error {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' en el final de la sentencia.");}
-                | PRINT error ','{Logger.logError(aLexico.getProgramPosition(), "Se esperaba una cadena.");}
-                | error CADENA ',' {Logger.logError(aLexico.getProgramPosition(), "Declaracion de PRINT no valida.");}
                 | PRINT '\0' {Logger.logError(aLexico.getProgramPosition(), "Se esperaba un % que cierre la cadena.");}
 ;
 %%
@@ -700,11 +703,11 @@ public static void main (String [] args) throws IOException {
     if ( !aLexico.hasReadWell() )
         return;
 
-
     Parser aSintactico = new Parser();
-    tercetos = new Tercetos();
     scope = new Scope();
-    
+    tercetos = new Tercetos();
+    scope.addObserver(tercetos); //Añado al terceto para avisarle cuando cambio de scope
+
     aSintactico.run();
 
     //Borrado de los identificadores que quedan sin ambito
@@ -714,10 +717,10 @@ public static void main (String [] args) throws IOException {
     System.out.println(Logger.dumpLog());
 
     if (!Logger.errorsOcurred()){
-      System.out.println("No se produjeron errores."); //Para la parte 4, generacion de codigo maquina
+      System.out.println("No se produjeron errores.\n"); //Para la parte 4, generacion de codigo maquina
       tercetos.printRules();
     } else 
-      System.out.println("Se produjeron errores.");
+      System.out.println("Se produjeron errores.\n");
     
 
     System.out.println(aLexico.getProgram());

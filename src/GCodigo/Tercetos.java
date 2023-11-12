@@ -1,20 +1,31 @@
 package GCodigo;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Stack;
 
-public class Tercetos {
-    private ArrayList<Terceto> rules;
+import java.util.HashMap;
+import java.util.Map;
+
+public class Tercetos implements PropertyChangeListener {
+    private HashMap<String, ArrayList<Terceto>> rules;
     private Stack<String> stack; // Apilar los saltos
+    private String scope;
 
     private class Terceto {
-        private String first, second, third;
+        private String first, second, third, type;
         public static final String TOD = "TOD";
+        public static final String UNDEFINED = "-";
 
         public Terceto(String... values) {
             first = values[0];
             second = values[1];
             third = values[2];
+            if (values.length > 3) {
+                type = values[3];
+            }
+            type = null;
         }
 
         public int length() {
@@ -34,7 +45,9 @@ public class Tercetos {
         }
 
         public String toString() {
-            return "(" + first + ", " + second + ", " + third + ")";
+            if (type == null)
+                return "(" + first + ", " + second + ", " + third + ")";
+            return "(" + first + ", " + second + ", " + third + ") " + type;
         }
 
         public static int getRefPos(String ref) {
@@ -52,7 +65,7 @@ public class Tercetos {
         }
 
         public boolean isUndefined(String s) {
-            return s.equals("-");
+            return s.equals(UNDEFINED);
         }
 
         public boolean hasConversion() {
@@ -86,13 +99,38 @@ public class Tercetos {
     }
 
     public Tercetos() {
-        rules = new ArrayList<>();
+        rules = new HashMap<>();
         stack = new Stack<>();
+    }
+
+    public Tercetos(String s) {
+        this();
+        scope = s;
+    }
+
+    private void add(Terceto t) {
+        if (rules.containsKey(scope)) {
+            rules.get(scope).add(t);
+        } else {
+            ArrayList<Terceto> aux = new ArrayList<>();
+            aux.add(t);
+            rules.put(scope, aux);
+        }
+    }
+
+    private Terceto get(int i) {
+        ArrayList<Terceto> out = rules.get(scope);
+
+        if (out.size() <= i)
+            return null;
+
+        return out.get(i);
     }
 
     public String add(String st, String nd, String rd) {
         Terceto t = new Terceto(st, nd, rd);
-        rules.add(t);
+        System.out.println("En el add tengo el scope " + scope);
+        add(t);
         return "[" + (rules.size() - 1) + "]";
     }
 
@@ -106,13 +144,13 @@ public class Tercetos {
 
     public void addCondBranch(String ref) {
         Terceto t = new Terceto("CB", ref, "[-]");
-        rules.add(t);
+        add(t);
         stack();
     }
 
     public void addUncondBranch() {
         Terceto t = new Terceto("UB", "[-]", "[-]");
-        rules.add(t);
+        add(t);
         stack();
     }
 
@@ -121,14 +159,14 @@ public class Tercetos {
             addUncondBranch();
         } else {
             Terceto t = new Terceto("UB", "[-]", "[-]");
-            rules.add(t);
+            add(t);
         }
     }
 
     public String addLabel() {
         int i = rules.size();
         Terceto t = new Terceto("Label" + i, "[-]", "[-]");
-        rules.add(t);
+        add(t);
         return "[" + i + "]";
     }
 
@@ -138,7 +176,7 @@ public class Tercetos {
             return;
 
         Integer i = Integer.valueOf(stack.pop());
-        rules.get(i).setThird("[" + (rules.size() + d) + "]");
+        get(i).setThird("[" + (rules.size() + d) + "]");
     }
 
     public void backPatching() {
@@ -152,7 +190,7 @@ public class Tercetos {
 
         ref = ref.replace("+", "");
 
-        rules.get((rules.size() - 1)).setThird(ref);
+        get((rules.size() - 1)).setThird(ref);
 
     }
 
@@ -162,7 +200,7 @@ public class Tercetos {
             return;
 
         Integer i = Integer.valueOf(stack.pop());
-        rules.get(i).setThird(r);
+        get(i).setThird(r);
     }
 
     private boolean isLeaf(Terceto t) {
@@ -181,7 +219,7 @@ public class Tercetos {
 
         int pos = Terceto.getRefPos(ref);
         boolean flagTOD = false;
-        Terceto t = rules.get(pos);
+        Terceto t = get(pos);
         Stack<Integer> references = new Stack<>();
 
         while (!isLeaf(t) || !references.empty()) {
@@ -201,7 +239,7 @@ public class Tercetos {
                 flagTOD = false;
             }
 
-            t = rules.get(references.pop());
+            t = get(references.pop());
         }
 
         out.addAll(t.getFactors());
@@ -217,25 +255,40 @@ public class Tercetos {
         int maxLengthSC = 0;
 
         if (!rules.isEmpty()) {
+            System.out.println(">>>    LISTA DE TERCETOS");
 
-            for (Terceto rule : rules) {
-                if (rule.length() > maxLengthSC) {
-                    maxLengthSC = rule.length();
+            for (ArrayList<Terceto> t : rules.values()) {
+                for (Terceto rule : t) {
+                    if (rule.length() > maxLengthSC)
+                        maxLengthSC = rule.length();
                 }
             }
 
-            String formatFC = "| %-" + maxLengthFC + "s.";
-            String formatSC = " %-" + maxLengthSC + "s |";
+            for (Map.Entry<String, ArrayList<Terceto>> func : rules.entrySet()) {
 
-            String border = "+" + "-".repeat(maxLengthFC + maxLengthSC + 4) + "+";
+                String title = "Función " + func.getKey();
+                ArrayList<Terceto> rulesFunc = func.getValue();
 
-            System.out.println(border);
-            for (int i = 0; i < rules.size(); i++) {
-                String formattedRule = String.format(formatFC, i);
-                formattedRule += String.format(formatSC, rules.get(i));
-                System.out.println(formattedRule);
-                if (i == rules.size() - 1) {
-                    System.out.println(border);
+                String formatFC = "| %-" + maxLengthFC + "s.";
+                String formatSC = " %-" + maxLengthSC + "s |";
+
+                int titleLength = title.length();
+                int totalLength = maxLengthFC + maxLengthSC + 4;
+                int leftPadding = (totalLength - titleLength) / 2;
+                int rightPadding = totalLength - titleLength - leftPadding;
+
+                String border = "+" + "-".repeat(maxLengthFC + maxLengthSC + 4) + "+";
+
+                System.out.println(border);
+                System.out.println("|" + " ".repeat(leftPadding) + title + " ".repeat(rightPadding) + "|");
+                System.out.println(border);
+                for (int i = 0; i < rulesFunc.size(); i++) {
+                    String formattedRule = String.format(formatFC, i);
+                    formattedRule += String.format(formatSC, rulesFunc.get(i));
+                    System.out.println(formattedRule);
+                    if (i == rulesFunc.size() - 1) {
+                        System.out.println(border);
+                    }
                 }
             }
         } else {
@@ -244,4 +297,17 @@ public class Tercetos {
 
     }
 
+    @Override
+    public void propertyChange(PropertyChangeEvent arg0) {
+        setScope((String) arg0.getNewValue());
+    }
+
+    public void setScope(String scope) {
+        System.out.println("Cambio el scope " + scope);
+        this.scope = scope;
+    }
+
+    public String getScope() {
+        return scope;
+    }
 }

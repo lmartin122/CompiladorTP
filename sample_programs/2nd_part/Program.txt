@@ -1,9 +1,18 @@
 {
-LONG abcdefghijklmnopq = -214748_l, *{ primer valor permitido dentro del rango, 17 caracteres  }*
-UINT bglhotkgiu = 65535_ui, *{ ultimo valor permitido dentro del rango, 10 caracteres }*
-UINT _identificador1 = 10_ui,
-DOUBLE f = 10.34D+5,
-DOUBLE f2 = .34D+7,
+LONG abcdefghijklmnopq,
+abcdefghijklmnopq = -214748_l, *{ primer valor permitido dentro del rango, 17 caracteres  }*
+
+UINT bglhotkgiu,
+bglhotkgiu = 65535_ui, *{ ultimo valor permitido dentro del rango, 10 caracteres }*
+
+UINT _identificador1,
+_identificador1 = 10_ui,
+
+DOUBLE f,
+f = 10.34D+5,
+
+DOUBLE f2,
+f2 = .34D+7,
 
 *{Este programa sirve para comprobar el funcionamiento completo del compilador}*
 

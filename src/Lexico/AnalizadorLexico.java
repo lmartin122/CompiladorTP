@@ -119,6 +119,7 @@ public class AnalizadorLexico {
             case 272 -> "<=";
             case 270 -> "==";
             case 271 -> "!!";
+            case 274 -> "-=";
             default -> "" + ((char) out);
         };
     }
