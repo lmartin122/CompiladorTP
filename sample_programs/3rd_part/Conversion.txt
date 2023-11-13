@@ -2,4 +2,7 @@
     DOUBLE precio; flete,
     UINT costo,
     precio = flete + TOD(5_ui + costo * 5_l) * (10_ui + 5_ui) + TOD(10_ui + TOD(5_ui + 10_l)),
+    costo = 1_ui + 3_ui * 3_ui,
+    costo = (1_ui + 3_ui) * 3_ui,
+    costo = (1_ui + 3_ui + (3_ui)),
 }

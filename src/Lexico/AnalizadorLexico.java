@@ -120,7 +120,7 @@ public class AnalizadorLexico {
             case 270 -> "==";
             case 271 -> "!!";
             case 274 -> "-=";
-            default -> "" + ((char) out);
+            default -> String.valueOf(((char) out));
         };
     }
 

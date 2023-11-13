@@ -17,15 +17,17 @@ public class Tercetos implements PropertyChangeListener {
         private String first, second, third, type;
         public static final String TOD = "TOD";
         public static final String UNDEFINED = "-";
+        private boolean flagBrackets;
 
         public Terceto(String... values) {
             first = values[0];
             second = values[1];
             third = values[2];
-            if (values.length > 3) {
+            if (values.length > 3)
                 type = values[3];
-            }
-            type = null;
+            else
+                type = null;
+            flagBrackets = false;
         }
 
         public int length() {
@@ -84,6 +86,18 @@ public class Tercetos implements PropertyChangeListener {
             return out;
         }
 
+        public boolean isFlagBrackets() {
+            return flagBrackets;
+        }
+
+        public void turnOnFlagBrackets() {
+            flagBrackets = true;
+        }
+
+        public void turnOffFlagBrackets() {
+            flagBrackets = true;
+        }
+
         public ArrayList<Integer> getReferences() {
             ArrayList<Integer> out = new ArrayList<>();
 
@@ -121,21 +135,31 @@ public class Tercetos implements PropertyChangeListener {
     private Terceto get(int i) {
         ArrayList<Terceto> out = rules.get(scope);
 
-        if (out.size() <= i)
+        if (out == null || out.size() <= i)
             return null;
 
         return out.get(i);
     }
 
+    private ArrayList<Terceto> get(String i) {
+        if (!rules.containsKey(i))
+            return null;
+
+        return rules.get(i);
+    }
+
+    private int size() {
+        return rules.get(scope).size();
+    }
+
     public String add(String st, String nd, String rd) {
         Terceto t = new Terceto(st, nd, rd);
-        System.out.println("En el add tengo el scope " + scope);
         add(t);
-        return "[" + (rules.size() - 1) + "]";
+        return "[" + (size() - 1) + "]";
     }
 
     public void stack() {
-        stack.push(String.valueOf(rules.size() - 1));
+        stack.push(String.valueOf(size() - 1));
     }
 
     public void stack(String r) {
@@ -164,7 +188,7 @@ public class Tercetos implements PropertyChangeListener {
     }
 
     public String addLabel() {
-        int i = rules.size();
+        int i = size();
         Terceto t = new Terceto("Label" + i, "[-]", "[-]");
         add(t);
         return "[" + i + "]";
@@ -176,7 +200,7 @@ public class Tercetos implements PropertyChangeListener {
             return;
 
         Integer i = Integer.valueOf(stack.pop());
-        get(i).setThird("[" + (rules.size() + d) + "]");
+        get(i).setThird("[" + (size() + d) + "]");
     }
 
     public void backPatching() {
@@ -190,7 +214,7 @@ public class Tercetos implements PropertyChangeListener {
 
         ref = ref.replace("+", "");
 
-        get((rules.size() - 1)).setThird(ref);
+        get(size() - 1).setThird(ref);
 
     }
 
@@ -250,6 +274,44 @@ public class Tercetos implements PropertyChangeListener {
         return out;
     }
 
+    public boolean hasNestingExpressions(String r) {
+
+        Terceto t = get(Terceto.getRefPos(r));
+
+        if (t == null)
+            return false;
+
+        t.turnOnFlagBrackets();
+        Stack<Integer> references = new Stack<>();
+
+        while (!isLeaf(t) || !references.empty()) {
+            for (Integer ref : t.getReferences()) {
+                references.push(ref);
+            }
+            t = get(references.pop());
+
+            if (t.isFlagBrackets()) {
+                return true;
+            }
+
+        }
+
+        return false;
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent arg0) {
+        setScope((String) arg0.getNewValue());
+    }
+
+    public void setScope(String scope) {
+        this.scope = scope;
+    }
+
+    public String getScope() {
+        return scope;
+    }
+
     public void printRules() {
         int maxLengthFC = String.valueOf(rules.size()).length();
         int maxLengthSC = 0;
@@ -297,17 +359,4 @@ public class Tercetos implements PropertyChangeListener {
 
     }
 
-    @Override
-    public void propertyChange(PropertyChangeEvent arg0) {
-        setScope((String) arg0.getNewValue());
-    }
-
-    public void setScope(String scope) {
-        System.out.println("Cambio el scope " + scope);
-        this.scope = scope;
-    }
-
-    public String getScope() {
-        return scope;
-    }
 }

@@ -35,7 +35,6 @@ public class Scope {
             toSearch = r + amb.toString();
         }
 
-        // Deberia devolver el ambito para usarlo en los tercetos
         if (TablaSimbolos.containsKey(toSearch))
             return toSearch;
 

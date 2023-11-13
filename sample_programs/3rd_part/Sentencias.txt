@@ -1,4 +1,7 @@
 {
+    UINT z; b; c; d,
+    DOUBLE a,
+
     FOR a IN RANGE (10_l; 0_l; -2_l){
         b = c + d,
         c = d - 3_ui,

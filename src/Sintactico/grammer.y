@@ -244,7 +244,7 @@ arithmetic_operation : additive_expression {$$ = new ParserVal($1.sval);}
 ;
 
 additive_expression : multiplicative_expression {$$ = new ParserVal($1.sval); Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion aritmetica.");}
-                    | additive_expression '+' multiplicative_expression {$$ = new ParserVal(tercetos.add("+", $1.sval, $3.sval)); System.out.println(tercetos.getScope() + " es igual? " + scope.getCurrentScope());}
+                    | additive_expression '+' multiplicative_expression {$$ = new ParserVal(tercetos.add("+", $1.sval, $3.sval));}
                     | additive_expression '-' multiplicative_expression {$$ = new ParserVal(tercetos.add("-", $1.sval, $3.sval));}
 ; 
 
@@ -257,7 +257,9 @@ multiplicative_expression : unary_expression {$$ = new ParserVal($1.sval);}
 unary_expression : factor {$$ = new ParserVal($1.sval);} 
                  | reference_type {$$ = new ParserVal($1.sval); TablaSimbolos.increaseCounter($1.sval, "usado");}
                  | conversion_expression {$$ = new ParserVal($1.sval);} 
-                 | '(' arithmetic_operation ')' {$$ = new ParserVal($2.sval);}  //Aca se debe chequear que sea un nivel de ()?
+                 | '(' arithmetic_operation ')' {
+                    if (tercetos.hasNestingExpressions($2.sval)) Logger.logError(aLexico.getProgramPosition(), "No se permite el anidamiento de expresiones.");
+                  $$ = new ParserVal($2.sval);  }  //Aca se debe chequear que sea un nivel de ()?
                  | '(' ')' {Logger.logError(aLexico.getProgramPosition(), "Termino vacio.");}
 ;
 
