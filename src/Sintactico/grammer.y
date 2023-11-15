@@ -209,7 +209,7 @@ implement_for_method_body : block
 >>>     EXPRESSIONS
 
 */
-assignment : left_hand_side '=' arithmetic_operation {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una asignacion."); tercetos.add("=", $1.sval, $3.sval);}
+assignment : left_hand_side '=' arithmetic_operation {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una asignacion."); tercetos.add("=", $1.sval, $3.sval, tercetos.typeTerceto($1.sval, $3.sval));}
            | left_hand_side MINUS_ASSIGN arithmetic_operation {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una asignacion de resta."); tercetos.add("=", $1.sval, tercetos.add("-", $1.sval, $3.sval));}
            | left_hand_side error '=' arithmetic_operation {Logger.logError(aLexico.getProgramPosition(), "Las asignaciones se deben hacer con el caracter '=' o '-='.");}
            | left_hand_side EQUAL_OPERATOR arithmetic_operation {Logger.logError(aLexico.getProgramPosition(), "Las asignaciones se deben hacer con el caracter '=' o '-='.");}
@@ -229,13 +229,13 @@ primary : reference_type
 ;
 
 equality_expression : relational_expression {$$ = new ParserVal($1.sval);}
-                    | equality_expression EQUAL_OPERATOR relational_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica."); $$ = new ParserVal(tercetos.add("==", $1.sval, $3.sval));}
-                    | equality_expression NOT_EQUAL_OPERATOR relational_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica."); $$ = new ParserVal(tercetos.add("!!", $1.sval, $3.sval));}
+                    | equality_expression EQUAL_OPERATOR relational_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica."); $$ = new ParserVal(tercetos.add("==", $1.sval, $3.sval, tercetos.typeTerceto($1.sval, $3.sval)));}
+                    | equality_expression NOT_EQUAL_OPERATOR relational_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica."); $$ = new ParserVal(tercetos.add("!!", $1.sval, $3.sval, tercetos.typeTerceto($1.sval, $3.sval)));}
 ;
 
 relational_expression : additive_expression {$$ = new ParserVal($1.sval);}
-                      | relational_expression '<' additive_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica."); $$ = new ParserVal(tercetos.add("<", $1.sval, $3.sval));}
-                      | relational_expression '>' additive_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica."); $$ = new ParserVal(tercetos.add(">", $1.sval, $3.sval));}
+                      | relational_expression '<' additive_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica."); $$ = new ParserVal(tercetos.add("<", $1.sval, $3.sval, tercetos.typeTerceto($1.sval, $3.sval)));}
+                      | relational_expression '>' additive_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica."); $$ = new ParserVal(tercetos.add(">", $1.sval, $3.sval, tercetos.typeTerceto($1.sval, $3.sval)));}
                       | relational_expression GREATER_THAN_OR_EQUAL_OPERATOR additive_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica.");}
                       | relational_expression LESS_THAN_OR_EQUAL_OPERATOR additive_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica.");}
 ;
@@ -244,13 +244,13 @@ arithmetic_operation : additive_expression {$$ = new ParserVal($1.sval);}
 ;
 
 additive_expression : multiplicative_expression {$$ = new ParserVal($1.sval); Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion aritmetica.");}
-                    | additive_expression '+' multiplicative_expression {$$ = new ParserVal(tercetos.add("+", $1.sval, $3.sval));}
-                    | additive_expression '-' multiplicative_expression {$$ = new ParserVal(tercetos.add("-", $1.sval, $3.sval));}
+                    | additive_expression '+' multiplicative_expression {$$ = new ParserVal(tercetos.add("+", $1.sval, $3.sval, tercetos.typeTerceto($1.sval, $3.sval)));}
+                    | additive_expression '-' multiplicative_expression {$$ = new ParserVal(tercetos.add("-", $1.sval, $3.sval, tercetos.typeTerceto($1.sval, $3.sval)));}
 ; 
 
 multiplicative_expression : unary_expression {$$ = new ParserVal($1.sval);} 
-                          | multiplicative_expression '*' unary_expression {$$ = new ParserVal(tercetos.add("*", $1.sval, $3.sval));}
-                          | multiplicative_expression '/' unary_expression {$$ = new ParserVal(tercetos.add("/", $1.sval, $3.sval));}
+                          | multiplicative_expression '*' unary_expression {$$ = new ParserVal(tercetos.add("*", $1.sval, $3.sval, tercetos.typeTerceto($1.sval, $3.sval)));}
+                          | multiplicative_expression '/' unary_expression {$$ = new ParserVal(tercetos.add("/", $1.sval, $3.sval, tercetos.typeTerceto($1.sval, $3.sval)));}
                           | multiplicative_expression '%' unary_expression {Logger.logError(aLexico.getProgramPosition(), "El operator % no es valido.");}
 ;
 
@@ -263,7 +263,9 @@ unary_expression : factor {$$ = new ParserVal($1.sval);}
                  | '(' ')' {Logger.logError(aLexico.getProgramPosition(), "Termino vacio.");}
 ;
 
-conversion_expression : TOD '(' arithmetic_operation ')' {$$ = new ParserVal(tercetos.add("TOD", $3.sval, "-")); Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una conversion explicita.");}
+conversion_expression : TOD '(' arithmetic_operation ')' {
+                          $$ = new ParserVal(tercetos.add("TOD", $3.sval, "-")); tercetos.TODtracking($$.sval);
+                          Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una conversion explicita.");}
                       | TOD '(' error ')' {Logger.logError(aLexico.getProgramPosition(), "No se puede convertir la expresion declarada.");}
                       | TOD '{' error '}' {Logger.logError(aLexico.getProgramPosition(), "El metodo TOD debe estar delimitado por parentesis \"(...)\".");}
                       | TOD '{' '}' {Logger.logError(aLexico.getProgramPosition(), "El metodo TOD debe estar delimitado por parentesis \"(...)\".");}

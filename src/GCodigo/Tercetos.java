@@ -5,6 +5,8 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Stack;
 
+import Tools.TablaSimbolos;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,6 +14,10 @@ public class Tercetos implements PropertyChangeListener {
     private HashMap<String, ArrayList<Terceto>> rules;
     private Stack<String> stack; // Apilar los saltos
     private String scope;
+
+    // Constantes
+    private static final String ERROR = "error";
+    private static final String TYPE_TOD = "DOUBLE";
 
     private class Terceto {
         private String first, second, third, type;
@@ -23,10 +29,7 @@ public class Tercetos implements PropertyChangeListener {
             first = values[0];
             second = values[1];
             third = values[2];
-            if (values.length > 3)
-                type = values[3];
-            else
-                type = null;
+            type = values[3];
             flagBrackets = false;
         }
 
@@ -46,6 +49,14 @@ public class Tercetos implements PropertyChangeListener {
             third = s;
         }
 
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public String getType() {
+            return type;
+        }
+
         public String toString() {
             if (type == null)
                 return "(" + first + ", " + second + ", " + third + ")";
@@ -62,7 +73,7 @@ public class Tercetos implements PropertyChangeListener {
             }
         }
 
-        public boolean hasReferefence(String s) {
+        public static boolean hasReferefence(String s) {
             return s.contains("[") && s.contains("]");
         }
 
@@ -122,6 +133,9 @@ public class Tercetos implements PropertyChangeListener {
         scope = s;
     }
 
+    // ###############################################################
+    // >>> Metodos para el manejo de los tercetos
+    // ###############################################################
     private void add(Terceto t) {
         if (rules.containsKey(scope)) {
             rules.get(scope).add(t);
@@ -153,10 +167,18 @@ public class Tercetos implements PropertyChangeListener {
     }
 
     public String add(String st, String nd, String rd) {
-        Terceto t = new Terceto(st, nd, rd);
+        return add(st, nd, rd, null);
+    }
+
+    public String add(String st, String nd, String rd, String type) {
+        Terceto t = new Terceto(st, nd, rd, type);
         add(t);
         return "[" + (size() - 1) + "]";
     }
+
+    // ###############################################################
+    // >>> Metodos para resolver las sentencias de control
+    // ###############################################################
 
     public void stack() {
         stack.push(String.valueOf(size() - 1));
@@ -227,51 +249,82 @@ public class Tercetos implements PropertyChangeListener {
         get(i).setThird(r);
     }
 
-    private boolean isLeaf(Terceto t) {
-        return !t.hasReferefence(t.toString());
-    }
-
     public String getComparator(String f) {
         return (f.contains("-")) ? "<=" : ">=";
     }
 
-    public ArrayList<String> getFactors(String ref) {
-        if (rules.isEmpty())
-            return new ArrayList<>();
+    // ###############################################################
+    // >>> Metodos para indicar el tipo de un terceto
+    // ###############################################################
 
-        ArrayList<String> out = new ArrayList<>();
+    private void TODbacktracking(Terceto t) {
 
-        int pos = Terceto.getRefPos(ref);
-        boolean flagTOD = false;
-        Terceto t = get(pos);
         Stack<Integer> references = new Stack<>();
+        t.setType(TYPE_TOD);
 
         while (!isLeaf(t) || !references.empty()) {
             for (Integer r : t.getReferences()) {
                 references.push(r);
             }
-
-            if (t.hasConversion()) {
-                flagTOD = true;
-                out.add(Terceto.TOD);
-            }
-
-            out.addAll(t.getFactors());
-
-            if (flagTOD && isLeaf(t)) {
-                out.add(")");
-                flagTOD = false;
-            }
-
             t = get(references.pop());
+            t.setType(TYPE_TOD);
+        }
+    }
+
+    public void TODtracking(String r) {
+        Terceto tod = get(Terceto.getRefPos(r)); // Obtengo el terceto que tiene el TOD i.e [tod, [1], -]
+
+        ArrayList<Integer> references = tod.getReferences(); // Obtengo la referencia [1]
+
+        tod.setType(TYPE_TOD);
+
+        if (references.isEmpty()) // El terceto TOD no tiene referencias
+            return;
+
+        int ref = references.get(0);
+
+        Terceto t_r = get(ref);
+        String typeR = type(t_r); // Le pido el tipo al terceto [1]
+
+        if (typeR.equals(ERROR)) {
+            tod.setType(ERROR);
+        } else { // Si no tengo error, tengo que propagar que sean dobles
+            TODbacktracking(t_r);
         }
 
-        out.addAll(t.getFactors());
+    }
 
-        if (flagTOD)
-            out.add(")");
+    private String type(Terceto t) {
+        if (t != null)
+            return t.getType();
+        return "";
+    }
 
-        return out;
+    private String type(String lexema) {
+        if (Terceto.hasReferefence(lexema)) {
+            return type(get(Terceto.getRefPos(lexema)));
+        }
+
+        return TablaSimbolos.getTypeLexema(lexema);
+    }
+
+    public String typeTerceto(String l, String r) {
+
+        String typeL = type(l);
+        String typeR = type(r);
+
+        if (typeL == null) {
+            return ERROR;
+        }
+
+        if (typeL.equals(typeR))
+            return typeL;
+
+        return ERROR;
+    }
+
+    private boolean isLeaf(Terceto t) {
+        return !t.hasReferefence(t.toString());
     }
 
     public boolean hasNestingExpressions(String r) {

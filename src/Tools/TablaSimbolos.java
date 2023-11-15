@@ -8,19 +8,21 @@ public class TablaSimbolos {
 
     public static final HashMap<String, HashMap<String, String>> tablaSimbolos = new HashMap<>();
     public static final String valorLexema = "lexema";
+
     private static final HashMap<String, String> toErase = createAttribute("uso", "identificador");
+    private static final String TIPO = "tipo";
     // private static int identifierNumber = 0;
 
     private static void addTipo(String tipo, String key) {
         try {
-            tablaSimbolos.get(key).put("tipo", tipo);
+            tablaSimbolos.get(key).put(TIPO, tipo);
         } catch (Exception e) {
             System.out.println("NO SE ENCONTRO LA KEY EN EL MAPA");
         }
     };
 
     public static void addTipoVariable(String tipo, String variable, String scope) {
-        System.out.println(variable + "  ES DE TIPO: " + tipo + " SCOPE: " + scope);
+        // System.out.println(variable + " ES DE TIPO: " + tipo + " SCOPE: " + scope);
         String[] identificadores = variable.split(";");
 
         for (String identificador : identificadores) {
@@ -30,19 +32,19 @@ public class TablaSimbolos {
     };
 
     public static void addCadena(String cadena) {
-        tablaSimbolos.put(cadena, createAttribute("tipo", TablaTipos.STRING));
+        tablaSimbolos.put(cadena, createAttribute(TIPO, TablaTipos.STRING));
     }
 
     public static void addClase(String key) {
         System.out.println("ADDCLASE: " + key);
-        tablaSimbolos.put(key, createAttribute("tipo", "CLASS"));
+        tablaSimbolos.put(key, createAttribute(TIPO, "CLASS"));
     };
 
     public static void addClasePerteneciente(String key, String value_atributo) {
         String aux = "";
         try {
-            if (tablaSimbolos.get(value_atributo) != null && tablaSimbolos.get(value_atributo).get("tipo") != null) {
-                aux = tablaSimbolos.get(value_atributo).get("tipo"); // si nombre_clase tiene el tipo CLASS
+            if (tablaSimbolos.get(value_atributo) != null && tablaSimbolos.get(value_atributo).get(TIPO) != null) {
+                aux = tablaSimbolos.get(value_atributo).get(TIPO); // si nombre_clase tiene el tipo CLASS
             }
             if (aux.equals("CLASS")) {
                 tablaSimbolos.get(key).put("clase", value_atributo);
@@ -51,7 +53,7 @@ public class TablaSimbolos {
                 String[] aux2 = key.split("@");
                 String abuelo = aux2[aux2.length - 2];
                 System.out.println("MI ABUELO ES: " + abuelo);
-                aux = tablaSimbolos.get(abuelo).get("tipo");
+                aux = tablaSimbolos.get(abuelo).get(TIPO);
                 if (aux.equals("CLASS")) {
                     tablaSimbolos.get(key).put("clase", abuelo);
                 }
@@ -68,7 +70,7 @@ public class TablaSimbolos {
     }
 
     public static void addFunction(String cadena) {
-        tablaSimbolos.put(cadena, createAttribute("tipo", TablaTipos.FUNCTION));
+        tablaSimbolos.put(cadena, createAttribute(TIPO, TablaTipos.FUNCTION));
     }
 
     public static void addIdentificador(String new_symbol) {
@@ -76,15 +78,15 @@ public class TablaSimbolos {
     }
 
     public static void addUInteger(Object uint) {
-        tablaSimbolos.put(String.valueOf(uint), createAttribute("tipo", TablaTipos.UINT_TYPE));
+        tablaSimbolos.put(String.valueOf(uint), createAttribute(TIPO, TablaTipos.UINT_TYPE));
     }
 
     public static void addLong(Object _long) {
-        tablaSimbolos.put(String.valueOf(_long), createAttribute("tipo", TablaTipos.LONG_TYPE));
+        tablaSimbolos.put(String.valueOf(_long), createAttribute(TIPO, TablaTipos.LONG_TYPE));
     }
 
     public static void addDouble(Object _double) {
-        tablaSimbolos.put(String.valueOf(_double), createAttribute("tipo", TablaTipos.DOUBLE_TYPE));
+        tablaSimbolos.put(String.valueOf(_double), createAttribute(TIPO, TablaTipos.DOUBLE_TYPE));
     }
 
     public static boolean containsKey(Object key) {
@@ -165,7 +167,7 @@ public class TablaSimbolos {
         if (!tablaSimbolos.containsKey(k))
             return false;
 
-        if (tablaSimbolos.get(k).get("tipo").equals("class"))
+        if (tablaSimbolos.get(k).get(TIPO).equals("class"))
             return true;
 
         return false;
@@ -173,6 +175,13 @@ public class TablaSimbolos {
 
     public static void purge() {
         tablaSimbolos.entrySet().removeIf(entry -> entry.getValue().equals(toErase) && Scope.outMain(entry.getKey()));
+    }
+
+    public static String getTypeLexema(String l) {
+        if (containsKey(l)) {
+            return tablaSimbolos.get(l).get(TIPO);
+        }
+        return null;
     }
 
 }
