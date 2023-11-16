@@ -1,0 +1,41 @@
+{
+    INTERFACE interfaz1 {
+        VOID metodoI(),
+        VOID metodoI2(),
+    }
+
+    CLASS clase3 IMPLEMENT interfaz1 {
+        LONG y,
+        UINT x,
+        UINT z,
+        VOID my_method(){
+            PRINT % este es mi metodo %,
+            RETURN,
+        }
+        VOID my_method2(),
+        VOID metodoI(){
+            RETURN,
+        }
+
+        VOID metodoI2(){
+            RETURN,
+        }
+    }
+    VOID funcion(){
+        VOID funcion2(){
+            clase3 m,
+            RETURN,
+        }
+        clase3 m,
+        RETURN,
+    }
+
+    IMPL FOR clase3: {
+        VOID my_method2(){
+            RETURN,
+        }
+    }
+
+
+
+}

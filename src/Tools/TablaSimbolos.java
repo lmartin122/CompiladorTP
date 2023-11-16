@@ -48,11 +48,9 @@ public class TablaSimbolos {
             }
             if (aux.equals("CLASS")) {
                 tablaSimbolos.get(key).put("clase", value_atributo);
-                System.out.println("Mi ultimo scope es una CLASEE");
             } else {
                 String[] aux2 = key.split("@");
                 String abuelo = aux2[aux2.length - 2];
-                System.out.println("MI ABUELO ES: " + abuelo);
                 aux = tablaSimbolos.get(abuelo).get(TIPO);
                 if (aux.equals("CLASS")) {
                     tablaSimbolos.get(key).put("clase", abuelo);
@@ -60,7 +58,7 @@ public class TablaSimbolos {
             }
 
         } catch (Exception e) {
-            System.out.println("NO ES UN METODO DE UNA CLASE, NO SE ENCONTRO EN LA TABLA DE SIMBOLOS");
+            //System.out.println("NO ES UN METODO DE UNA CLASE, NO SE ENCONTRO EN LA TABLA DE SIMBOLOS");
         }
 
     }
