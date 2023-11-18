@@ -16,6 +16,7 @@ import Tools.Logger;
 import Tools.Tupla;
 import Tools.TablaSimbolos;
 import Tools.TablaTipos;
+import Tools.TablaClases;
 %}
 
 
@@ -56,11 +57,19 @@ type_declaration : class_declaration {scope.reset(); scope.changeScope($1.sval);
                  | block_statement {/*scope.reset();*/}
 ;
 
-class_declaration : CLASS class_name class_body {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una CLASS.");  $$ = new ParserVal($2.sval); System.out.println("CLASS: " + $2.sval);}
-                  | CLASS class_name interfaces class_body {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una CLASS que implementa una interface.");}
+class_declaration : CLASS class_name class_body {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una CLASS.");  $$ = new ParserVal($2.sval);}
+                  | CLASS class_name interfaces class_body {
+
+                        $$ = new ParserVal($2.sval);
+                        if(TablaClases.implementaMetodosInterfaz($2.sval,$3.sval)){
+                            Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una CLASS que implementa una interface e implementa todos sus metodos.");
+                        } else {
+                            Logger.logError(aLexico.getProgramPosition(), "Se reconocio una CLASS que implementa una interface y NO implementa todos sus metodos.");
+                        }
+                    }
 ;
 
-class_name : ID {scope.stack($1.sval); TablaSimbolos.addClase($1.sval);}
+class_name : ID {scope.stack($1.sval); TablaSimbolos.addClase($1.sval); TablaClases.addClase($1.sval);}
 ;
 
 class_body : '{' class_body_declarations '}' 
@@ -79,12 +88,17 @@ class_member_declaration : field_declaration
                          | inheritance_declaration
 ;
 
-field_declaration : type variable_declarators ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una declaracion de atributo/s.");}
-                  | type variable_declarators {Logger.logError(aLexico.getProgramPosition(), "La sentencia debe terminar con ','.");}
+field_declaration : type variable_declarators ',' {$$ = new ParserVal($1.sval + ";" + $3.sval );
+                                                   Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una declaracion de atributo/s.");
+                                                   TablaSimbolos.addTipoVariable($1.sval, $2.sval,scope.getCurrentScope());
+                                                   TablaClases.addAtributo($1.sval,$2.sval,scope.getLastScope());
+
+                                                   }
+                  | type variable_declarators {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una declaracion de atributo/s.");}
 ;
 
 variable_declarators : variable_declarator
-                     | variable_declarators ';' variable_declarator
+                     | variable_declarators ';' variable_declarator { $$ = new ParserVal($1.sval + ";" + $3.sval );}
 ;
 
 variable_declarator : variable_declarator_id
@@ -106,13 +120,13 @@ method_declaration : method_header method_body ',' {scope.deleteLastScope();}
                    | method_header method_body 
 ;
 
-method_header : result_type method_declarator
+method_header : result_type method_declarator {$$ = new ParserVal($2.sval);}
 ;
 
 result_type : VOID 
 ;
 
-method_declarator : method_name '(' formal_parameter ')'{Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo.");}
+method_declarator : method_name '(' formal_parameter ')'{Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo."); $$ = new ParserVal($1.sval);}
                   | method_name '{' formal_parameter '}'{Logger.logError(aLexico.getProgramPosition(), "La declaracion de un metodo debe estar delimitado por parentesis \"(...)\".");}
                   | method_name '(' formal_parameter error ')' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite la declaracion de un unico parametro formal.");}
                   | method_name '(' ')' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo.");}
@@ -120,17 +134,17 @@ method_declarator : method_name '(' formal_parameter ')'{Logger.logRule(aLexico.
 ;
 
 method_name : ID {
-                if (scope.hasPassedNesting()) 
+                if (scope.hasPassedNesting())
                   Logger.logError(aLexico.getProgramPosition(), "Solo se permite 2 niveles de anidamiento en las funciones/metodos.");
                 else {
-                  $$ = new ParserVal(scope.changeScope($1.sval)); 
-                  TablaSimbolos.addFunction($$.sval); 
-                  TablaSimbolos.addClasePerteneciente($$.sval,scope.getLastScope()); 
+                  $$ = new ParserVal(scope.changeScope($1.sval));
+                  TablaSimbolos.addFunction($$.sval);
+                  TablaClases.addMetodo($1.sval,scope.getLastScope());
+                  TablaSimbolos.addClasePerteneciente($$.sval,scope.getLastScope());
                   scope.stack($1.sval);
                 }
 
               }
-;
 
 // Permito la creacion de multiples block en un metodo, se debe chequear que luego permita
 // un nivel de anidamiento
@@ -149,15 +163,15 @@ inheritance_declaration : reference_type ',' {Logger.logRule(aLexico.getProgramP
                         | reference_type ',' error ';' {Logger.logError(aLexico.getProgramPosition(), "No se permite herencia multiple.");}
 ;
 
-interfaces : IMPLEMENT interface_type_list
+interfaces : IMPLEMENT interface_type_list {$$ = new ParserVal($2.sval);}
 ;
 
-interface_type_list : type_name 
+interface_type_list : type_name {$$ = new ParserVal($1.sval);}
                     | interface_type_list ';' type_name
                     | interface_type_list ',' type_name {Logger.logError(aLexico.getProgramPosition(), "Las interfaces deben estar separadas por ';'.");}
 ;
 
-interface_declaration : INTERFACE ID interface_body {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una INTERFACE.");}
+interface_declaration : INTERFACE ID interface_body {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una INTERFACE.");TablaClases.addInterface($2.sval);}
 ;
 
 interface_body : '{' interface_member_declaration '}'
@@ -177,15 +191,22 @@ interface_method_declaration : constant_declaration
 constant_declaration : type variable_declarators
 ;
 
-abstract_method_declaration : result_type method_declarator ','
+abstract_method_declaration : result_type method_declarator ',' {TablaClases.addInterfaz($2.sval.split("@")[0],"interfaz1");}
                             | result_type method_declarator {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' en el final de la sentencia.");}
                             | result_type method_declarator ';' {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' no \';\'en el final de la sentencia.");}
 ;
 
-implement_for_declaration : IMPL FOR reference_type ':' implement_for_body {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un IMPL FOR.");}
-                          | IMPL FOR reference_type ':' error ',' {Logger.logError(aLexico.getProgramPosition(), "Es necesario implementar el cuerpo del metodo.");}
+implement_for_declaration : IMPL FOR reference_class ':' implement_for_body {
+                                System.out.println("IMPL FOR de la clase: " + $3.sval);
+                                if(!TablaClases.t.contains(TablaClases.actualImplFor)){ //si el IMPL FOR no es de una clase existente
+                                    Logger.logError(aLexico.getProgramPosition(), "IMPL FOR de clase inexistente");
+                                } else {
+                                    Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un IMPL FOR.");
+                                }
+                            }
+                          | IMPL FOR reference_class ':' error ',' {Logger.logError(aLexico.getProgramPosition(), "Es necesario implementar el cuerpo del metodo.");}
                           | IMPL FOR error ':' implement_for_body ',' {Logger.logError(aLexico.getProgramPosition(), "Se debe referenciar a una clase.");}
-                          | IMPL FOR reference_type error ':' implement_for_body {Logger.logError(aLexico.getProgramPosition(), "Declaracion de IMPL FOR no valida, no es correcta la signatura.");}
+                          | IMPL FOR reference_class error ':' implement_for_body {Logger.logError(aLexico.getProgramPosition(), "Declaracion de IMPL FOR no valida, no es correcta la signatura.");}
 ;
 
 implement_for_body : '{' implement_for_body_declarations '}'
@@ -199,7 +220,14 @@ implement_for_body_declarations : implement_for_body_declaration
 implement_for_body_declaration : implement_for_method_declaration
 ;
 
-implement_for_method_declaration : method_header implement_for_method_body 
+implement_for_method_declaration : method_header implement_for_method_body {
+                                    System.out.println("metodo impl for: " + $1.sval + " de la clase: " + TablaClases.actualImplFor );
+                                    if(TablaClases.t.contains(TablaClases.actualImplFor)){ //si el IMPL FOR es de una clase existente
+                                        System.out.println("METODO DE CLASE EXISTENTE: " + TablaClases.actualImplFor);
+                                        TablaClases.cambiarMetodoADeclaradoImplFor($1.sval.split("@")[0],TablaClases.actualImplFor);
+                                    }
+
+                                  }
 ;
 
 implement_for_method_body : block 
@@ -223,11 +251,18 @@ assignment : left_hand_side '=' arithmetic_operation {Logger.logRule(aLexico.get
 left_hand_side : primary
 ;
 
-field_acces : primary '.' reference_type
-;
+field_acces : primary '.' ID {
+                                $$ = new ParserVal($1.sval + "." + $3.sval);
+                                /*
+                                esto es viejo
+                                if(chequeoMetodoClase($1.sval + scope.getCurrentScope() + "-" + $3.sval) == false){ //Si no es un metodo
 
+                                }
+                                */
+                             }
+;
 primary : reference_type
-        | field_acces
+        | field_acces {$$ = new ParserVal($1.sval);}
 ;
 
 equality_expression : relational_expression {$$ = new ParserVal($1.sval);}
@@ -313,6 +348,8 @@ type : primitive_type
 primitive_type : numeric_type
 ;
 
+reference_class : ID {$$ = new ParserVal($1.sval); TablaClases.actualImplFor = $1.sval;}
+
 reference_type : ID {
                     String reference = scope.searchVar($1.sval);
                     if(reference == null)
@@ -385,7 +422,7 @@ executable_statement : if_then_declaration
 local_variable_declaration_statement : local_variable_declaration ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una declaracion de variable local.");}
 ;
 
-local_variable_declaration : type variable_declarators {TablaSimbolos.addTipoVariable($1.sval, $2.sval, scope.getCurrentScope());}
+local_variable_declaration : type variable_declarators {TablaSimbolos.addTipoVariable($1.sval, $2.sval,scope.getCurrentScope()); addAtributosInstanciaClase($1.sval, $2.sval + scope.getCurrentScope());}
 ;
 
 
@@ -543,16 +580,64 @@ void yyerror(String msg) {
 // metodos auxiliares a la gramatica
 // ###############################################################
 
-private void setMetodoDeclarado(String lexema, String declarado){
+
+  private String acomodarString(String atributo, String instancia){
+    String[] ambitos = instancia.split("@");
+
+    String instancia_aux = ambitos[0] + "." + atributo;
+    for(int i = 1; i < ambitos.length; i++){
+        String s = ambitos[i];
+        instancia_aux = instancia_aux + "@" + s;
+    };
+    return instancia_aux;
+  };
+
+  private void addAtributosInstanciaClase(String tipo, String instancia){
+    //todavia no está implementado para que haya multiples declaraciones al estilo clase3 m;v;c;x,
+    String clase = tipo.split("@")[0];
+    if(TablaClases.t.contains(clase)){ //si el tipo es una clase, entonces creo todos sus atributos
+      String[] instancias = instancia.split(";");
+      for (String i: instancias){
+        for(String s: TablaClases.a){
+          if(s.contains(clase)){
+            String atributo = s.split("@")[0];
+            String instancia_aux = acomodarString(atributo,instancia);
+            TablaSimbolos.addIdentificador(instancia_aux);
+            TablaSimbolos.addAtributo(instancia_aux,"tipo", TablaClases.tipoDeAtributo(atributo,clase));
+          };
+        }
+      };
+    }
+
+
+  }
+
+  private void setMetodoDeclarado(String lexema, String declarado){
     //Acá yo voy a recibir @ambitos@funcion y la debo buscar en la tabla de simbolos como
     //funcion@ambitos
     String[] ambitos = lexema.split("@");
-    String resultado = ambitos[ambitos.length-1];
-    for(int i = 1; i <= ambitos.length-2; i++){
-        resultado += "@" + ambitos[i];
-    };
-    TablaSimbolos.addAtributo(resultado,"declarado",declarado);
-};
+    String metodo = ambitos[ambitos.length-1];
+    String clase = ambitos[ambitos.length-2];
+    TablaClases.setMetodoDeclarado(metodo + "@" + clase, declarado);
+  };
+
+    private boolean chequeoMetodoClase(String value){
+
+        String instancia = value.split("-")[0];
+        String metodo = value.split("-")[1];
+        String claseInstancia = TablaSimbolos.tablaSimbolos.get(instancia).get("tipo");
+        metodo = metodo + "@main@" + claseInstancia;
+
+        if(TablaSimbolos.tablaSimbolos.get(metodo) != null){
+            System.out.println("EL METODO Y LA INSTANCIA PERTENECEN A LA MISMA CLASE");
+            return true;
+        } else {
+            System.out.println("METODO E INSTANCIA NO PERTENECEN A LA MISMA CLASE O ES UN ATRIBUTO");
+            return false;
+        }
+    }
+
+
 
 
 

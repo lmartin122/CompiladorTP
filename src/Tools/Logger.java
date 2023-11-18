@@ -81,6 +81,15 @@ public final class Logger {
 
         out += TablaSimbolos.printTable();
 
+        out += "CLASES: ";
+        out += TablaClases.t.toString() + "\n";
+        out += "METODOS: ";
+        out += TablaClases.m.toString() + "\n";
+        out += "ATRIBUTOS: ";
+        out += TablaClases.a.toString() + "\n";
+        out += "INTERFACES: ";
+        out += TablaClases.i.toString();
+
         return out;
     }
 
