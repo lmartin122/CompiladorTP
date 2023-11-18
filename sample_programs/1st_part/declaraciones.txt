@@ -1,11 +1,26 @@
 {
-UINT bglhotkgfegqwssfaiu = 65535_ui, 
-DOUBLE f = 10.34D+5,
-DOUBLE f2 = .34D+7,
-DOUBLE f3 = 1.,
-DOUBLE f4 = 6.D+2,
-DOUBLE f5 = -1.2d-5
-DOUBLE f6 = .3D-2
-LONG abcdefghijklmnopqfpgotlrksosqsa = -2147483648_l, 
-UINT _identificador1,
+UINT bglhotkgfegqwssfaiu, 
+bglhotkgfegqwssfaiu = 65535_ui, 
+
+DOUBLE f,
+f = 10.34D+5,
+
+DOUBLE f2,
+f2 = .34D+7,
+DOUBLE f3,
+f3 = 1.0D+0,
+DOUBLE f4,
+f4 = 6.D+2,
+DOUBLE f5, 
+f5 = -1.2d-5,
+DOUBLE f6,
+f6 = .3D-2.
+LONG abcdefghijklmnopqfpgotlrksosqsa,
+abcdefghijklmnopqfpgotlrksosqsa = -2147483648_l,
+UINT a,
+a = 0_ui,
+LONG b,
+b = 0_l,
+DOUBLE c,
+c = 0.0D+0,
 }

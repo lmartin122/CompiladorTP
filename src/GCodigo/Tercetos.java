@@ -21,9 +21,10 @@ public class Tercetos implements PropertyChangeListener {
 
     private class Terceto {
         private String first, second, third, type;
-        public static final String TOD = "TOD";
-        public static final String UNDEFINED = "-";
         private boolean flagBrackets;
+        private int i;
+
+        public static final String UNDEFINED = "-";
 
         public Terceto(String... values) {
             first = values[0];
@@ -41,12 +42,24 @@ public class Tercetos implements PropertyChangeListener {
             first = s;
         }
 
+        public String getFirst() {
+            return first;
+        }
+
         public void setSecond(String s) {
             second = s;
         }
 
+        public String getSecond() {
+            return second;
+        }
+
         public void setThird(String s) {
             third = s;
+        }
+
+        public String getThird() {
+            return third;
         }
 
         public void setType(String type) {
@@ -57,10 +70,19 @@ public class Tercetos implements PropertyChangeListener {
             return type;
         }
 
+        public String getPos() {
+            return "[" + i + "]";
+        }
+
+        public void setPos(int p) {
+            i = p;
+        }
+
         public String toString() {
-            if (type == null)
-                return "(" + first + ", " + second + ", " + third + ")";
-            return "(" + first + ", " + second + ", " + third + ") " + type;
+            String out = "(" + first + ", " + second + ", " + third + ")";
+            if (type != null)
+                out += " " + type;
+            return out;
         }
 
         public static int getRefPos(String ref) {
@@ -79,10 +101,6 @@ public class Tercetos implements PropertyChangeListener {
 
         public boolean isUndefined(String s) {
             return s.equals(UNDEFINED);
-        }
-
-        public boolean hasConversion() {
-            return first.equals(TOD);
         }
 
         public ArrayList<String> getFactors() {
@@ -173,11 +191,12 @@ public class Tercetos implements PropertyChangeListener {
     public String add(String st, String nd, String rd, String type) {
         Terceto t = new Terceto(st, nd, rd, type);
         add(t);
-        return "[" + (size() - 1) + "]";
+        t.setPos(size() - 1);
+        return t.getPos();
     }
 
     // ###############################################################
-    // >>> Metodos para resolver las sentencias de control
+    // >>> Metodos para resolver las sentencias ejecutables
     // ###############################################################
 
     public void stack() {
@@ -189,14 +208,12 @@ public class Tercetos implements PropertyChangeListener {
     }
 
     public void addCondBranch(String ref) {
-        Terceto t = new Terceto("CB", ref, "[-]");
-        add(t);
+        add("CB", ref, "[-]");
         stack();
     }
 
     public void addUncondBranch() {
-        Terceto t = new Terceto("UB", "[-]", "[-]");
-        add(t);
+        add("UB", "[-]", "[-]");
         stack();
     }
 
@@ -204,16 +221,12 @@ public class Tercetos implements PropertyChangeListener {
         if (stack) {
             addUncondBranch();
         } else {
-            Terceto t = new Terceto("UB", "[-]", "[-]");
-            add(t);
+            add("UB", "[-]", "[-]");
         }
     }
 
     public String addLabel() {
-        int i = size();
-        Terceto t = new Terceto("Label" + i, "[-]", "[-]");
-        add(t);
-        return "[" + i + "]";
+        return add("Label" + size(), "[-]", "[-]");
     }
 
     public void backPatching(int d) {
@@ -251,6 +264,12 @@ public class Tercetos implements PropertyChangeListener {
 
     public String getComparator(String f) {
         return (f.contains("-")) ? "<=" : ">=";
+    }
+
+    public String linkRealParameter(String func, String pr) {
+
+
+        return null;
     }
 
     // ###############################################################
@@ -324,7 +343,7 @@ public class Tercetos implements PropertyChangeListener {
     }
 
     private boolean isLeaf(Terceto t) {
-        return !t.hasReferefence(t.toString());
+        return !t.hasReferefence(t.getSecond() + t.getThird());
     }
 
     public boolean hasNestingExpressions(String r) {
@@ -341,6 +360,7 @@ public class Tercetos implements PropertyChangeListener {
             for (Integer ref : t.getReferences()) {
                 references.push(ref);
             }
+
             t = get(references.pop());
 
             if (t.isFlagBrackets()) {
@@ -392,7 +412,7 @@ public class Tercetos implements PropertyChangeListener {
                 int leftPadding = (totalLength - titleLength) / 2;
                 int rightPadding = totalLength - titleLength - leftPadding;
 
-                String border = "+" + "-".repeat(maxLengthFC + maxLengthSC + 4) + "+";
+                String border = "+" + "-".repeat(totalLength) + "+";
 
                 System.out.println(border);
                 System.out.println("|" + " ".repeat(leftPadding) + title + " ".repeat(rightPadding) + "|");

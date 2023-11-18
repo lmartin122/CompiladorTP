@@ -5,4 +5,5 @@
     costo = 1_ui + 3_ui * 3_ui,
     costo = (1_ui + 3_ui) * 3_ui,
     costo = (1_ui + 3_ui + (3_ui)),
+    precio = 10.34D+5 + TOD (10.D+5 * 3.D+5 + TOD (10_ui)),
 }

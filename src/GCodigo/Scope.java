@@ -6,12 +6,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import Tools.TablaSimbolos;
+import Tools.TablaTipos;
 
 public class Scope {
     private StringBuilder ambito;
     private PropertyChangeSupport support; // El observer va a hacer el terceto, para saber cuando cambia de ambito
     private final char SEPARATOR = '@';
     private final int LIMITED_NESTING = 3;
+
+    private interface Lambda {
+        boolean invoke(String s);
+
+    }
 
     public Scope() {
         ambito = new StringBuilder("@main");
@@ -26,20 +32,32 @@ public class Scope {
         return !s.contains("@main");
     }
 
-    public String searchReference(String r) {
+    private String search(String r, Lambda f) {
         StringBuilder amb = new StringBuilder(ambito);
         String toSearch = r + getCurrentScope();
+        System.out.println(toSearch);
 
-        while (!inMain() && !TablaSimbolos.containsKey(toSearch)) {
+        // Si es una clase podriamos usar lo que esta haciendo martin para buscarlo
+        while (!inMain() && f.invoke(toSearch)) {
             deleteLastScope(amb);
             toSearch = r + amb.toString();
         }
 
-        if (TablaSimbolos.containsKey(toSearch))
+        if (!f.invoke(toSearch))
             return toSearch;
 
         return null;
 
+    }
+
+    public String searchVar(String r) {
+        return search(r,
+                (e) -> !(TablaSimbolos.containsKey(e)));
+    }
+
+    public String searchFunc(String r) {
+        return search(r,
+                (e) -> !(TablaSimbolos.containsKey(e) && !TablaSimbolos.getTypeLexema(e).equals(TablaTipos.FUNCTION)));
     }
 
     private ArrayList<String> getAmbitos() {

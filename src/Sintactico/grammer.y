@@ -37,7 +37,7 @@ VOID LONG UINT DOUBLE CADENA ID CTE_DOUBLE CTE_UINT CTE_LONG
 >>>     PROGRAM
 
 */
-program : '{' type_declarations '}' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio el programa.");}
+program : '{' type_declarations '}'
         | error {Logger.logError(aLexico.getProgramPosition(), "No se reconocio el programa.");} 
 ;
 
@@ -67,7 +67,7 @@ class_body : '{' class_body_declarations '}'
            | '(' class_body_declarations ')' {Logger.logError(aLexico.getProgramPosition(), "La declaracion de una clase debe estar delimitado por llaves \"{...}\".");}
 ;
 
-class_body_declarations : class_body_declaration 
+class_body_declarations : class_body_declaration
                         | class_body_declarations class_body_declaration
 ;
 
@@ -88,12 +88,12 @@ variable_declarators : variable_declarator
 ;
 
 variable_declarator : variable_declarator_id
-                    | variable_declarator_id '=' variable_initializer {Logger.logError(aLexico.getProgramPosition(), "No esta permitida la inicialización en las delcaraciones de variables.");}
-                    | variable_declarator_id error '=' variable_initializer {Logger.logError(aLexico.getProgramPosition(), "No esta permitida la inicialización en las delcaraciones de variables.");}
-                    | variable_declarator_id EQUAL_OPERATOR variable_initializer {Logger.logError(aLexico.getProgramPosition(), "No esta permitida la inicialización en las delcaraciones de variables.");}
-                    | variable_declarator_id NOT_EQUAL_OPERATOR variable_initializer {Logger.logError(aLexico.getProgramPosition(), "No esta permitida la inicialización en las delcaraciones de variables.");}
-                    | variable_declarator_id LESS_THAN_OR_EQUAL_OPERATOR variable_initializer {Logger.logError(aLexico.getProgramPosition(), "No esta permitida la inicialización en las delcaraciones de variables.");}
-                    | variable_declarator_id GREATER_THAN_OR_EQUAL_OPERATOR variable_initializer {Logger.logError(aLexico.getProgramPosition(), "No esta permitida la inicialización en las delcaraciones de variables.");}
+                    | variable_declarator_id '=' variable_initializer {Logger.logError(aLexico.getProgramPosition(), "No esta permitida la inicialización en la declaracion de variables.");}
+                    | variable_declarator_id error '=' variable_initializer {Logger.logError(aLexico.getProgramPosition(), "No esta permitida la inicialización en la declaracion de variables.");}
+                    | variable_declarator_id EQUAL_OPERATOR variable_initializer {Logger.logError(aLexico.getProgramPosition(), "No esta permitida la inicialización en la declaracion de variables.");}
+                    | variable_declarator_id NOT_EQUAL_OPERATOR variable_initializer {Logger.logError(aLexico.getProgramPosition(), "No esta permitida la inicialización en la declaracion de variables.");}
+                    | variable_declarator_id LESS_THAN_OR_EQUAL_OPERATOR variable_initializer {Logger.logError(aLexico.getProgramPosition(), "No esta permitida la inicialización en la declaracion de variables.");}
+                    | variable_declarator_id GREATER_THAN_OR_EQUAL_OPERATOR variable_initializer {Logger.logError(aLexico.getProgramPosition(), "No esta permitida la inicialización en la declaracion de variables.");}
 ;
 
 variable_declarator_id : ID {scope.changeScope($1.sval);}
@@ -102,7 +102,8 @@ variable_declarator_id : ID {scope.changeScope($1.sval);}
 variable_initializer : arithmetic_operation
 ;
 
-method_declaration : method_header method_body {scope.deleteLastScope();}
+method_declaration : method_header method_body ',' {scope.deleteLastScope();}
+                   | method_header method_body 
 ;
 
 method_header : result_type method_declarator
@@ -145,6 +146,7 @@ real_parameter : arithmetic_operation
 
 inheritance_declaration : reference_type ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una herencia compuesta.");}
                         | reference_type ';' error ',' {Logger.logError(aLexico.getProgramPosition(), "No se permite herencia multiple.");}
+                        | reference_type ',' error ';' {Logger.logError(aLexico.getProgramPosition(), "No se permite herencia multiple.");}
 ;
 
 interfaces : IMPLEMENT interface_type_list
@@ -211,7 +213,7 @@ implement_for_method_body : block
 */
 assignment : left_hand_side '=' arithmetic_operation {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una asignacion."); tercetos.add("=", $1.sval, $3.sval, tercetos.typeTerceto($1.sval, $3.sval));}
            | left_hand_side MINUS_ASSIGN arithmetic_operation {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una asignacion de resta."); tercetos.add("=", $1.sval, tercetos.add("-", $1.sval, $3.sval));}
-           | left_hand_side error '=' arithmetic_operation {Logger.logError(aLexico.getProgramPosition(), "Las asignaciones se deben hacer con el caracter '=' o '-='.");}
+           | left_hand_side error arithmetic_operation {Logger.logError(aLexico.getProgramPosition(), "Las asignaciones se deben hacer con el caracter '=' o '-='.");}
            | left_hand_side EQUAL_OPERATOR arithmetic_operation {Logger.logError(aLexico.getProgramPosition(), "Las asignaciones se deben hacer con el caracter '=' o '-='.");}
            | left_hand_side NOT_EQUAL_OPERATOR arithmetic_operation {Logger.logError(aLexico.getProgramPosition(), "Las asignaciones se deben hacer con el caracter '=' o '-='.");}
            | left_hand_side LESS_THAN_OR_EQUAL_OPERATOR arithmetic_operation {Logger.logError(aLexico.getProgramPosition(), "Las asignaciones se deben hacer con el caracter '=' o '-='.");}
@@ -221,7 +223,7 @@ assignment : left_hand_side '=' arithmetic_operation {Logger.logRule(aLexico.get
 left_hand_side : primary
 ;
 
-field_acces : primary '.' ID //Se deberia chequear que el metodo/atributo este declarado
+field_acces : primary '.' reference_type
 ;
 
 primary : reference_type
@@ -234,10 +236,10 @@ equality_expression : relational_expression {$$ = new ParserVal($1.sval);}
 ;
 
 relational_expression : additive_expression {$$ = new ParserVal($1.sval);}
-                      | relational_expression '<' additive_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica."); $$ = new ParserVal(tercetos.add("<", $1.sval, $3.sval, tercetos.typeTerceto($1.sval, $3.sval)));}
-                      | relational_expression '>' additive_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica."); $$ = new ParserVal(tercetos.add(">", $1.sval, $3.sval, tercetos.typeTerceto($1.sval, $3.sval)));}
-                      | relational_expression GREATER_THAN_OR_EQUAL_OPERATOR additive_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica.");}
-                      | relational_expression LESS_THAN_OR_EQUAL_OPERATOR additive_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica.");}
+                      | relational_expression '<' additive_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica."); $$ = new ParserVal(tercetos.add("<", $1.sval, $3.sval));}
+                      | relational_expression '>' additive_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica."); $$ = new ParserVal(tercetos.add(">", $1.sval, $3.sval));}
+                      | relational_expression GREATER_THAN_OR_EQUAL_OPERATOR additive_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica."); $$ = new ParserVal(tercetos.add(">=", $1.sval, $3.sval));}
+                      | relational_expression LESS_THAN_OR_EQUAL_OPERATOR additive_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica."); $$ = new ParserVal(tercetos.add("<=", $1.sval, $3.sval));}
 ;
 
 arithmetic_operation : additive_expression {$$ = new ParserVal($1.sval);}
@@ -255,7 +257,7 @@ multiplicative_expression : unary_expression {$$ = new ParserVal($1.sval);}
 ;
 
 unary_expression : factor {$$ = new ParserVal($1.sval);} 
-                 | reference_type {$$ = new ParserVal($1.sval); TablaSimbolos.increaseCounter($1.sval, "usado");}
+                 | reference_type {$$ = new ParserVal($1.sval); TablaSimbolos.increaseCounter($1.sval);}
                  | conversion_expression {$$ = new ParserVal($1.sval);} 
                  | '(' arithmetic_operation ')' {
                     if (tercetos.hasNestingExpressions($2.sval)) Logger.logError(aLexico.getProgramPosition(), "No se permite el anidamiento de expresiones.");
@@ -280,8 +282,19 @@ factor : CTE_DOUBLE {$$ = new ParserVal($1.sval); }
        | '-'CTE_UINT {Logger.logError(aLexico.getProgramPosition() ,"Los tipos UINT deben ser sin signo."); $$ = new ParserVal($2.sval);}
 ;
 
-method_invocation : ID '(' real_parameter ')' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo, con pj de parametro.");}
-                  | ID '(' ')' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo, sin pj de parametro.");}
+method_invocation : ID '(' real_parameter ')' {
+                    Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo, con pj de parametro.");
+                    String ref = tercetos.linkRealParameter($1.sval, $3.sval);
+                    if (ref != null ){
+                      $$ = new ParserVal(ref);
+                      tercetos.add("CALL", $1.sval, $$.sval);
+                    }
+                  }
+                  | ID '(' ')' {
+                    Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo, sin pj de parametro.");
+                  
+                    tercetos.add("CALL", $1.sval, "[-]");
+                  }
                   | ID '(' real_parameter error ')' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
                   | field_acces '(' real_parameter ')' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo desde una clase, con pj de parametro.");}
                   | field_acces '(' ')' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo desde una clase, sin pj de parametro.");}
@@ -301,7 +314,7 @@ primitive_type : numeric_type
 ;
 
 reference_type : ID {
-                    String reference = scope.searchReference($1.sval);
+                    String reference = scope.searchVar($1.sval);
                     if(reference == null)
                       Logger.logError(aLexico.getProgramPosition(), "La variable " + $1.sval + " no esta al alcance.");
                     else
@@ -321,7 +334,11 @@ floating_type : DOUBLE {$$ = new ParserVal("DOUBLE");}
 ;
 
 
-type_name : ID
+type_name : ID {
+                  String reference = scope.searchVar($1.sval);
+                  if(reference == null)
+                    Logger.logError(aLexico.getProgramPosition(), "La interface " + $1.sval + " no esta al alcance.");
+               }
 ;
 
 /*
@@ -340,6 +357,8 @@ block : '{' block_statements RETURN',' '}'
 
 executable_block : '{' executable_block_statements '}' 
                  | '{' '}'
+                 | '{' executable_block_statements RETURN ',' '}' 
+                 | '{' RETURN ',' '}'
 ;
 
 block_statements : block_statement 
@@ -411,7 +430,6 @@ if_then_body : executable_statement
              | local_variable_declaration_statement {Logger.logError(aLexico.getProgramPosition(), "No se permiten sentencias declarativas en una sentencia IF.");}
 ;
 
-
 if_then_else_declaration : IF if_then_cond if_then_else_body END_IF ',' 
                          {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia IF ELSE."); tercetos.backPatching(0); tercetos.addLabel();}
 ; 
@@ -419,15 +437,11 @@ if_then_else_declaration : IF if_then_cond if_then_else_body END_IF ','
 if_else_then_body : executable_statement {tercetos.backPatching(1); tercetos.addUncondBranch(); tercetos.addLabel();}
                   | executable_block {tercetos.backPatching(1); tercetos.addUncondBranch(); tercetos.addLabel();}
                   | local_variable_declaration_statement {Logger.logError(aLexico.getProgramPosition(), "No se permiten sentencias declarativas en una sentencia IF.");}
-                  | error END_IF {Logger.logError(aLexico.getProgramPosition(), "Cuerpo de la sentencia IF invalido.");}
-                  | error ',' {Logger.logError(aLexico.getProgramPosition(), "Cuerpo de la sentencia IF invalido.");}
 ;
 
 if_else_body : executable_statement
              | executable_block
              | local_variable_declaration_statement {Logger.logError(aLexico.getProgramPosition(), "No se permiten sentencias declarativas en una sentencia IF ELSE.");}
-             | error END_IF {Logger.logError(aLexico.getProgramPosition(), "Cuerpo de la sentencia IF ELSE invalido.");}
-             | error ',' {Logger.logError(aLexico.getProgramPosition(), "Cuerpo de la sentencia IF ELSE invalido.");}
 ;
 
 if_then_else_body : if_else_then_body ELSE if_else_body
@@ -494,7 +508,8 @@ method_body_without_prototype : block
 ;
 
 print_statement : PRINT CADENA ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia PRINT."); tercetos.add("PRINT", $2.sval, "-");}
-                | PRINT CADENA error {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' en el final de la sentencia.");}
+                | PRINT error ',' {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una cadena en la sentencia PRINT.");}
+                | PRINT CADENA ';' {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' en el final de la sentencia.");}
                 | PRINT '\0' {Logger.logError(aLexico.getProgramPosition(), "Se esperaba un % que cierre la cadena.");}
 ;
 %%
@@ -563,10 +578,11 @@ private void addTablaSimbolos(String lexema, String n_lexema, String tipo) {
       } else {
         TablaSimbolos.addLong(n_lexema);
       }
+    } else {
+      TablaSimbolos.increaseCounter(n_lexema);
     }
     
-    TablaSimbolos.increaseCounter(n_lexema, "contador");
-    TablaSimbolos.decreaseCounter(lexema, "contador");
+    TablaSimbolos.decreaseCounter(lexema);
 }
 
 private String chequearRangoLong(String lexema) {
@@ -635,7 +651,7 @@ private static ArrayList<String> listFilesInDirectory(String path) {
 
     return out;
   } else {
-    System.err.println("No es un directorio válido.");
+    System.err.println("f es un directorio válido.");
   }
 
   return null;

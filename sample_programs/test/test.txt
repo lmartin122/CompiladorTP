@@ -1,0 +1,12 @@
+{
+    UINT b,
+
+	VOID m (UINT a){
+
+        RETURN,
+    } 
+
+
+    m(b),
+    
+}

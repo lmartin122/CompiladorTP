@@ -33,10 +33,11 @@ public class ASRangoEntero implements AccionSemantica {
                 TablaSimbolos.addUInteger(numero);
             }
         } else {
-            TablaSimbolos.addUInteger(String.valueOf(Math.pow(2, 16) - 1));
+            aux = String.valueOf(Math.pow(2, 16) - 1);
+            TablaSimbolos.addUInteger(aux);
             // System.out.print(" UI entero fuera de rango, se convirtio al maximo
             // permitido");
-            Logger.logError(reader.getCurrentLine(), "Unsigned integer fuera de rango");
+            Logger.logWarning(reader.getCurrentLine(), "Unsigned integer fuera de rango");
             // Hacer algo con yylval ??
         }
         // yylval = numero ?? jijijija

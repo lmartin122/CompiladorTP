@@ -115,8 +115,8 @@ public class AnalizadorLexico {
     private String getLexema(Short token) {
         int out = (int) token;
         return switch (token) {
-            case 273 -> ">=";
-            case 272 -> "<=";
+            case 273 -> "<=";
+            case 272 -> ">=";
             case 270 -> "==";
             case 271 -> "!!";
             case 274 -> "-=";
