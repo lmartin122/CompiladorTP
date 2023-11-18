@@ -11,7 +11,8 @@ import Tools.TablaTipos;
 public class Scope {
     private StringBuilder ambito;
     private PropertyChangeSupport support; // El observer va a hacer el terceto, para saber cuando cambia de ambito
-    private final char SEPARATOR = '@';
+    private final String SEPARATOR = "@";
+    private static final String MAIN = "@main";
     private final int LIMITED_NESTING = 3;
 
     private interface Lambda {
@@ -20,23 +21,26 @@ public class Scope {
     }
 
     public Scope() {
-        ambito = new StringBuilder("@main");
+        ambito = new StringBuilder(MAIN);
         support = new PropertyChangeSupport(this);
     }
 
     private boolean inMain() {
-        return ambito.toString().equals("@main");
+        return ambito.toString().equals(MAIN);
     }
 
     public static boolean outMain(String s) {
-        return !s.contains("@main");
+        return !s.contains(MAIN);
+    }
+
+    public boolean isDeclaredInMyScope(String ref) {
+        ref = ref + getCurrentScope();
+        return TablaSimbolos.containsKey(ref);
     }
 
     private String search(String r, Lambda f) {
         StringBuilder amb = new StringBuilder(ambito);
         String toSearch = r + getCurrentScope();
-        System.out.println(toSearch);
-
         // Si es una clase podriamos usar lo que esta haciendo martin para buscarlo
         while (!inMain() && f.invoke(toSearch)) {
             deleteLastScope(amb);
@@ -51,17 +55,18 @@ public class Scope {
     }
 
     public String searchVar(String r) {
+
         return search(r,
-                (e) -> !(TablaSimbolos.containsKey(e)));
+                (e) -> !(TablaSimbolos.containsKey(e)) && TablaSimbolos.getUseLexema(e).equals(TablaTipos.ID));
     }
 
     public String searchFunc(String r) {
         return search(r,
-                (e) -> !(TablaSimbolos.containsKey(e) && !TablaSimbolos.getTypeLexema(e).equals(TablaTipos.FUNCTION)));
+                (e) -> !(TablaSimbolos.containsKey(e) && TablaSimbolos.getTypeLexema(e).equals(TablaTipos.FUNCTION)));
     }
 
     private ArrayList<String> getAmbitos() {
-        String[] parts = getCurrentScope().split("@");
+        String[] parts = getCurrentScope().split(SEPARATOR);
         ArrayList<String> result = new ArrayList<>(Arrays.asList(parts));
         result.removeIf(String::isEmpty);
 
@@ -80,12 +85,12 @@ public class Scope {
 
     public void reset(String ambito) {
         this.ambito.setLength(0);
-        this.ambito.append("@main@").append(ambito);
+        this.ambito.append(MAIN + SEPARATOR).append(ambito);
         firePropertyChange();
     }
 
     public void deleteLastScope(StringBuilder a) {
-        int lastIndex = a.lastIndexOf("@");
+        int lastIndex = a.lastIndexOf(SEPARATOR);
         if (lastIndex != -1) {
             a.delete(lastIndex, a.length());
         }
@@ -98,7 +103,7 @@ public class Scope {
 
     public void reset() {
         this.ambito.setLength(0);
-        this.ambito.append("@main");
+        this.ambito.append(MAIN);
         firePropertyChange();
     }
 
@@ -107,7 +112,7 @@ public class Scope {
     }
 
     public String getLastScope() {
-        String[] aux = this.getCurrentScope().split("@");
+        String[] aux = this.getCurrentScope().split(SEPARATOR);
         return aux[aux.length - 1];
     }
 

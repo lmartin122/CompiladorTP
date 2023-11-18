@@ -266,10 +266,43 @@ public class Tercetos implements PropertyChangeListener {
         return (f.contains("-")) ? "<=" : ">=";
     }
 
-    public String linkRealParameter(String func, String pr) {
+    public boolean linkInvocation(String func, String parameter_r) {
 
+        String parameter_f = TablaSimbolos.getParameter(func);
 
-        return null;
+        if (parameter_f.equals(TablaSimbolos.SIN_PARAMETRO))
+            return false;
+
+        String ref = add("=", parameter_f, parameter_r);
+        addInvocation(func, ref);
+
+        add("=", parameter_r, parameter_f);
+
+        return true;
+    }
+
+    public boolean linkInvocation(String func) {
+
+        String parameter_f = TablaSimbolos.getParameter(func);
+
+        if (!parameter_f.equals(TablaSimbolos.SIN_PARAMETRO))
+            return true;
+
+        addInvocation(func);
+
+        return true;
+    }
+
+    private String addInvocation(String ref, String p) {
+        return add("CALL", ref, p);
+    }
+
+    private String addInvocation(String ref) {
+        return add("CALL", ref, "[-]");
+    }
+
+    public String addReturn() {
+        return add("RETURN", "[-]", "[-]");
     }
 
     // ###############################################################

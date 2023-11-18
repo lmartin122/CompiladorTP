@@ -126,11 +126,26 @@ method_header : result_type method_declarator {$$ = new ParserVal($2.sval);}
 result_type : VOID 
 ;
 
-method_declarator : method_name '(' formal_parameter ')'{Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo."); $$ = new ParserVal($1.sval);}
-                  | method_name '{' formal_parameter '}'{Logger.logError(aLexico.getProgramPosition(), "La declaracion de un metodo debe estar delimitado por parentesis \"(...)\".");}
-                  | method_name '(' formal_parameter error ')' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite la declaracion de un unico parametro formal.");}
-                  | method_name '(' ')' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo.");}
-                  | method_name '{' '}' {Logger.logError(aLexico.getProgramPosition(), "La declaracion de un metodo debe estar delimitado por parentesis \"(...)\".");}
+method_declarator : method_name '(' formal_parameter ')'{
+                    if(!scope.isDeclaredInMyScope($1.sval)){
+                      Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo con p/j de parametro.");
+                      $$ = new ParserVal($1.sval);
+                      TablaSimbolos.addParameter($1.sval, $3.sval + scope.getCurrentScope());
+                    } else 
+                       Logger.logError(aLexico.getProgramPosition(), "El metodo ya esta declarado en el ambito" + scope.getCurrentScope() + " .");
+                    
+                  }
+                  | method_name '(' ')' {
+                    if(!scope.isDeclaredInMyScope($1.sval)){
+                      Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo sin p/j de parametro.");
+                      $$ = new ParserVal($1.sval);
+                      TablaSimbolos.addParameter($1.sval);
+                    } else 
+                       Logger.logError(aLexico.getProgramPosition(), "El metodo ya esta declarado en el ambito" + scope.getCurrentScope() + " .");
+                    
+                  }
+                  | method_name '(' formal_parameter error ')' { Logger.logError(aLexico.getProgramPosition(), "Solo se permite la declaracion de un unico parametro formal.");}
+                  | method_name '{' error '}'{ Logger.logError(aLexico.getProgramPosition(), "La declaracion de un metodo debe estar delimitado por parentesis \"(...)\"."); }
 ;
 
 method_name : ID {
@@ -152,7 +167,9 @@ method_body : block {setMetodoDeclarado(scope.getCurrentScope(),"true");}
             | ',' {setMetodoDeclarado(scope.getCurrentScope(),"false");} // Propotipo de metodo -> ID '(' ')' ',' sin block
 ;
 
-formal_parameter : type variable_declarator_id
+formal_parameter : type variable_declarator_id {
+                      $$ = new ParserVal($2.sval);
+                   }
 ;
 
 real_parameter : arithmetic_operation
@@ -292,7 +309,7 @@ multiplicative_expression : unary_expression {$$ = new ParserVal($1.sval);}
 ;
 
 unary_expression : factor {$$ = new ParserVal($1.sval);} 
-                 | reference_type {$$ = new ParserVal($1.sval); TablaSimbolos.increaseCounter($1.sval);}
+                 | reference_type {$$ = new ParserVal($1.sval);}
                  | conversion_expression {$$ = new ParserVal($1.sval);} 
                  | '(' arithmetic_operation ')' {
                     if (tercetos.hasNestingExpressions($2.sval)) Logger.logError(aLexico.getProgramPosition(), "No se permite el anidamiento de expresiones.");
@@ -318,17 +335,29 @@ factor : CTE_DOUBLE {$$ = new ParserVal($1.sval); }
 ;
 
 method_invocation : ID '(' real_parameter ')' {
-                    Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo, con pj de parametro.");
-                    String ref = tercetos.linkRealParameter($1.sval, $3.sval);
+                    String ref = scope.searchFunc($1.sval);
                     if (ref != null ){
+                      Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo, con pj de parametro.");
                       $$ = new ParserVal(ref);
-                      tercetos.add("CALL", $1.sval, $$.sval);
+                      
+                      if (!tercetos.linkInvocation(ref, $3.sval))
+                        Logger.logError(aLexico.getProgramPosition(), "El metodo a invocar no posee parametro formal.");
+                    } else {
+                      Logger.logError(aLexico.getProgramPosition(), "El metodo " + $1.sval + " no esta al alcance.");
                     }
                   }
                   | ID '(' ')' {
-                    Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo, sin pj de parametro.");
-                  
-                    tercetos.add("CALL", $1.sval, "[-]");
+                    
+                    String ref = scope.searchFunc($1.sval);
+                    if (ref != null ){
+                      Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo, sin pj de parametro.");
+                      $$ = new ParserVal(ref);
+
+                      if (!tercetos.linkInvocation(ref))
+                        Logger.logError(aLexico.getProgramPosition(), "El metodo a invocar posee parametro formal.");
+                    } else 
+                      Logger.logError(aLexico.getProgramPosition(), "El metodo " + $1.sval + " no esta al alcance.");
+                    
                   }
                   | ID '(' real_parameter error ')' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
                   | field_acces '(' real_parameter ')' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo desde una clase, con pj de parametro.");}
@@ -354,8 +383,10 @@ reference_type : ID {
                     String reference = scope.searchVar($1.sval);
                     if(reference == null)
                       Logger.logError(aLexico.getProgramPosition(), "La variable " + $1.sval + " no esta al alcance.");
-                    else
+                    else {
                       $$ = new ParserVal(reference);
+                      TablaSimbolos.increaseCounter($$.sval);
+                    }
                }
 ;
 
@@ -383,10 +414,14 @@ type_name : ID {
 >>>     BLOCKS AND COMMANDS
 
 */
-block : '{' block_statements RETURN',' '}'
+block : '{' block_statements RETURN',' '}' {
+        tercetos.addReturn();
+      }
+      | '{' RETURN',' '}' {
+        tercetos.addReturn();
+      }
       | '{' block_statements '}' {Logger.logError(aLexico.getProgramPosition(), "Es necesario declarar el retorno del bloque.");}
       | '(' block_statements RETURN',' ')' {Logger.logError(aLexico.getProgramPosition(), "Un bloque debe estar delimitado por llaves \"{...} y es necesario declarar el retorno del bloque.");}
-      | '{' RETURN',' '}'
       | '(' RETURN',' ')' {Logger.logError(aLexico.getProgramPosition(), "Un bloque debe estar delimitado por llaves \"{...}\".");}
       | '{' '}' {Logger.logError(aLexico.getProgramPosition(), "Es necesario declarar el retorno del bloque.");}
       | '(' ')' {Logger.logError(aLexico.getProgramPosition(), "Un bloque debe estar delimitado por llaves \"{...}\".");}

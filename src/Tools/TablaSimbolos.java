@@ -8,11 +8,15 @@ public class TablaSimbolos {
 
     public static final HashMap<String, HashMap<String, String>> tablaSimbolos = new HashMap<>();
     public static final String valorLexema = "lexema";
+    public static final String SIN_PARAMETRO = "s/p";
 
-    private static final HashMap<String, String> toErase = createAttribute("uso", "identificador");
     private static final String TIPO = "tipo";
     private static final String CONTADOR = "contador";
+    private static final String USO = "uso";
+    private static final String USADA = "usada_r_value";
+    private static final String PARAMETRO = "parametro";
     // private static int identifierNumber = 0;
+    private static final HashMap<String, String> toErase = createAttribute(USO, TablaTipos.ID);
 
     private static void addTipo(String tipo, String key) {
         try {
@@ -59,7 +63,8 @@ public class TablaSimbolos {
             }
 
         } catch (Exception e) {
-            //System.out.println("NO ES UN METODO DE UNA CLASE, NO SE ENCONTRO EN LA TABLA DE SIMBOLOS");
+            // System.out.println("NO ES UN METODO DE UNA CLASE, NO SE ENCONTRO EN LA TABLA
+            // DE SIMBOLOS");
         }
 
     }
@@ -73,7 +78,7 @@ public class TablaSimbolos {
     }
 
     public static void addIdentificador(String new_symbol) {
-        tablaSimbolos.put(new_symbol, createAttribute("uso", "identificador"));
+        tablaSimbolos.put(new_symbol, createAttribute(USO, TablaTipos.ID));
     }
 
     public static void addUInteger(Object uint) {
@@ -88,6 +93,20 @@ public class TablaSimbolos {
         tablaSimbolos.put(String.valueOf(_double), createAttribute(TIPO, TablaTipos.DOUBLE_TYPE));
     }
 
+    public static void addParameter(String key, Object _id) {
+        if (!containsKey(key))
+            return;
+
+        tablaSimbolos.get(key).put(PARAMETRO, String.valueOf(_id));
+    }
+
+    public static void addParameter(String key) {
+        if (!containsKey(key))
+            return;
+
+        tablaSimbolos.get(key).put(PARAMETRO, SIN_PARAMETRO);
+    }
+
     public static boolean containsKey(Object key) {
         return tablaSimbolos.containsKey(String.valueOf(key));
     }
@@ -99,6 +118,7 @@ public class TablaSimbolos {
 
     public static boolean increaseCounter(Object key) {
         key = String.valueOf(key);
+
         if (tablaSimbolos.containsKey(key)) {
             if (tablaSimbolos.get(key).containsKey(CONTADOR)) {
                 int counter = Integer.valueOf(tablaSimbolos.get(key).get(CONTADOR));
@@ -143,7 +163,7 @@ public class TablaSimbolos {
             tablaSimbolos.remove(lexema);
             tablaSimbolos.put(n_lexema, attributes);
         } else {
-            tablaSimbolos.put(n_lexema, createAttribute("uso", "identificador"));
+            tablaSimbolos.put(n_lexema, createAttribute(USO, TablaTipos.ID));
         }
     }
 
@@ -162,24 +182,35 @@ public class TablaSimbolos {
         return out;
     }
 
-    public static boolean isClass(String k) {
-        if (!tablaSimbolos.containsKey(k))
-            return false;
-
-        if (tablaSimbolos.get(k).get(TIPO).equals("class"))
-            return true;
-
-        return false;
-    }
-
     public static void purge() {
         tablaSimbolos.entrySet().removeIf(entry -> entry.getValue().equals(toErase) && Scope.outMain(entry.getKey()));
     }
 
+    public static boolean isClass(String k) {
+        if (containsKey(k))
+            return tablaSimbolos.get(k).get(TIPO).equals("class");
+
+        return false;
+    }
+
     public static String getTypeLexema(String l) {
-        if (containsKey(l)) {
+        if (containsKey(l))
             return tablaSimbolos.get(l).get(TIPO);
-        }
+
+        return "";
+    }
+
+    public static String getUseLexema(String l) {
+        if (containsKey(l))
+            return tablaSimbolos.get(l).get(USO);
+
+        return "";
+    }
+
+    public static String getParameter(String k) {
+        if (containsKey(k))
+            return tablaSimbolos.get(k).get(PARAMETRO);
+
         return null;
     }
 

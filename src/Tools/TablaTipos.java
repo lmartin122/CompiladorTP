@@ -7,6 +7,7 @@ public class TablaTipos {
     public static final String UINT_TYPE = "UINT"; // _ui
     public static final String STRING = "STRING"; // cadena multilinea
     public static final String FUNCTION = "FUNCTION";
+    public static final String ID = "identificador";
 
     // public static boolean hasSameType() {
 
