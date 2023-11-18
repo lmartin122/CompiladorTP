@@ -175,7 +175,15 @@ formal_parameter : type variable_declarator_id {
 real_parameter : arithmetic_operation
 ;
 
-inheritance_declaration : reference_type ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una herencia compuesta.");}
+inheritance_declaration : reference_type ',' {
+                            Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una herencia compuesta.");
+                            System.out.println("HERENCIA DE LA CLASE: " + $1.sval + "  scope: " + scope.getLastScope());
+                            if(TablaClases.existeClase($1.sval.split("@")[0])){ //si existe la clase a la cual quiere heredar
+                                TablaClases.addHerencia(scope.getLastScope(),$1.sval.split("@")[0]);
+                            } else {
+                                Logger.logError(aLexico.getProgramPosition(), "La clase a la cual se quiere heredar no existe");
+                            }
+                        }
                         | reference_type ';' error ',' {Logger.logError(aLexico.getProgramPosition(), "No se permite herencia multiple.");}
                         | reference_type ',' error ';' {Logger.logError(aLexico.getProgramPosition(), "No se permite herencia multiple.");}
 ;
@@ -215,7 +223,7 @@ abstract_method_declaration : result_type method_declarator ',' {TablaClases.add
 
 implement_for_declaration : IMPL FOR reference_class ':' implement_for_body {
                                 System.out.println("IMPL FOR de la clase: " + $3.sval);
-                                if(!TablaClases.t.contains(TablaClases.actualImplFor)){ //si el IMPL FOR no es de una clase existente
+                                if(!TablaClases.existeClase(TablaClases.actualImplFor)){ //si el IMPL FOR no es de una clase existente
                                     Logger.logError(aLexico.getProgramPosition(), "IMPL FOR de clase inexistente");
                                 } else {
                                     Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un IMPL FOR.");
@@ -238,11 +246,17 @@ implement_for_body_declaration : implement_for_method_declaration
 ;
 
 implement_for_method_declaration : method_header implement_for_method_body {
+                                    int error = 0;
                                     System.out.println("metodo impl for: " + $1.sval + " de la clase: " + TablaClases.actualImplFor );
-                                    if(TablaClases.t.contains(TablaClases.actualImplFor)){ //si el IMPL FOR es de una clase existente
+                                    if(TablaClases.existeClase(TablaClases.actualImplFor) && error == 0){ //si el IMPL FOR es de una clase existente
                                         System.out.println("METODO DE CLASE EXISTENTE: " + TablaClases.actualImplFor);
-                                        TablaClases.cambiarMetodoADeclaradoImplFor($1.sval.split("@")[0],TablaClases.actualImplFor);
+                                        error = TablaClases.cambiarMetodoADeclaradoImplFor($1.sval.split("@")[0],TablaClases.actualImplFor);
                                     }
+                                    if(error == 1){
+                                        Logger.logError(aLexico.getProgramPosition(), "Se intentó implementar un metodo que no existe (IMPL FOR)");
+                                    } else if (error == 2){
+                                        Logger.logError(aLexico.getProgramPosition(), "Se intentó implementar un metodo ya implementado (IMPL FOR)");
+                                      }
 
                                   }
 ;
@@ -630,7 +644,7 @@ void yyerror(String msg) {
   private void addAtributosInstanciaClase(String tipo, String instancia){
     //todavia no está implementado para que haya multiples declaraciones al estilo clase3 m;v;c;x,
     String clase = tipo.split("@")[0];
-    if(TablaClases.t.contains(clase)){ //si el tipo es una clase, entonces creo todos sus atributos
+    if(TablaClases.existeClase(clase)){ //si el tipo es una clase, entonces creo todos sus atributos
       String[] instancias = instancia.split(";");
       for (String i: instancias){
         for(String s: TablaClases.a){

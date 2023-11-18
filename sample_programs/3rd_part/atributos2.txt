@@ -4,6 +4,23 @@
         VOID metodoI2(),
     }
 
+    CLASS abuelo {
+        LONG n,
+        VOID metodo_abuelo(){
+            RETURN,
+        }
+
+    }
+
+    CLASS padre {
+        LONG h,
+        VOID metodo_padre(){
+
+            RETURN,
+        }
+        abuelo2,
+    }
+
     CLASS clase3 IMPLEMENT interfaz1 {
         LONG y,
         UINT x,
@@ -20,6 +37,8 @@
         VOID metodoI2(){
             RETURN,
         }
+
+        padre,
     }
     VOID funcion(){
         VOID funcion2(){

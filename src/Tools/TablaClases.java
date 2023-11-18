@@ -35,11 +35,29 @@ public class TablaClases {
         }
         return implementaTodo;
     };
+    public static void addHerencia(String clase, String herencia){
+        int index = t.indexOf(clase); //lo busco asi ya que si no tiene herencia se guarda solo el nombre de la clase
+        t.add(clase + "@" + herencia);
+        if(index != -1){
+            t.remove(index);
+        } else {
+            System.out.println("se esta intentando borrar una clase que no existe");
+        }
+    };
+    public static boolean existeClase(String clase){
+
+        for(String c: t){
+           if(c.split("@")[0].equals(clase)){
+               return true;
+           }
+       }
+        return false;
+    }
 
     public static void addInterface(String interfaz) {i.add(interfaz);}
 
     public static void addMetodo(String metodo,String clase){
-        if(t.contains(clase)){
+        if(existeClase(clase)){
             m.add(metodo + "@" + clase);
         }
     }
@@ -54,10 +72,12 @@ public class TablaClases {
     }
     public static void setMetodoDeclarado(String metodo, String declarado){
         int i = m.indexOf(metodo);
-        String aux = m.get(i);
-        aux = aux + "@" + declarado;
-        m.remove(i);
-        m.add(aux);
+        if (i != -1){
+            String aux = m.get(i);
+            aux = aux + "@" + declarado;
+            m.remove(i);
+            m.add(aux);
+        }
     }
     public static String tipoDeAtributo(String atributo, String clasePerteneciente){
         int indice = -1;
@@ -78,12 +98,15 @@ public class TablaClases {
         }
         return indice;
     }
-    public static void cambiarMetodoADeclaradoImplFor(String metodo, String clasePerteneciente){
+    public static int cambiarMetodoADeclaradoImplFor(String metodo, String clasePerteneciente){
         int indice = -1;
         for (int i = 0; i < m.size(); i++) {
-            System.out.println(metodo + "@" + clasePerteneciente + "@" + "false");
             if (m.get(i).contains(metodo + "@" + clasePerteneciente + "@" + "false")) {
                 indice = i;
+            }
+            if (m.get(i).contains(metodo + "@" + clasePerteneciente + "@" + "true")) {
+                return 2;
+
             }
         }
         if(indice != -1){
@@ -94,7 +117,9 @@ public class TablaClases {
             System.out.println("AUX : " + aux);
             m.remove(indice);
             m.add(aux);
+            return 0;
         }
+        return 1;
     }
 
 }
