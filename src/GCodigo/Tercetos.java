@@ -139,6 +139,10 @@ public class Tercetos implements PropertyChangeListener {
             return out;
         }
 
+        public static boolean isNumeric(String ref) {
+            return ref.matches("[0-9]+");
+        }
+
     }
 
     public Tercetos() {
@@ -244,7 +248,7 @@ public class Tercetos implements PropertyChangeListener {
 
         String ref = stack.pop();
 
-        if (ref.matches("[0-9]+"))
+        if (Terceto.isNumeric(ref))
             ref = "[" + ref + "]";
 
         ref = ref.replace("+", "");
@@ -273,10 +277,10 @@ public class Tercetos implements PropertyChangeListener {
         if (parameter_f.equals(TablaSimbolos.SIN_PARAMETRO))
             return false;
 
-        String ref = add("=", parameter_f, parameter_r);
+        String type = typeTerceto(parameter_f, parameter_r);
+        String ref = add("=", parameter_f, parameter_r, type);
         addInvocation(func, ref);
-
-        add("=", parameter_r, parameter_f);
+        add("=", parameter_r, parameter_f, type);
 
         return true;
     }
@@ -308,7 +312,6 @@ public class Tercetos implements PropertyChangeListener {
     // ###############################################################
     // >>> Metodos para indicar el tipo de un terceto
     // ###############################################################
-
     private void TODbacktracking(Terceto t) {
 
         Stack<Integer> references = new Stack<>();
@@ -409,6 +412,38 @@ public class Tercetos implements PropertyChangeListener {
     public void propertyChange(PropertyChangeEvent arg0) {
         setScope((String) arg0.getNewValue());
     }
+
+    // ###############################################################
+    // >>> Metodos declarar los tipos referenciados como usados
+    // ###############################################################
+
+    private void declaredUsed(ArrayList<String> elements) {
+        for (String factor : elements) {
+            if (!Terceto.isNumeric(factor)) {
+                TablaSimbolos.setUsed(factor);
+            }
+        }
+    }
+
+    public void declaredFactorsUsed(String ref) {
+
+        int pos = Terceto.getRefPos(ref);
+        Terceto t = get(pos);
+        Stack<Integer> references = new Stack<>();
+
+        while (!isLeaf(t) || !references.empty()) {
+            for (Integer r : t.getReferences()) {
+                references.push(r);
+            }
+            declaredUsed(t.getFactors());
+            t = get(references.pop());
+        }
+        declaredUsed(t.getFactors());
+    }
+
+    // ###############################################################
+    // >>> Metodos extras
+    // ###############################################################
 
     public void setScope(String scope) {
         this.scope = scope;

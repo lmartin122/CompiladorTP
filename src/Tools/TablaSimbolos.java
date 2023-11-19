@@ -13,7 +13,7 @@ public class TablaSimbolos {
     private static final String TIPO = "tipo";
     private static final String CONTADOR = "contador";
     private static final String USO = "uso";
-    private static final String USADA = "usada_r_value";
+    private static final String USADO = "usada_r";
     private static final String PARAMETRO = "parametro";
     // private static int identifierNumber = 0;
     private static final HashMap<String, String> toErase = createAttribute(USO, TablaTipos.ID);
@@ -74,7 +74,7 @@ public class TablaSimbolos {
     }
 
     public static void addFunction(String cadena) {
-        tablaSimbolos.put(cadena, createAttribute(TIPO, TablaTipos.FUNCTION));
+        tablaSimbolos.put(cadena, createAttribute(USO, TablaTipos.FUNCTION));
     }
 
     public static void addIdentificador(String new_symbol) {
@@ -193,16 +193,23 @@ public class TablaSimbolos {
         return false;
     }
 
+    public static boolean isID(String k) {
+        if (containsKey(k))
+            return tablaSimbolos.get(k).get(USO).equals(TablaTipos.ID);
+
+        return false;
+    }
+
+    public static boolean isFunction(String k) {
+        if (containsKey(k))
+            return tablaSimbolos.get(k).get(USO).equals(TablaTipos.FUNCTION);
+
+        return false;
+    }
+
     public static String getTypeLexema(String l) {
         if (containsKey(l))
             return tablaSimbolos.get(l).get(TIPO);
-
-        return "";
-    }
-
-    public static String getUseLexema(String l) {
-        if (containsKey(l))
-            return tablaSimbolos.get(l).get(USO);
 
         return "";
     }
@@ -212,6 +219,13 @@ public class TablaSimbolos {
             return tablaSimbolos.get(k).get(PARAMETRO);
 
         return null;
+    }
+
+    public static void setUsed(String r) {
+        if (!containsKey(r))
+            return;
+
+        tablaSimbolos.get(r).put(USADO, "True");
     }
 
 }

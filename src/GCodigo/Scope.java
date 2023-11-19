@@ -41,14 +41,17 @@ public class Scope {
     private String search(String r, Lambda f) {
         StringBuilder amb = new StringBuilder(ambito);
         String toSearch = r + getCurrentScope();
+
         // Si es una clase podriamos usar lo que esta haciendo martin para buscarlo
-        while (!inMain() && f.invoke(toSearch)) {
+        while (!outMain(toSearch) && f.invoke(toSearch)) {
             deleteLastScope(amb);
             toSearch = r + amb.toString();
         }
 
-        if (!f.invoke(toSearch))
+        if (!outMain(toSearch) && !f.invoke(toSearch))
             return toSearch;
+
+        System.out.println("No deberia retornar " + toSearch);
 
         return null;
 
@@ -57,12 +60,12 @@ public class Scope {
     public String searchVar(String r) {
 
         return search(r,
-                (e) -> !(TablaSimbolos.containsKey(e)) && TablaSimbolos.getUseLexema(e).equals(TablaTipos.ID));
+                (e) -> !(TablaSimbolos.isID(e)));
     }
 
     public String searchFunc(String r) {
         return search(r,
-                (e) -> !(TablaSimbolos.containsKey(e) && TablaSimbolos.getTypeLexema(e).equals(TablaTipos.FUNCTION)));
+                (e) -> !(TablaSimbolos.isFunction(e)));
     }
 
     private ArrayList<String> getAmbitos() {
