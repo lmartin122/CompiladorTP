@@ -27,13 +27,17 @@ public class TablaClases {
     }
     public static boolean implementaMetodosInterfaz(String clase, String interfaz){
         boolean implementaTodo = true;
+        int metodosDeclarados = 0;
         ArrayList<String> metodosInterfaz = metodosDeInterfaz(interfaz);
         for(String s: metodosInterfaz){
             if(m.contains(s + "@" + clase + "@" + "false")){
-                implementaTodo = false;
+                return false;
+            }
+            if(m.contains(s + "@" + clase + "@" + "true")){
+                metodosDeclarados++;
             }
         }
-        return implementaTodo;
+        return metodosDeclarados == metodosInterfaz.size();
     };
     public static void addHerencia(String clase, String herencia){
         int index = t.indexOf(clase); //lo busco asi ya que si no tiene herencia se guarda solo el nombre de la clase
@@ -67,6 +71,42 @@ public class TablaClases {
 
     }
 
+
+
+    //devuelve el nombre de la clase heredada
+    public static String getHerencia(String clase){
+        for(String s: t){
+            String[] aux = s.split("@");
+            if(aux[0].equals(clase)){
+                if(aux.length > 1){return s.split("@")[1];}
+                return "";
+
+            }
+        }
+        return "";
+    }
+
+    public static boolean chequeoAtributoSobreEscrito(String clase, String padre){
+        ArrayList<String> atributosClase = TablaClases.atributosDeUnaClase(clase);
+        ArrayList<String> atributosPadre = TablaClases.atributosDeUnaClase(padre);
+        for(String s: atributosClase){
+            if(atributosPadre.contains(s)){return false;};
+        };
+        return true;
+
+    }
+
+    public static ArrayList<String> atributosDeUnaClase(String clase){
+        ArrayList<String> result = new ArrayList<>();
+        for(String s: a){
+            String clasePerteneciente = s.split("@")[1];
+            String atributoNombre = s.split("@")[0];
+            if(clasePerteneciente.equals(clase)){
+                result.add(atributoNombre);
+            }
+        };
+        return result;
+    };
     public static void addAtributo(String tipo,String atributo, String clase){
         a.add(atributo + "@" + clase + "@" + tipo);
     }

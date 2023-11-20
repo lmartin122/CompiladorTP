@@ -57,15 +57,32 @@ type_declaration : class_declaration {scope.reset(); scope.changeScope($1.sval);
                  | block_statement {/*scope.reset();*/}
 ;
 
-class_declaration : CLASS class_name class_body {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una CLASS.");  $$ = new ParserVal($2.sval);}
+class_declaration : CLASS class_name class_body {
+                        Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una CLASS.");  $$ = new ParserVal($2.sval);
+                        if(!TablaClases.chequeoAtributoSobreEscrito($2.sval,TablaClases.getHerencia($2.sval))){
+                            Logger.logError(aLexico.getProgramPosition(), "No se puede sobreescribir atributos de clases heredadas.");
+                        }
+                        if(!TablaClases.chequeoAtributoSobreEscrito($2.sval,TablaClases.getHerencia(TablaClases.getHerencia($2.sval)))){
+                            Logger.logError(aLexico.getProgramPosition(), "No se puede sobreescribir atributos de clases heredadas (abuelo).");
+                        }
+                    }
                   | CLASS class_name interfaces class_body {
 
                         $$ = new ParserVal($2.sval);
+                        System.out.println("Clase: " + $2.sval + "interfaz:  " + $3.sval);
                         if(TablaClases.implementaMetodosInterfaz($2.sval,$3.sval)){
                             Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una CLASS que implementa una interface e implementa todos sus metodos.");
                         } else {
                             Logger.logError(aLexico.getProgramPosition(), "Se reconocio una CLASS que implementa una interface y NO implementa todos sus metodos.");
                         }
+                        if(!TablaClases.chequeoAtributoSobreEscrito($2.sval,TablaClases.getHerencia($2.sval))){
+                            Logger.logError(aLexico.getProgramPosition(), "No se puede sobreescribir atributos de clases heredadas (padre).");
+                        }
+                        if(!TablaClases.chequeoAtributoSobreEscrito($2.sval,TablaClases.getHerencia(TablaClases.getHerencia($2.sval)))){
+                            Logger.logError(aLexico.getProgramPosition(), "No se puede sobreescribir atributos de clases heredadas (abuelo).");
+                        }
+
+
                     }
 ;
 
@@ -92,6 +109,7 @@ field_declaration : type variable_declarators ',' {$$ = new ParserVal($1.sval + 
                                                    Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una declaracion de atributo/s.");
                                                    TablaSimbolos.addTipoVariable($1.sval, $2.sval,scope.getCurrentScope());
                                                    TablaClases.addAtributo($1.sval,$2.sval,scope.getLastScope());
+
 
                                                    }
                   | type variable_declarators {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una declaracion de atributo/s.");}
@@ -177,7 +195,7 @@ real_parameter : arithmetic_operation
 
 inheritance_declaration : reference_type ',' {
                             Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una herencia compuesta.");
-                            System.out.println("HERENCIA DE LA CLASE: " + $1.sval + "  scope: " + scope.getLastScope());
+
                             if(TablaClases.existeClase($1.sval.split("@")[0])){ //si existe la clase a la cual quiere heredar
                                 TablaClases.addHerencia(scope.getLastScope(),$1.sval.split("@")[0]);
                             } else {
@@ -292,8 +310,8 @@ field_acces : primary '.' ID {
                                 */
                              }
 ;
-primary : reference_type
-        | field_acces {$$ = new ParserVal($1.sval);}
+primary : reference_type {System.out.println("primary: " + $1.sval);}
+        | field_acces {$$ = new ParserVal($1.sval); System.out.println("primary: " + $1.sval);}
 ;
 
 equality_expression : relational_expression {$$ = new ParserVal($1.sval);}

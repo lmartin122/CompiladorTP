@@ -1,0 +1,35 @@
+{
+    INTERFACE interfaz1 {
+        VOID metodoI(),
+        VOID metodoI2(),
+    }
+
+    CLASS abuelo {
+        LONG f,
+
+    }
+
+    CLASS padre {
+        LONG o,
+        abuelo,
+    }
+
+    CLASS clase3 IMPLEMENT interfaz1 {
+        LONG f,
+        UINT x,
+        UINT z,
+        VOID metodoI(){
+            RETURN,
+        }
+        VOID metodoI2(){
+            RETURN,
+        }
+        padre,
+    }
+
+    UINT l;h,
+    clase3 instancia,
+    instancia.z = 3_ui,
+    instancia.metodoI(),
+
+}
