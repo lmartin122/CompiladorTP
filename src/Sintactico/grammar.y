@@ -49,30 +49,52 @@ type_declarations : type_declaration
                   | type_declarations type_declaration
 ;
 
-type_declaration : class_declaration {scope.reset(); scope.changeScope($1.sval);}
-                 | interface_declaration {scope.reset(); scope.changeScope($1.sval);}
-                 | implement_for_declaration {scope.reset(); scope.changeScope($1.sval);}
-                 | block_statement {/*scope.reset();*/}
+type_declaration : class_declaration {scope.reset(); if (!$1.sval.isEmpty()) scope.changeScope($1.sval);}
+                 | interface_declaration {scope.reset(); if (!$1.sval.isEmpty()) scope.changeScope($1.sval);}
+                 | implement_for_declaration {scope.reset();}
+                 | block_statement {scope.reset();}
 ;
 
-class_declaration : CLASS class_name class_body {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una CLASS.");  $$ = new ParserVal($2.sval);}
-                  | CLASS class_name interfaces class_body {
+class_declaration : CLASS class_name class_body {
+                        $$ = $2;
+                        if (!$2.sval.isEmpty()){
+                          Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una clase.");
 
-                        $$ = new ParserVal($2.sval);
-                        if(TablaClases.implementaMetodosInterfaz($2.sval,$3.sval)){
-                            Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una CLASS que implementa una interface e implementa todos sus metodos.");
-                        } else {
-                            Logger.logError(aLexico.getProgramPosition(), "Se reconocio una CLASS que implementa una interface y NO implementa todos sus metodos.");
+                          String error = TablaClases.chequeoAtributoSobreescrito($2.sval);
+                          if (error != null) 
+                            Logger.logError(aLexico.getProgramPosition(), error);
                         }
+                    }
+                  | CLASS class_name interfaces class_body {
+                        $$ = $2;
+                        if (!$2.sval.isEmpty()){
+                          Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una CLASS.");
+
+                          String error = TablaClases.chequeoAtributoSobreescrito($2.sval);
+                          if (error != null) 
+                            Logger.logError(aLexico.getProgramPosition(), error);
+
+                          if(TablaClases.implementaMetodosInterfaz($2.sval,$3.sval)){
+                              Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una CLASS que implementa una interface e implementa todos sus metodos.");
+                          } else {
+                              Logger.logError(aLexico.getProgramPosition(), "Se reconocio una CLASS que implementa una interface y NO implementa todos sus metodos.");
+                          }
+
+                        }            
                     }
 ;
 
 class_name : ID {
               if(!scope.isDeclaredInMyScope($1.sval)){
-                scope.stack($1.sval); TablaSimbolos.addClase($1.sval); TablaClases.addClase($1.sval);
-              } else 
+                scope.stack($1.sval); 
+                TablaSimbolos.addClase($1.sval); 
+                TablaClases.addClase($1.sval);
+                $$ = new ParserVal($1.sval);
+              } else {
                 Logger.logError(aLexico.getProgramPosition(), "La clase " + $1.sval + " ya esta declarada en el ambito" + scope.getCurrentScope() + ".");
+                $$ = new ParserVal("");
               }
+            }
 ;
 
 class_body : '{' class_body_declarations '}' 
@@ -86,16 +108,29 @@ class_body_declarations : class_body_declaration
 class_body_declaration : class_member_declaration 
 ;
 
-class_member_declaration : field_declaration
-                         | method_declaration
+class_member_declaration : field_declaration 
+                         | method_declaration 
                          | inheritance_declaration
 ;
 
 field_declaration : type variable_declarators ',' {
-                      $$ = new ParserVal($1.sval + ";" + $2.sval );
-                      TablaSimbolos.addTipoVariable($1.sval, $2.sval, scope.getCurrentScope());
-                      TablaClases.addAtributo($1.sval,$2.sval,scope.getLastScope());
-                  }
+                      if (!($1.sval.isEmpty() || $2.sval.isEmpty())) {
+                        ArrayList<String> ambitos = scope.getAmbitos($2.sval);
+                        String _attributes = ambitos.get(0); 
+                        String _class = ambitos.get(2);
+
+                        Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una declaracion de atributo/s.");
+                        TablaSimbolos.addTipoVariable($1.sval, $2.sval);
+                        
+                        if (TablaSimbolos.isClass($1.sval + scope.getScopeMain()))
+                            TablaClases.addAtributos($1.sval, _attributes, _class);
+                        else 
+                            TablaClases.addAtributos(_attributes, _class);
+                      }
+
+           
+                   }
+                  | type variable_declarators {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' en el final de la sentencia.");}
 ;
 
 variable_declarators : variable_declarator 
@@ -112,18 +147,49 @@ variable_declarator : variable_declarator_id
 ;
 
 variable_declarator_id : ID {
-                          if(!scope.isDeclaredInMyScope($1.sval))
-                              scope.changeScope($1.sval);
-                          else 
-                              Logger.logError(aLexico.getProgramPosition(), "El atributo " + $1.sval + " ya esta declarado en el ambito" + scope.getCurrentScope() + ".");
+                          if (!scope.isDeclaredInMyScope($1.sval)) {
+                              $$ = new ParserVal(scope.changeScope($1.sval));
+                          }
+                          else {
+                              Logger.logError(aLexico.getProgramPosition(), "La variable " + $1.sval + " ya esta declarado en el ambito " + scope.getCurrentScope() + ".");
+                              $$ = new ParserVal("");
+                          }
                         }
 ;
 
 variable_initializer : arithmetic_operation
 ;
 
-method_declaration : method_header method_body ',' {scope.deleteLastScope();}
-                   | method_header method_body 
+method_declaration : method_header method_body ',' {
+                      if (!$1.sval.isEmpty()){
+                        ArrayList<String> ambitos = scope.getAmbitos($1.sval);
+                        String _method = ambitos.get(0); 
+                        String _class = ambitos.get(2);
+
+                          if ($2.sval.isEmpty()) {
+                            TablaClases.addMetodoIMPL(_method, _class);
+                            TablaSimbolos.setFuncPrototype($1.sval);
+                          } else {
+                            TablaClases.addMetodo(_method, _class);
+                          }
+                      }
+                      scope.deleteLastScope();}
+                   | method_header method_body {
+
+                      if (!$1.sval.isEmpty()){
+                          ArrayList<String> ambitos = scope.getAmbitos($1.sval);
+                          String _method = ambitos.get(0); 
+                          String _class = ambitos.get(2);
+
+                          if ($2.sval.isEmpty()) {
+                            TablaClases.addMetodoIMPL(_method, _class);
+                            TablaSimbolos.setFuncPrototype($1.sval);
+                          } else {
+                            TablaClases.addMetodo(_method, _class);
+                          }
+                      }
+                      scope.deleteLastScope();
+                    }
 ;
 
 method_header : result_type method_declarator {$$ = new ParserVal($2.sval);}
@@ -137,8 +203,10 @@ method_declarator : method_name '(' formal_parameter ')'{
                       Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo con p/j de parametro.");
                       $$ = new ParserVal($1.sval);
                       TablaSimbolos.addParameter($1.sval, $3.sval + scope.getCurrentScope());
-                    } else 
-                       Logger.logError(aLexico.getProgramPosition(), "El metodo ya esta declarado en el ambito" + scope.getCurrentScope() + ".");
+                    } else {
+                      Logger.logError(aLexico.getProgramPosition(), "El metodo ya esta declarado en el ambito" + scope.getCurrentScope() + " .");
+                      $$ = new ParserVal("");
+                    }
                     
                   }
                   | method_name '(' ')' {
@@ -146,8 +214,10 @@ method_declarator : method_name '(' formal_parameter ')'{
                       Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo sin p/j de parametro.");
                       $$ = new ParserVal($1.sval);
                       TablaSimbolos.addParameter($1.sval);
-                    } else 
-                       Logger.logError(aLexico.getProgramPosition(), "El metodo " + $1.sval + " ya esta declarado en el ambito" + scope.getCurrentScope() + ".");
+                    } else {
+                      Logger.logError(aLexico.getProgramPosition(), "El metodo ya esta declarado en el ambito" + scope.getCurrentScope() + " .");
+                      $$ = new ParserVal("");
+                    }
                     
                   }
                   | method_name '(' formal_parameter error ')' { Logger.logError(aLexico.getProgramPosition(), "Solo se permite la declaracion de un unico parametro formal.");}
@@ -160,8 +230,6 @@ method_name : ID {
                 else {
                   $$ = new ParserVal(scope.changeScope($1.sval));
                   TablaSimbolos.addFunction($$.sval);
-                  TablaClases.addMetodo($1.sval,scope.getLastScope());
-                  TablaSimbolos.addClasePerteneciente($$.sval,scope.getLastScope());
                   scope.stack($1.sval);
                 }
 
@@ -169,22 +237,37 @@ method_name : ID {
 
 // Permito la creacion de multiples block en un metodo, se debe chequear que luego permita
 // un nivel de anidamiento
-method_body : block {setMetodoDeclarado(scope.getCurrentScope(),"true");}
-            | ',' {setMetodoDeclarado(scope.getCurrentScope(),"false");} // Propotipo de metodo -> ID '(' ')' ',' sin block
+method_body : block
+            | ',' {$$ = new ParserVal("");}// Propotipo de metodo -> ID '(' ')' ',' sin block
 ;
 
 formal_parameter : type variable_declarator_id {
-                      $$ = new ParserVal($2.sval);
-                      TablaSimbolos.addTipoVariable($1.sval, $2.sval, scope.getCurrentScope());
+                      if (!$2.sval.isEmpty()){
+                        $$ = new ParserVal($2.sval);
+                        TablaSimbolos.addTipoVariable($1.sval, $2.sval);
+                      }
                    }
 ;
 
 real_parameter : arithmetic_operation
 ;
 
-inheritance_declaration : reference_type ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una herencia compuesta.");}
-                        | reference_type ';' error ',' {Logger.logError(aLexico.getProgramPosition(), "No se permite herencia multiple.");}
-                        | reference_type ',' error ';' {Logger.logError(aLexico.getProgramPosition(), "No se permite herencia multiple.");}
+inheritance_declaration : class_type ',' {
+                            Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una herencia compuesta.");
+
+                            if (!$1.sval.isEmpty()) { //si existe la clase a la cual quiere heredar
+                                ArrayList<String> ambitos = scope.getAmbitos();
+                                String _parentClass = $1.sval; 
+                                String _class = ambitos.get(1);
+
+                                TablaClases.addHerencia(_class, _parentClass);
+                                Logger.logRule(aLexico.getProgramPosition(), "La clase " + _class + " hereda de " + _parentClass + ".");
+                            } else {
+                                Logger.logError(aLexico.getProgramPosition(), "La clase " + $1.sval + " a la cual se quiere heredar no existe");
+                            }
+                        }
+                        | class_type ';' error ',' {Logger.logError(aLexico.getProgramPosition(), "No se permite herencia multiple.");}
+                        | class_type ',' error ';' {Logger.logError(aLexico.getProgramPosition(), "No se permite herencia multiple.");}
 ;
 
 interfaces : IMPLEMENT interface_type_list {$$ = new ParserVal($2.sval);}
@@ -195,7 +278,22 @@ interface_type_list : type_name {$$ = new ParserVal($1.sval);}
                     | interface_type_list ',' type_name {Logger.logError(aLexico.getProgramPosition(), "Las interfaces deben estar separadas por ';'.");}
 ;
 
-interface_declaration : INTERFACE ID interface_body {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una INTERFACE.");TablaClases.addInterface($2.sval);}
+interface_declaration : INTERFACE interface_name interface_body {
+                          Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una INTERFACE.");
+                      }
+;
+
+
+interface_name : ID {
+                    if (!scope.isDeclaredInMyScope($1.sval)) {
+                      scope.stack($1.sval); 
+                      TablaClases.addInterface($1.sval);
+                      $$ = new ParserVal("");
+                    } else {
+                      Logger.logError(aLexico.getProgramPosition(), "La interface " + $1.sval + " ya esta declarada en el ambito" + scope.getCurrentScope() + ".");
+                      $$ = new ParserVal("");
+                    }
+                }
 ;
 
 interface_body : '{' interface_member_declaration '}'
@@ -215,19 +313,12 @@ interface_method_declaration : constant_declaration
 constant_declaration : type variable_declarators
 ;
 
-abstract_method_declaration : result_type method_declarator ',' {TablaClases.addInterfaz($2.sval.split("@")[0],"interfaz1");}
+abstract_method_declaration : result_type method_declarator ',' {/*TablaClases.addInterfaz($2.sval.split("@")[0],"interfaz1");*/}
                             | result_type method_declarator {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' en el final de la sentencia.");}
                             | result_type method_declarator ';' {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' no \';\'en el final de la sentencia.");}
 ;
 
-implement_for_declaration : IMPL FOR reference_class ':' implement_for_body {
-                                System.out.println("IMPL FOR de la clase: " + $3.sval);
-                                if(!TablaClases.t.contains(TablaClases.actualImplFor)){ //si el IMPL FOR no es de una clase existente
-                                    Logger.logError(aLexico.getProgramPosition(), "IMPL FOR de clase inexistente");
-                                } else {
-                                    Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un IMPL FOR.");
-                                }
-                            }
+implement_for_declaration : IMPL FOR reference_class ':' implement_for_body 
                           | IMPL FOR reference_class ':' error ',' {Logger.logError(aLexico.getProgramPosition(), "Es necesario implementar el cuerpo del metodo.");}
                           | IMPL FOR error ':' implement_for_body ',' {Logger.logError(aLexico.getProgramPosition(), "Se debe referenciar a una clase.");}
                           | IMPL FOR reference_class error ':' implement_for_body {Logger.logError(aLexico.getProgramPosition(), "Declaracion de IMPL FOR no valida, no es correcta la signatura.");}
@@ -245,12 +336,26 @@ implement_for_body_declaration : implement_for_method_declaration
 ;
 
 implement_for_method_declaration : method_header implement_for_method_body {
-                                    System.out.println("metodo impl for: " + $1.sval + " de la clase: " + TablaClases.actualImplFor );
-                                    if(TablaClases.t.contains(TablaClases.actualImplFor)){ //si el IMPL FOR es de una clase existente
-                                        System.out.println("METODO DE CLASE EXISTENTE: " + TablaClases.actualImplFor);
-                                        TablaClases.cambiarMetodoADeclaradoImplFor($1.sval.split("@")[0],TablaClases.actualImplFor);
-                                    }
 
+                                    if (!$1.sval.isEmpty()){
+
+                                      ArrayList<String> ambitos = scope.getAmbitos($1.sval);
+                                      if (ambitos.size() > 2) {
+                                        String _method = ambitos.get(0);                                      
+                                        String _class = ambitos.get(2); 
+
+                                        if (!TablaClases.esUnMetodoAImplementar(_method, _class)){
+                                          if (TablaClases.esUnMetodoConcreto(_method, _class)) {
+                                            Logger.logError(aLexico.getProgramPosition(), "Se intentó implementar un metodo ya implementado (IMPL FOR)");
+                                          } else {
+                                            Logger.logError(aLexico.getProgramPosition(), "Se intentó implementar un metodo que no existe (IMPL FOR)");
+                                          }  
+                                        } else {
+                                          TablaSimbolos.setImplemented($1.sval);
+                                          TablaClases.setMetodoIMPL(_method, _class);
+                                        }
+                                      }
+                                     }
                                   }
 ;
 
@@ -263,12 +368,16 @@ implement_for_method_body : block
 >>>     EXPRESSIONS
 
 */
-assignment : left_hand_side '=' arithmetic_operation {
+assignment : left_hand_side '=' arithmetic_operation  {
                 Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una asignacion.");
                 tercetos.add("=", $1.sval, $3.sval, tercetos.typeTerceto($1.sval, $3.sval));
                 tercetos.declaredFactorsUsed($3.sval);
-            }
-           | left_hand_side MINUS_ASSIGN arithmetic_operation {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una asignacion de resta."); tercetos.add("=", $1.sval, tercetos.add("-", $1.sval, $3.sval));}
+           }
+           | left_hand_side MINUS_ASSIGN arithmetic_operation {
+                Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una asignacion de resta.");
+                tercetos.add("=", $1.sval, tercetos.add("-", $1.sval, $3.sval));
+                tercetos.declaredFactorsUsed($3.sval);
+           }
            | left_hand_side error arithmetic_operation {Logger.logError(aLexico.getProgramPosition(), "Las asignaciones se deben hacer con el caracter '=' o '-='.");}
            | left_hand_side EQUAL_OPERATOR arithmetic_operation {Logger.logError(aLexico.getProgramPosition(), "Las asignaciones se deben hacer con el caracter '=' o '-='.");}
            | left_hand_side NOT_EQUAL_OPERATOR arithmetic_operation {Logger.logError(aLexico.getProgramPosition(), "Las asignaciones se deben hacer con el caracter '=' o '-='.");}
@@ -281,16 +390,10 @@ left_hand_side : primary
 
 field_acces : primary '.' ID {
                                 $$ = new ParserVal($1.sval + "." + $3.sval);
-                                /*
-                                esto es viejo
-                                if(chequeoMetodoClase($1.sval + scope.getCurrentScope() + "-" + $3.sval) == false){ //Si no es un metodo
-
-                                }
-                                */
                              }
 ;
-primary : reference_type
-        | field_acces {$$ = new ParserVal($1.sval);}
+primary : reference_type {$$ = $1; System.out.println("primary: ");}
+        | field_acces {$$ = new ParserVal($1.sval); System.out.println("primary: ");}
 ;
 
 equality_expression : relational_expression {$$ = new ParserVal($1.sval);}
@@ -319,18 +422,22 @@ multiplicative_expression : unary_expression {$$ = new ParserVal($1.sval);}
                           | multiplicative_expression '%' unary_expression {Logger.logError(aLexico.getProgramPosition(), "El operator % no es valido.");}
 ;
 
-unary_expression : factor {$$ = new ParserVal($1.sval);} 
-                 | reference_type {$$ = new ParserVal($1.sval);}
-                 | conversion_expression {$$ = new ParserVal($1.sval);} 
+unary_expression : factor {$$ = $1;} 
+                 | reference_type {$$ = $1;}
+                 | conversion_expression {$$ = $1;} 
                  | '(' arithmetic_operation ')' {
-                    if (tercetos.hasNestingExpressions($2.sval)) Logger.logError(aLexico.getProgramPosition(), "No se permite el anidamiento de expresiones.");
-                  $$ = new ParserVal($2.sval);  }  //Aca se debe chequear que sea un nivel de ()?
+                    if (tercetos.hasNestingExpressions($2.sval)) 
+                      Logger.logError(aLexico.getProgramPosition(), "No se permite el anidamiento de expresiones.");
+                    $$ = new ParserVal($2.sval);  
+                 }  //Aca se debe chequear que sea un nivel de ()?
                  | '(' ')' {Logger.logError(aLexico.getProgramPosition(), "Termino vacio.");}
 ;
 
 conversion_expression : TOD '(' arithmetic_operation ')' {
-                          $$ = new ParserVal(tercetos.add("TOD", $3.sval, "-")); tercetos.TODtracking($$.sval);
-                          Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una conversion explicita.");}
+                          $$ = new ParserVal(tercetos.add("TOD", $3.sval, "-"));
+                          tercetos.TODtracking($$.sval);
+                          Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una conversion explicita.");
+                       }
                       | TOD '(' error ')' {Logger.logError(aLexico.getProgramPosition(), "No se puede convertir la expresion declarada.");}
                       | TOD '{' error '}' {Logger.logError(aLexico.getProgramPosition(), "El metodo TOD debe estar delimitado por parentesis \"(...)\".");}
                       | TOD '{' '}' {Logger.logError(aLexico.getProgramPosition(), "El metodo TOD debe estar delimitado por parentesis \"(...)\".");}
@@ -339,9 +446,9 @@ conversion_expression : TOD '(' arithmetic_operation ')' {
 
 factor : CTE_DOUBLE {$$ = new ParserVal($1.sval); } 
        | CTE_UINT {$$ = new ParserVal($1.sval);} 
-       | CTE_LONG {$$ = new ParserVal(chequearRangoLong($1.sval));} 
-       | '-'CTE_DOUBLE {$$ = new ParserVal(negarDouble($2.sval));}
-       | '-'CTE_LONG {$$ = new ParserVal(negarLong($2.sval));}
+       | CTE_LONG {$$ = new ParserVal(TablaTipos.chequearRangoLong($1.sval, aLexico.getProgramPosition()));} 
+       | '-'CTE_DOUBLE {$$ = new ParserVal(TablaTipos.negarDouble($2.sval));}
+       | '-'CTE_LONG {$$ = new ParserVal(TablaTipos.negarLong($2.sval));}
        | '-'CTE_UINT {Logger.logError(aLexico.getProgramPosition() ,"Los tipos UINT deben ser sin signo."); $$ = new ParserVal($2.sval);}
 ;
 
@@ -353,12 +460,11 @@ method_invocation : ID '(' real_parameter ')' {
                       
                       if (!tercetos.linkInvocation(ref, $3.sval))
                         Logger.logError(aLexico.getProgramPosition(), "El metodo a invocar no posee parametro formal.");
-                    } else {
-                      Logger.logError(aLexico.getProgramPosition(), "El metodo " + $1.sval + " no esta al alcance.");
-                    }
+                      } else {
+                        Logger.logError(aLexico.getProgramPosition(), "El metodo " + $1.sval + " no esta al alcance.");
+                      }
                   }
                   | ID '(' ')' {
-                    
                     String ref = scope.searchFunc($1.sval);
                     if (ref != null ){
                       Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo, sin pj de parametro.");
@@ -366,9 +472,9 @@ method_invocation : ID '(' real_parameter ')' {
 
                       if (!tercetos.linkInvocation(ref))
                         Logger.logError(aLexico.getProgramPosition(), "El metodo a invocar posee parametro formal.");
-                    } else 
-                      Logger.logError(aLexico.getProgramPosition(), "El metodo " + $1.sval + " no esta al alcance.");
-                    
+                      else 
+                        Logger.logError(aLexico.getProgramPosition(), "El metodo " + $1.sval + " no esta al alcance.");
+                    }
                   }
                   | ID '(' real_parameter error ')' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
                   | field_acces '(' real_parameter ')' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo desde una clase, con pj de parametro.");}
@@ -381,21 +487,48 @@ method_invocation : ID '(' real_parameter ')' {
 >>>     TYPES
 
 */
-type : primitive_type 
-     | reference_type
+type : primitive_type
+     | class_type
 ;
 
 primitive_type : numeric_type
 ;
 
-reference_class : ID {$$ = new ParserVal($1.sval); TablaClases.actualImplFor = $1.sval;}
+class_type : ID {
+                    String reference = scope.searchClass($1.sval);
+
+                    if (reference == null) {
+                      Logger.logError(aLexico.getProgramPosition(), "La clase " + $1.sval + " no esta al alcance.");
+                      $$ = new ParserVal("");
+                    } else {
+                      $$ = new ParserVal($1.sval);
+                    }
+                  }
+;
+
+reference_class : ID {
+                    String reference = scope.searchClass($1.sval);
+                    //Revisar esto
+                    if (reference == null) {
+                      Logger.logError(aLexico.getProgramPosition(), "La clase " + $1.sval + " no esta al alcance.");
+                      $$ = new ParserVal("");
+                    } else {
+                      scope.stack($1.sval);
+                      $$ = new ParserVal(reference);
+                    }
+                  }
+
+;
 
 reference_type : ID {
                     String reference = scope.searchVar($1.sval);
-                    if(reference == null)
+                    if(reference == null) {
                       Logger.logError(aLexico.getProgramPosition(), "La variable " + $1.sval + " no esta al alcance.");
-                    else
+                      $$ = new ParserVal("");
+                    }
+                    else 
                       $$ = new ParserVal(reference);
+                    
                }
 ;
 
@@ -413,8 +546,12 @@ floating_type : DOUBLE {$$ = new ParserVal("DOUBLE");}
 
 type_name : ID {
                   String reference = scope.searchVar($1.sval);
-                  if(reference == null)
+                  if (reference == null) {
+                    $$ = new ParserVal("");
                     Logger.logError(aLexico.getProgramPosition(), "La interface " + $1.sval + " no esta al alcance.");
+                  } else {
+                    $$ = new ParserVal(reference);
+                  }
                }
 ;
 
@@ -463,11 +600,19 @@ executable_statement : if_then_declaration
                      | empty_statement
 ;
 
+
 local_variable_declaration : type variable_declarators ',' {
-                              TablaSimbolos.addTipoVariable($1.sval, $2.sval, scope.getCurrentScope());
-                              addAtributosInstanciaClase($1.sval, $2.sval + scope.getCurrentScope());
-                              Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una declaracion de variable local.");}
+                              if (!($1.sval.isEmpty() || $2.sval.isEmpty())) {
+                                TablaSimbolos.addTipoVariable($1.sval, $2.sval);                      
+
+                                if (TablaSimbolos.isClass($1.sval + scope.getScopeMain())) {
+                                  TablaClases.addInstancia($1.sval, $2.sval);
+                                }
+                                Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una declaracion de variable local.");
+                              }
+                            }
 ;
+
 
 
 statement : statement_without_trailing_substatement
@@ -484,7 +629,7 @@ statement_without_trailing_substatement : block
 ;
 
 expression_statement : statement_expression ','
-                     | statement_expression ';' {Logger.logError(aLexico.getProgramPosition()-1, "Se esperaba una \',\' en el final de la sentencia.");}
+                     | statement_expression ';' {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' en el final de la sentencia.");}
 ;
 
 statement_expression : assignment 
@@ -495,8 +640,10 @@ empty_statement : ','
 ;
 
 
-if_then_declaration : IF if_then_cond if_then_body END_IF ','  {tercetos.backPatching(0); tercetos.addLabel();}
-                    {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia IF.");}
+if_then_declaration : IF if_then_cond if_then_body END_IF ','  {
+                         tercetos.backPatching(0);
+                         tercetos.addLabel();
+                         Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia IF.");}
                     | IF if_then_cond if_then_body error ',' {Logger.logError(aLexico.getProgramPosition(), "La sentencia de control IF debe terminar con la palabra reservada END_IF.");}
 ;
 
@@ -511,8 +658,11 @@ if_then_body : executable_statement
              | local_variable_declaration {Logger.logError(aLexico.getProgramPosition(), "No se permiten sentencias declarativas en una sentencia IF.");}
 ;
 
-if_then_else_declaration : IF if_then_cond if_then_else_body END_IF ',' 
-                         {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia IF ELSE."); tercetos.backPatching(0); tercetos.addLabel();}
+if_then_else_declaration : IF if_then_cond if_then_else_body END_IF ',' {
+                            Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia IF ELSE.");
+                            tercetos.backPatching(0);
+                            tercetos.addLabel();
+                          }
 ; 
 
 if_else_then_body : executable_statement {tercetos.backPatching(1); tercetos.addUncondBranch(); tercetos.addLabel();}
@@ -529,24 +679,26 @@ if_then_else_body : if_else_then_body ELSE if_else_body
 ;
 
 for_in_range_statement : FOR for_in_range_initializer IN RANGE for_in_range_cond for_in_range_body {
-                         Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia FOR IN RANGE.");
-                         tercetos.add("+", $2.sval, "-");
-                         tercetos.backPatching();
-                         tercetos.stack();
-                         tercetos.add("=", $2.sval, $$.sval);
-                         tercetos.backPatching();
-                         tercetos.addUncondBranch(false);
-                         tercetos.backPatching(0); //Agrego el salto del CB
-                         tercetos.backPatching(); //Agrego el salgo del UB
-                         tercetos.addLabel();
+                          Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia FOR IN RANGE.");
+                          tercetos.add("+", $2.sval, "-");
+                          tercetos.backPatching();
+                          tercetos.stack();
+                          tercetos.add("=", $2.sval, $$.sval);
+                          tercetos.backPatching();
+                          tercetos.addUncondBranch(false);
+                          tercetos.backPatching(0); //Agrego el salto del CB
+                          tercetos.backPatching(); //Agrego el salgo del UB
+                          tercetos.addLabel();
                          }
 ;
 
 for_in_range_initializer : reference_type {
-                               $$ = new ParserVal($1.sval);
-                               tercetos.add("=", $1.sval, "-");
-                               tercetos.stack($1.sval);
-                               tercetos.stack();
+                               if (!$1.sval.isEmpty()) {
+                                $$ = new ParserVal($1.sval);
+                                tercetos.add("=", $1.sval, "-");
+                                tercetos.stack($1.sval);
+                                tercetos.stack();
+                               }
                          }
                          | error IN {Logger.logError(aLexico.getProgramPosition(), "Error en la signatura del FOR IN RANGE.");}
 ;
@@ -582,7 +734,9 @@ for_update : factor {$$ = new ParserVal($1.sval);}
 for_end : factor {$$ = new ParserVal($1.sval);}
 ;
 
-function_declaration : method_header method_body_without_prototype {scope.deleteLastScope();}
+function_declaration : method_header method_body_without_prototype {
+                        scope.deleteLastScope();
+                      }
 ;
 
 method_body_without_prototype : block
@@ -620,136 +774,6 @@ void yyerror(String msg) {
     System.out.println("Error en el parser: " + msg + " in " + val_peek(0).sval);
 }
 
-// ###############################################################
-// metodos auxiliares a la gramatica
-// ###############################################################
-
-
-  private String acomodarString(String atributo, String instancia){
-    String[] ambitos = instancia.split("@");
-
-    String instancia_aux = ambitos[0] + "." + atributo;
-    for(int i = 1; i < ambitos.length; i++){
-        String s = ambitos[i];
-        instancia_aux = instancia_aux + "@" + s;
-    };
-    return instancia_aux;
-  };
-
-  private void addAtributosInstanciaClase(String tipo, String instancia){
-    //todavia no está implementado para que haya multiples declaraciones al estilo clase3 m;v;c;x,
-    String clase = tipo.split("@")[0];
-    if(TablaClases.t.contains(clase)){ //si el tipo es una clase, entonces creo todos sus atributos
-      String[] instancias = instancia.split(";");
-      for (String i: instancias){
-        for(String s: TablaClases.a){
-          if(s.contains(clase)){
-            String atributo = s.split("@")[0];
-            String instancia_aux = acomodarString(atributo,instancia);
-            TablaSimbolos.addIdentificador(instancia_aux);
-            TablaSimbolos.addAtributo(instancia_aux,"tipo", TablaClases.tipoDeAtributo(atributo,clase));
-          };
-        }
-      };
-    }
-
-
-  }
-
-  private void setMetodoDeclarado(String lexema, String declarado){
-    //Acá yo voy a recibir @ambitos@funcion y la debo buscar en la tabla de simbolos como
-    //funcion@ambitos
-    String[] ambitos = lexema.split("@");
-    String metodo = ambitos[ambitos.length-1];
-    String clase = ambitos[ambitos.length-2];
-    TablaClases.setMetodoDeclarado(metodo + "@" + clase, declarado);
-  };
-
-    private boolean chequeoMetodoClase(String value){
-
-        String instancia = value.split("-")[0];
-        String metodo = value.split("-")[1];
-        String claseInstancia = TablaSimbolos.tablaSimbolos.get(instancia).get("tipo");
-        metodo = metodo + "@main@" + claseInstancia;
-
-        if(TablaSimbolos.tablaSimbolos.get(metodo) != null){
-            System.out.println("EL METODO Y LA INSTANCIA PERTENECEN A LA MISMA CLASE");
-            return true;
-        } else {
-            System.out.println("METODO E INSTANCIA NO PERTENECEN A LA MISMA CLASE O ES UN ATRIBUTO");
-            return false;
-        }
-    }
-
-
-
-
-
-private String negarDouble(String lexema) {
-
-    String n_lexema = lexema;
-
-    try {
-      n_lexema = String.valueOf(-Double.parseDouble(lexema));
-    } catch (Exception ex) {}
-
-    addTablaSimbolos(lexema, n_lexema, "D");
-
-    return n_lexema;
-  }
-
-
-private void addTablaSimbolos(String lexema, String n_lexema, String tipo) {
-
-    if (!TablaSimbolos.containsKey(n_lexema)) {
-      if (tipo == "D") { // Perdon Luis por hacer un if por tipos
-        TablaSimbolos.addDouble(n_lexema);
-      } else {
-        TablaSimbolos.addLong(n_lexema);
-      }
-    } else {
-      TablaSimbolos.increaseCounter(n_lexema);
-    }
-    
-    TablaSimbolos.decreaseCounter(lexema);
-}
-
-private String chequearRangoLong(String lexema) {
-
-    long RDN_MAX = (long) Math.pow(2, 31) - 1;
-    long number = 0;
-
-    try {
-      number = Long.parseLong(lexema);
-    } catch (Exception ex) {}
-
-    if (number > RDN_MAX) {
-      Logger.logWarning(aLexico.getProgramPosition(),
-          "El LONG se excedio de rango, el mismo fue truncado al valor " + RDN_MAX + ".");
-      String n_lexema = String.valueOf(RDN_MAX) + "L";
-      addTablaSimbolos(lexema, n_lexema, "L");
-
-      return n_lexema;
-    }
-
-    return lexema;
-}
-
-
-private String negarLong(String lexema) {
-  
-    long number = 0;
-
-    try {
-        number = -Long.parseLong(lexema.replaceAll("L", ""));
-    } catch (Exception ex) {}
-
-    String n_lexema = String.valueOf(number) + "L";
-
-    addTablaSimbolos(lexema, n_lexema, "L");
-
-    return n_lexema;
-}
 
 // ###############################################################
 // metodos de lectura de los programadas

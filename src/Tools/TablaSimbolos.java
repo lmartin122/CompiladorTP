@@ -10,13 +10,19 @@ public class TablaSimbolos {
     public static final String valorLexema = "lexema";
     public static final String SIN_PARAMETRO = "s/p";
 
-    private static final String TIPO = "tipo";
+    public static final String TIPO = "TIPO";
+    public static final String METODO = "METODO";
+    public static final String FUNCTION = "FUNCTION";
+    public static final String ID = "ID";
+    public static final String CLASS = "CLASS";
+
     private static final String CONTADOR = "contador";
     private static final String USO = "uso";
     private static final String USADO = "usada_r";
     private static final String PARAMETRO = "parametro";
+    private static final String IMPLEMENTADO = "implementado";
     // private static int identifierNumber = 0;
-    private static final HashMap<String, String> toErase = createAttribute(USO, TablaTipos.ID);
+    private static final HashMap<String, String> toErase = createAttribute(USO, ID);
 
     private static void addTipo(String tipo, String key) {
         try {
@@ -26,12 +32,12 @@ public class TablaSimbolos {
         }
     };
 
-    public static void addTipoVariable(String tipo, String variable, String scope) {
+    public static void addTipoVariable(String tipo, String variable) {
         // System.out.println(variable + " ES DE TIPO: " + tipo + " SCOPE: " + scope);
         String[] identificadores = variable.split(";");
 
         for (String identificador : identificadores) {
-            addTipo(tipo, identificador + scope);
+            addTipo(tipo, identificador);
         }
         ;
     };
@@ -41,8 +47,7 @@ public class TablaSimbolos {
     }
 
     public static void addClase(String key) {
-        System.out.println("ADDCLASE: " + key);
-        tablaSimbolos.put(key, createAttribute(TIPO, "CLASS"));
+        tablaSimbolos.put(key, createAttribute(USO, CLASS));
     };
 
     public static void addClasePerteneciente(String key, String value_atributo) {
@@ -74,11 +79,15 @@ public class TablaSimbolos {
     }
 
     public static void addFunction(String cadena) {
-        tablaSimbolos.put(cadena, createAttribute(USO, TablaTipos.FUNCTION));
+        tablaSimbolos.put(cadena, createAttribute(USO, FUNCTION));
+    }
+
+    public static void addMetodo(String cadena) {
+        tablaSimbolos.put(cadena, createAttribute(USO, METODO));
     }
 
     public static void addIdentificador(String new_symbol) {
-        tablaSimbolos.put(new_symbol, createAttribute(USO, TablaTipos.ID));
+        tablaSimbolos.put(new_symbol, createAttribute(USO, ID));
     }
 
     public static void addUInteger(Object uint) {
@@ -163,7 +172,7 @@ public class TablaSimbolos {
             tablaSimbolos.remove(lexema);
             tablaSimbolos.put(n_lexema, attributes);
         } else {
-            tablaSimbolos.put(n_lexema, createAttribute(USO, TablaTipos.ID));
+            tablaSimbolos.put(n_lexema, createAttribute(USO, ID));
         }
     }
 
@@ -186,25 +195,25 @@ public class TablaSimbolos {
         tablaSimbolos.entrySet().removeIf(entry -> entry.getValue().equals(toErase) && Scope.outMain(entry.getKey()));
     }
 
-    public static boolean isClass(String k) {
-        if (containsKey(k))
-            return tablaSimbolos.get(k).get(TIPO).equals("class");
+    private static boolean hasAttribute(String k, String a) {
+        if (containsKey(k)) {
+            String uso = tablaSimbolos.get(k).get(USO);
+            return (uso == null) ? false : uso.equals(a);
+        }
 
         return false;
     }
 
     public static boolean isID(String k) {
-        if (containsKey(k))
-            return tablaSimbolos.get(k).get(USO).equals(TablaTipos.ID);
-
-        return false;
+        return hasAttribute(k, ID);
     }
 
     public static boolean isFunction(String k) {
-        if (containsKey(k))
-            return tablaSimbolos.get(k).get(USO).equals(TablaTipos.FUNCTION);
+        return hasAttribute(k, FUNCTION);
+    }
 
-        return false;
+    public static boolean isClass(String k) {
+        return hasAttribute(k, CLASS);
     }
 
     public static String getTypeLexema(String l) {
@@ -219,6 +228,21 @@ public class TablaSimbolos {
             return tablaSimbolos.get(k).get(PARAMETRO);
 
         return null;
+    }
+
+    public static void setFuncPrototype(String r) {
+
+        if (!containsKey(r))
+            return;
+
+        tablaSimbolos.get(r).put(IMPLEMENTADO, "False");
+    }
+
+    public static void setImplemented(String r) {
+        if (!containsKey(r))
+            return;
+
+        tablaSimbolos.get(r).put(IMPLEMENTADO, "True");
     }
 
     public static void setUsed(String r) {

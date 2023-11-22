@@ -11,7 +11,7 @@ import Tools.TablaTipos;
 public class Scope {
     private StringBuilder ambito;
     private PropertyChangeSupport support; // El observer va a hacer el terceto, para saber cuando cambia de ambito
-    private final String SEPARATOR = "@";
+    public static final String SEPARATOR = "@";
     private static final String MAIN = "@main";
     private final int LIMITED_NESTING = 3;
 
@@ -27,6 +27,10 @@ public class Scope {
 
     private boolean inMain() {
         return ambito.toString().equals(MAIN);
+    }
+
+    public static String getScopeMain() {
+        return MAIN;
     }
 
     public static boolean outMain(String s) {
@@ -51,8 +55,6 @@ public class Scope {
         if (!outMain(toSearch) && !f.invoke(toSearch))
             return toSearch;
 
-        System.out.println("No deberia retornar " + toSearch);
-
         return null;
 
     }
@@ -68,8 +70,17 @@ public class Scope {
                 (e) -> !(TablaSimbolos.isFunction(e)));
     }
 
-    private ArrayList<String> getAmbitos() {
-        String[] parts = getCurrentScope().split(SEPARATOR);
+    public String searchClass(String r) {
+        return search(r,
+                (e) -> !(TablaSimbolos.isClass(e)));
+    }
+
+    public ArrayList<String> getAmbitos() {
+        return getAmbitos(getCurrentScope());
+    }
+
+    public ArrayList<String> getAmbitos(String a) {
+        String[] parts = a.split(SEPARATOR);
         ArrayList<String> result = new ArrayList<>(Arrays.asList(parts));
         result.removeIf(String::isEmpty);
 

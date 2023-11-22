@@ -4,7 +4,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Stack;
-
 import Tools.TablaSimbolos;
 
 import java.util.HashMap;
@@ -38,12 +37,12 @@ public class Tercetos implements PropertyChangeListener {
             return toString().length();
         }
 
-        public void setFirst(String s) {
-            first = s;
-        }
-
         public String getFirst() {
             return first;
+        }
+
+        public void setFirst(String s) {
+            first = s;
         }
 
         public void setSecond(String s) {
@@ -54,12 +53,12 @@ public class Tercetos implements PropertyChangeListener {
             return second;
         }
 
-        public void setThird(String s) {
-            third = s;
-        }
-
         public String getThird() {
             return third;
+        }
+
+        public void setThird(String s) {
+            third = s;
         }
 
         public void setType(String type) {
@@ -460,8 +459,14 @@ public class Tercetos implements PropertyChangeListener {
         if (!rules.isEmpty()) {
             System.out.println(">>>    LISTA DE TERCETOS");
 
-            for (ArrayList<Terceto> t : rules.values()) {
-                for (Terceto rule : t) {
+            for (Map.Entry<String, ArrayList<Terceto>> func : rules.entrySet()) {
+                int key_l = ("Función " + func.getKey()).length();
+
+                if (key_l > maxLengthSC) {
+                    maxLengthSC = key_l;
+                }
+
+                for (Terceto rule : func.getValue()) {
                     if (rule.length() > maxLengthSC)
                         maxLengthSC = rule.length();
                 }
@@ -477,14 +482,15 @@ public class Tercetos implements PropertyChangeListener {
 
                 int titleLength = title.length();
                 int totalLength = maxLengthFC + maxLengthSC + 4;
-                int leftPadding = (totalLength - titleLength) / 2;
-                int rightPadding = totalLength - titleLength - leftPadding;
+                int leftPadding = maxLengthFC;
+                int rightPadding = totalLength - leftPadding;
 
                 String border = "+" + "-".repeat(totalLength) + "+";
 
                 System.out.println(border);
                 System.out.println("|" + " ".repeat(leftPadding) + title + " ".repeat(rightPadding) + "|");
                 System.out.println(border);
+
                 for (int i = 0; i < rulesFunc.size(); i++) {
                     String formattedRule = String.format(formatFC, i);
                     formattedRule += String.format(formatSC, rulesFunc.get(i));
@@ -499,5 +505,9 @@ public class Tercetos implements PropertyChangeListener {
         }
 
     }
+
+    // ###############################################################
+    // >>> Metodos para iterar (No llegue :())
+    // ###############################################################
 
 }
