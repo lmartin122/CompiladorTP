@@ -202,7 +202,7 @@ method_declarator : method_name '(' formal_parameter ')'{
                     if(!scope.isDeclaredInMyScope($1.sval)){
                       Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo con p/j de parametro.");
                       $$ = new ParserVal($1.sval);
-                      TablaSimbolos.addParameter($1.sval, $3.sval + scope.getCurrentScope());
+                      TablaSimbolos.addParameter($1.sval, $3.sval);
                     } else {
                       Logger.logError(aLexico.getProgramPosition(), "El metodo ya esta declarado en el ambito" + scope.getCurrentScope() + " .");
                       $$ = new ParserVal("");
@@ -466,6 +466,7 @@ method_invocation : ID '(' real_parameter ')' {
                   }
                   | ID '(' ')' {
                     String ref = scope.searchFunc($1.sval);
+
                     if (ref != null ){
                       Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo, sin pj de parametro.");
                       $$ = new ParserVal(ref);
@@ -476,9 +477,34 @@ method_invocation : ID '(' real_parameter ')' {
                         Logger.logError(aLexico.getProgramPosition(), "El metodo " + $1.sval + " no esta al alcance.");
                     }
                   }
+                  | field_acces '(' real_parameter ')' {
+                      String ref = scope.searchFunc($1.sval);
+
+                      if (ref != null ){
+                        Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo desde una clase, con pj de parametro.");
+                        $$ = new ParserVal(ref);
+                        
+                        if (!tercetos.linkInvocation(ref, $3.sval))
+                          Logger.logError(aLexico.getProgramPosition(), "El metodo a invocar no posee parametro formal.");
+                        } else {
+                          Logger.logError(aLexico.getProgramPosition(), "El metodo " + $1.sval + " no esta al alcance.");
+                        }
+                  }
+                  | field_acces '(' ')' {
+  
+                      String ref = scope.searchFunc($1.sval);
+                      
+                      if (ref != null ){
+                        Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo desde una clase, sin pj de parametro.");
+                        $$ = new ParserVal(ref);
+
+                        if (!tercetos.linkInvocation(ref))
+                          Logger.logError(aLexico.getProgramPosition(), "El metodo a invocar posee parametro formal.");
+                        else 
+                          Logger.logError(aLexico.getProgramPosition(), "El metodo " + $1.sval + " no esta al alcance.");
+                      }
+                   }
                   | ID '(' real_parameter error ')' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
-                  | field_acces '(' real_parameter ')' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo desde una clase, con pj de parametro.");}
-                  | field_acces '(' ')' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo desde una clase, sin pj de parametro.");}
                   | field_acces '(' real_parameter error ')' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
 ;
 

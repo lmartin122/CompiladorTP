@@ -1,0 +1,30 @@
+{
+    CLASS z {
+        UINT b,
+
+        VOID h(){
+            RETURN,
+        }
+    }
+
+    CLASS w {
+        UINT f,
+
+        VOID t (){
+            PRINT % a %,
+
+            RETURN,
+        }
+    }
+
+    CLASS mymy {
+        UINT x,
+        UINT y,
+        w g,
+
+        VOID m(),
+        z,
+    }
+
+    mymy a,
+}
