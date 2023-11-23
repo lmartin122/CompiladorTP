@@ -28,6 +28,7 @@ import java.io.File;
 import Lexico.AnalizadorLexico;
 
 import GCodigo.Tercetos;
+import GWebAssembly.GeneradorAssembler;
 import GCodigo.Scope;
 
 import Tools.Logger;
@@ -889,7 +890,6 @@ private void addTablaSimbolos(String lexema, String n_lexema, String tipo) {
       } else {
         TablaSimbolos.addLong(n_lexema);
       }
-      TablaSimbolos.addContador(n_lexema);
     } else {
       TablaSimbolos.increaseCounter(n_lexema);
     }
@@ -1044,9 +1044,10 @@ public static void main (String [] args) throws IOException {
 
     //aSintactico.dump_stacks(yylval_recognition);
     System.out.println(Logger.dumpLog());
-
+    System.out.println("Tercetos\n" + tercetos.getTercetos());
     if(!Logger.errorsOcurred()){
       System.out.println("No se produjeron errores."); //Para la parte 4, generacion de codigo maquina
+      GeneradorAssembler.generarCodigoAssembler(tercetos);
     }
 
     tercetos.printRules();
