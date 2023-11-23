@@ -73,10 +73,10 @@ class_declaration : CLASS class_name class_body {
                           String error = TablaClases.chequeoAtributoSobreescrito($2.sval);
                           if (error != null) 
                             Logger.logError(aLexico.getProgramPosition(), error);
-
-                          if(TablaClases.implementaMetodosInterfaz($2.sval,$3.sval)){
+                          if (!$3.sval.isEmpty()) {
+                            if (TablaClases.implementaMetodosInterfaz($2.sval,$3.sval))
                               Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una CLASS que implementa una interface e implementa todos sus metodos.");
-                          } else {
+                            else 
                               Logger.logError(aLexico.getProgramPosition(), "Se reconocio una CLASS que implementa una interface y NO implementa todos sus metodos.");
                           }
 
@@ -161,7 +161,7 @@ variable_initializer : arithmetic_operation
 ;
 
 method_declaration : method_header method_body ',' {
-                      if (!$1.sval.isEmpty()){
+                      if (!$1.sval.isEmpty()) {
                         ArrayList<String> ambitos = scope.getAmbitos($1.sval);
                         String _method = ambitos.get(0); 
                         String _class = ambitos.get(2);
@@ -172,10 +172,10 @@ method_declaration : method_header method_body ',' {
                           } else {
                             TablaClases.addMetodo(_method, _class);
                           }
+                      scope.deleteLastScope();
                       }
-                      scope.deleteLastScope();}
+                   }
                    | method_header method_body {
-
                       if (!$1.sval.isEmpty()){
                           ArrayList<String> ambitos = scope.getAmbitos($1.sval);
                           String _method = ambitos.get(0); 
@@ -187,8 +187,8 @@ method_declaration : method_header method_body ',' {
                           } else {
                             TablaClases.addMetodo(_method, _class);
                           }
-                      }
                       scope.deleteLastScope();
+                      }
                     }
 ;
 
@@ -198,41 +198,50 @@ method_header : result_type method_declarator {$$ = new ParserVal($2.sval);}
 result_type : VOID 
 ;
 
-method_declarator : method_name '(' formal_parameter ')'{
-                    if(!scope.isDeclaredInMyScope($1.sval)){
-                      Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo con p/j de parametro.");
-                      $$ = new ParserVal($1.sval);
-                      TablaSimbolos.addParameter($1.sval, $3.sval);
-                    } else {
-                      Logger.logError(aLexico.getProgramPosition(), "El metodo ya esta declarado en el ambito" + scope.getCurrentScope() + " .");
-                      $$ = new ParserVal("");
-                    }
-                    
+method_declarator : method_name '(' formal_parameter ')' {
+                      String ref = $1.sval;
+                      String par = $3.sval;
+                      if (!ref.isEmpty() && !par.isEmpty()) {
+                        Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo con p/j de parametro.");
+                        $$ = new ParserVal(ref);
+                        TablaSimbolos.addParameter(ref, par);
+                      } else 
+                        Logger.logError(aLexico.getProgramPosition(), "No se reconocio un metodo con p/j de parametro.");
+                      
                   }
                   | method_name '(' ')' {
-                    if(!scope.isDeclaredInMyScope($1.sval)){
-                      Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo sin p/j de parametro.");
-                      $$ = new ParserVal($1.sval);
-                      TablaSimbolos.addParameter($1.sval);
-                    } else {
-                      Logger.logError(aLexico.getProgramPosition(), "El metodo ya esta declarado en el ambito" + scope.getCurrentScope() + " .");
-                      $$ = new ParserVal("");
-                    }
-                    
+                      String ref = $1.sval;
+                      if (!ref.isEmpty()) {
+                        Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo sin p/j de parametro.");
+                        $$ = new ParserVal(ref);
+                        TablaSimbolos.addParameter(ref);
+                      } 
                   }
                   | method_name '(' formal_parameter error ')' { Logger.logError(aLexico.getProgramPosition(), "Solo se permite la declaracion de un unico parametro formal.");}
                   | method_name '{' error '}'{ Logger.logError(aLexico.getProgramPosition(), "La declaracion de un metodo debe estar delimitado por parentesis \"(...)\"."); }
 ;
 
-method_name : ID {
-                if (scope.hasPassedNesting())
-                  Logger.logError(aLexico.getProgramPosition(), "Solo se permite 2 niveles de anidamiento en las funciones/metodos.");
-                else {
-                  $$ = new ParserVal(scope.changeScope($1.sval));
-                  TablaSimbolos.addFunction($$.sval);
-                  scope.stack($1.sval);
-                }
+{
 
+                    
+                    
+}
+
+
+method_name : ID {
+                if(!scope.isDeclaredInMyScope($1.sval)){
+                  if (scope.hasPassedNesting()) {
+                    Logger.logError(aLexico.getProgramPosition(), "Solo se permite 1 nivel de anidamiento en los metodos.");
+                    $$ = new ParserVal("");
+                  } else {
+                    $$ = new ParserVal(scope.changeScope($1.sval));
+                    TablaSimbolos.addFunction($$.sval);
+                    scope.stack($1.sval);
+                  }
+                } else {
+                    Logger.logError(aLexico.getProgramPosition(), "El metodo ya esta declarado en el ambito" + scope.getCurrentScope() + ".");
+                    $$ = new ParserVal("");
+                }
               }
 
 // Permito la creacion de multiples block en un metodo, se debe chequear que luego permita
@@ -263,32 +272,35 @@ inheritance_declaration : class_type ',' {
                                 TablaClases.addHerencia(_class, _parentClass);
                                 Logger.logRule(aLexico.getProgramPosition(), "La clase " + _class + " hereda de " + _parentClass + ".");
                             } else {
-                                Logger.logError(aLexico.getProgramPosition(), "La clase " + $1.sval + " a la cual se quiere heredar no existe");
+                                Logger.logError(aLexico.getProgramPosition(), "La clase a la cual se quiere heredar no existe");
                             }
                         }
                         | class_type ';' error ',' {Logger.logError(aLexico.getProgramPosition(), "No se permite herencia multiple.");}
                         | class_type ',' error ';' {Logger.logError(aLexico.getProgramPosition(), "No se permite herencia multiple.");}
 ;
 
-interfaces : IMPLEMENT interface_type_list {$$ = new ParserVal($2.sval);}
+interfaces : IMPLEMENT interface_type_list {$$ = new ParserVal($2.sval); if ($2.sval.contains(";")) Logger.logError(aLexico.getProgramPosition(), "No se permite implementar multiples interfaces.");}
 ;
 
-interface_type_list : type_name {$$ = new ParserVal($1.sval);}
-                    | interface_type_list ';' type_name
-                    | interface_type_list ',' type_name {Logger.logError(aLexico.getProgramPosition(), "Las interfaces deben estar separadas por ';'.");}
+interface_type_list : reference_interface
+                    | interface_type_list ';' reference_interface {$$ = new ParserVal($1.sval + ";" + $3.sval);}
+                    | interface_type_list ',' reference_interface {Logger.logError(aLexico.getProgramPosition(), "Las interfaces deben estar separadas por ';'.");}
 ;
 
 interface_declaration : INTERFACE interface_name interface_body {
-                          Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una INTERFACE.");
+                          $$ = $2;
+                          String name = $2.sval;
+                          if (!name.isEmpty()) {
+                            Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una INTERFACE.");
+                          }
                       }
 ;
-
 
 interface_name : ID {
                     if (!scope.isDeclaredInMyScope($1.sval)) {
                       scope.stack($1.sval); 
                       TablaClases.addInterface($1.sval);
-                      $$ = new ParserVal("");
+                      TablaSimbolos.addInterface($1.sval); 
                     } else {
                       Logger.logError(aLexico.getProgramPosition(), "La interface " + $1.sval + " ya esta declarada en el ambito" + scope.getCurrentScope() + ".");
                       $$ = new ParserVal("");
@@ -306,14 +318,25 @@ interface_member_declaration : interface_method_declaration
                              | interface_member_declaration interface_method_declaration
 ;
 
-interface_method_declaration : constant_declaration
-                             | abstract_method_declaration
+interface_method_declaration : constant_declaration {Logger.logError(aLexico.getProgramPosition(), "No se permite la declaracion de constantes en las interfaces.");}
+                             | abstract_method_declaration {
+                                if (!$1.sval.isEmpty()) {
+                                  ArrayList<String> ambitos = scope.getAmbitos($1.sval);
+                                  String _method = ambitos.get(0); 
+                                  String _class = ambitos.get(2);
+                                  
+                                  TablaClases.addMetodoIMPL(_method, _class);                            
+                                   
+                                  scope.deleteLastScope();
+                                }
+                             }
+                             | inheritance_declaration {Logger.logError(aLexico.getProgramPosition(), "No esta permitida la herencia en una interface.");}
 ;
 
-constant_declaration : type variable_declarators
+constant_declaration : type variable_declarators 
 ;
 
-abstract_method_declaration : result_type method_declarator ',' {/*TablaClases.addInterfaz($2.sval.split("@")[0],"interfaz1");*/}
+abstract_method_declaration : result_type method_declarator ',' {$$ = $2;}
                             | result_type method_declarator {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' en el final de la sentencia.");}
                             | result_type method_declarator ';' {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' no \';\'en el final de la sentencia.");}
 ;
@@ -388,30 +411,6 @@ assignment : left_hand_side '=' arithmetic_operation  {
 left_hand_side : reference_type
 ;
 
-reference_method : primary {
-                    String reference = scope.searchFunc($1.sval);
-
-                    if(reference == null) {
-                      Logger.logError(aLexico.getProgramPosition(), "El metodo " + $1.sval + " no esta al alcance.");
-                      $$ = new ParserVal("");
-                    }
-                    else 
-                      $$ = new ParserVal(reference);
-               }
-;
-
-
-reference_type : primary {
-                    System.out.println("primary: " + $1.sval);
-                    String reference = scope.searchVar($1.sval);
-                    if(reference == null) {
-                      Logger.logError(aLexico.getProgramPosition(), "La variable " + $1.sval + " no esta al alcance.");
-                      $$ = new ParserVal("");
-                    }
-                    else 
-                      $$ = new ParserVal(reference);
-               }
-;
 
 field_acces : primary '.' ID {$$ = new ParserVal($1.sval + "." + $3.sval);}
 ;
@@ -447,7 +446,7 @@ multiplicative_expression : unary_expression {$$ = new ParserVal($1.sval);}
 ;
 
 unary_expression : factor 
-                 | primary
+                 | reference_type
                  | conversion_expression
                  | '(' arithmetic_operation ')' {
                     if (tercetos.hasNestingExpressions($2.sval)) 
@@ -512,16 +511,39 @@ type : primitive_type
 primitive_type : numeric_type
 ;
 
-class_type : ID {
-                    String reference = scope.searchClass($1.sval);
+numeric_type : integral_type 
+             | floating_type
+;
 
-                    if (reference == null) {
-                      Logger.logError(aLexico.getProgramPosition(), "La clase " + $1.sval + " no esta al alcance.");
-                      $$ = new ParserVal("");
-                    } else {
-                      $$ = new ParserVal($1.sval);
+integral_type : UINT {$$ = new ParserVal("UINT");}
+              | LONG {$$ = new ParserVal("LONG");}
+;
+
+floating_type : DOUBLE {$$ = new ParserVal("DOUBLE");}
+;
+
+
+reference_interface : ID {
+                        String reference = scope.searchInterface($1.sval);
+                        if (reference == null) {
+                          $$ = new ParserVal("");
+                          Logger.logError(aLexico.getProgramPosition(), "La interface " + $1.sval + " no esta al alcance.");
+                        } else {
+                          $$ = new ParserVal($1.sval);
+                        }
                     }
-                  }
+;
+
+class_type : ID {
+              String reference = scope.searchClass($1.sval);
+
+              if (reference == null) {
+                Logger.logError(aLexico.getProgramPosition(), "La clase " + $1.sval + " no esta al alcance.");
+                $$ = new ParserVal("");
+              } else {
+                $$ = new ParserVal($1.sval);
+              }
+            }
 ;
 
 reference_class : ID {
@@ -535,29 +557,30 @@ reference_class : ID {
                       $$ = new ParserVal(reference);
                     }
                   }
-
-;
-
-numeric_type : integral_type 
-             | floating_type
-;
-
-integral_type : UINT {$$ = new ParserVal("UINT");}
-              | LONG {$$ = new ParserVal("LONG");}
-;
-
-floating_type : DOUBLE {$$ = new ParserVal("DOUBLE");}
 ;
 
 
-type_name : ID {
-                  String reference = scope.searchVar($1.sval);
-                  if (reference == null) {
-                    $$ = new ParserVal("");
-                    Logger.logError(aLexico.getProgramPosition(), "La interface " + $1.sval + " no esta al alcance.");
-                  } else {
-                    $$ = new ParserVal(reference);
-                  }
+reference_method : primary {
+                    String reference = scope.searchFunc($1.sval);
+
+                    if(reference == null) {
+                      Logger.logError(aLexico.getProgramPosition(), "El metodo " + $1.sval + " no esta al alcance.");
+                      $$ = new ParserVal("");
+                    }
+                    else 
+                      $$ = new ParserVal(reference);
+               }
+;
+
+
+reference_type : primary {
+                    String reference = scope.searchVar($1.sval);
+                    if(reference == null) {
+                      Logger.logError(aLexico.getProgramPosition(), "La variable " + $1.sval + " no esta al alcance.");
+                      $$ = new ParserVal("");
+                    }
+                    else 
+                      $$ = new ParserVal(reference);
                }
 ;
 
@@ -566,12 +589,10 @@ type_name : ID {
 >>>     BLOCKS AND COMMANDS
 
 */
-block : '{' block_statements RETURN',' '}' {
-        tercetos.addReturn();
-      }
-      | '{' RETURN',' '}' {
-        tercetos.addReturn();
-      }
+block : '{' block_statements RETURN',' '}' {tercetos.addReturn();}
+      | '{' block_statements RETURN',' block_statements '}' {tercetos.addReturn(); Logger.logWarning(aLexico.getProgramPosition(), "Se esta declarando un bloque sin utilizar luego de un RETURN");}
+      | '{' RETURN',' '}' {tercetos.addReturn();}
+      | '{' RETURN',' block_statements '}' {tercetos.addReturn(); Logger.logWarning(aLexico.getProgramPosition(), "Se esta declarando un bloque sin utilizar luego de un RETURN");}
       | '{' block_statements '}' {Logger.logError(aLexico.getProgramPosition(), "Es necesario declarar el retorno del bloque.");}
       | '(' block_statements RETURN',' ')' {Logger.logError(aLexico.getProgramPosition(), "Un bloque debe estar delimitado por llaves \"{...} y es necesario declarar el retorno del bloque.");}
       | '(' RETURN',' ')' {Logger.logError(aLexico.getProgramPosition(), "Un bloque debe estar delimitado por llaves \"{...}\".");}
@@ -581,8 +602,12 @@ block : '{' block_statements RETURN',' '}' {
 
 executable_block : '{' executable_block_statements '}' 
                  | '{' '}'
-                 | '{' executable_block_statements RETURN ',' '}' {tercetos.addReturn();}
+                 | '{' executable_block_statements RETURN ',' '}' {tercetos.addReturn(); Logger.logWarning(aLexico.getProgramPosition(), "Se esta declarando un bloque sin utilizar luego de un RETURN");}
+                 | '{' executable_block_statements RETURN ',' executable_block_statements '}' {tercetos.addReturn(); Logger.logWarning(aLexico.getProgramPosition(), "Se esta declarando un bloque sin utilizar luego de un RETURN");}
                  | '{' RETURN ',' '}' {tercetos.addReturn();}
+                 | '{' RETURN ',' executable_block_statements '}' {tercetos.addReturn();}
+
+                 {Logger.logWarning(aLexico.getProgramPosition(), "Se esta declarando un bloque sin utilizar luego de un RETURN");}
 ;
 
 block_statements : block_statement 

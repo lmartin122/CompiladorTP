@@ -41,15 +41,36 @@ public class TablaClases {
         return null;
     }
 
+    private static void acomodarLista(ArrayList<String> methods) {
+        for (int i = 0; i < methods.size(); i++) {
+            String method_c = methods.get(i);
+            String[] parts = method_c.split(TYPE_SEPARATOR);
+            String method = parts[0];
+            String type = TablaSimbolos.getTypeLexema(parts[1]);
+
+            methods.set(i, (type.isEmpty()) ? method_c : method + TYPE_SEPARATOR + type);
+        }
+
+    };
+
     public static boolean implementaMetodosInterfaz(String _class, String _interface) {
 
-        ArrayList<String> methods = getMetodos(_interface);
+        ArrayList<String> methodsToImplemented = getAllMetodosIMPL(_interface);
+        ArrayList<String> methodsImplemented = getAllMetodos(_class);
 
-        if (methods.isEmpty()) {
-            for (String method : methods) {
-                if (!containsAttribute(method, _class, METODOS))
-                    return false;
-            }
+        acomodarLista(methodsImplemented);
+        acomodarLista(methodsToImplemented);
+
+        // System.out.println(_class + " implementa " + _interface);
+        // System.out.println("Existe la clase a implementar? " +
+        // existeClase(_interface));
+        // System.out.println("Metodos a implementar: " +
+        // methodsToImplemented.toString());
+        // System.out.println("Metodos implementados: " + methodsImplemented);
+
+        for (String method : methodsToImplemented) {
+            if (!methodsImplemented.contains(method))
+                return false;
         }
 
         return true;
@@ -212,6 +233,14 @@ public class TablaClases {
         addAttribute(_method, _class, METODOS);
     }
 
+    public static ArrayList<String> getMetodoIMPL(String _class) {
+        return getAttribute(_class, IMPL_FOR);
+    }
+
+    public static ArrayList<String> getAllMetodosIMPL(String _class) {
+        return getAllAttribute(_class, (e) -> getAllMetodos(e), (e) -> getMetodoIMPL(e));
+    }
+
     public static void addAtributo(String _attribute, String _class) {
         addAttribute(_attribute, _class, ATRIBUTOS);
     }
@@ -302,7 +331,7 @@ public class TablaClases {
         String attribute = instance.replaceAll(".*:([^:]+)@.*", "$1");
         instance = instance.replaceAll(":([^@]+)@", "@");
 
-        System.out.println("El id " + instance + " el atributo " + attribute);
+        // System.out.println("El id " + instance + " el atributo " + attribute);
 
         return new Tupla<String, String>(attribute, instance);
     };

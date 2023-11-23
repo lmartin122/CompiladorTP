@@ -1,25 +1,17 @@
 {
+    
+    INTERFACE filtro {
+        VOID cumple(),
+    }
 
-    CLASS w {
-        UINT f,
+    CLASS filtro_and IMPLEMENT filtro {
+        VOID cumplee(UINT a){
 
-        VOID t (){
-            PRINT % a %,
-
+            RETURN,
+        }
+        VOID cumpleple(UINT a){
             RETURN,
         }
     }
 
-    CLASS z {
-        UINT x,
-
-        VOID m(),
-        w,
-    }
-    
-    VOID p (){
-        RETURN,
-    }
-
-    z a,
 }

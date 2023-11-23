@@ -1,0 +1,21 @@
+{
+    INTERFACE filtro {
+        VOID cum(UINT a),
+    }
+
+    CLASS filtro_and {
+        UINT b,
+
+        VOID cumple(UINT z){
+            IF (z == b) {
+                PRINT % cumple %,
+            } END_IF,
+            
+            RETURN,
+        }
+
+    }
+
+    UINT b,
+    b = 3_ui + b,
+}

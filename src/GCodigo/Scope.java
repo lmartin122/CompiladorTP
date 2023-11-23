@@ -12,7 +12,8 @@ public class Scope {
     private StringBuilder ambito;
     private PropertyChangeSupport support; // El observer va a hacer el terceto, para saber cuando cambia de ambito
     public static final String SEPARATOR = "@";
-    private static final String MAIN = "@main";
+    private static final String MAIN = "main";
+    private static final String S_MAIN = SEPARATOR + MAIN;
     private final int LIMITED_NESTING = 3;
 
     private interface Lambda {
@@ -21,24 +22,22 @@ public class Scope {
     }
 
     public Scope() {
-        ambito = new StringBuilder(MAIN);
+        ambito = new StringBuilder(S_MAIN);
         support = new PropertyChangeSupport(this);
     }
 
-    private boolean inMain() {
-        return ambito.toString().equals(MAIN);
-    }
-
     public static String getScopeMain() {
-        return MAIN;
+        return S_MAIN;
     }
 
     public static boolean outMain(String s) {
-        return !s.contains(MAIN);
+        return !s.contains(S_MAIN);
     }
 
     public boolean isDeclaredInMyScope(String ref) {
+        // System.out.println(ref + " en el scope " + getCurrentScope());
         ref = ref + getCurrentScope();
+
         return TablaSimbolos.containsKey(ref);
     }
 
@@ -75,6 +74,11 @@ public class Scope {
                 (e) -> !(TablaSimbolos.isClass(e)));
     }
 
+    public String searchInterface(String r) {
+        return search(r,
+                (e) -> !(TablaSimbolos.isInterface(e)));
+    }
+
     public ArrayList<String> getAmbitos() {
         return getAmbitos(getCurrentScope());
     }
@@ -99,7 +103,7 @@ public class Scope {
 
     public void reset(String ambito) {
         this.ambito.setLength(0);
-        this.ambito.append(MAIN + SEPARATOR).append(ambito);
+        this.ambito.append(S_MAIN + SEPARATOR).append(ambito);
         firePropertyChange();
     }
 
@@ -117,7 +121,7 @@ public class Scope {
 
     public void reset() {
         this.ambito.setLength(0);
-        this.ambito.append(MAIN);
+        this.ambito.append(S_MAIN);
         firePropertyChange();
     }
 
@@ -132,8 +136,13 @@ public class Scope {
 
     public boolean hasPassedNesting() {
         ArrayList<String> ambitos = getAmbitos();
+        ambitos.remove("main");
 
-        if (ambitos.size() < LIMITED_NESTING || TablaSimbolos.isClass(ambitos.get(1)))
+        // System.out.println("Estoy en hasPassed " + ambitos
+        // + (ambitos.size() < LIMITED_NESTING));
+
+        if (ambitos.size() < LIMITED_NESTING
+                && (TablaSimbolos.isClass(ambitos.get(0)) || TablaSimbolos.isInterface(ambitos.get(0))))
             return false;
 
         return true;

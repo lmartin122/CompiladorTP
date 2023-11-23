@@ -5,9 +5,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Stack;
 
-import GCodigo.Terceto;
 import Tools.TablaSimbolos;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,8 +17,6 @@ public class Tercetos implements PropertyChangeListener {
     // Constantes
     private static final String ERROR = "error";
     private static final String TYPE_TOD = "DOUBLE";
-
-    
 
     public Tercetos() {
         rules = new HashMap<>();
@@ -154,6 +150,8 @@ public class Tercetos implements PropertyChangeListener {
         if (parameter_f.equals(TablaSimbolos.SIN_PARAMETRO))
             return false;
 
+        System.out.println("La funcion en linkInvo " + func);
+
         String type = typeTerceto(parameter_f, parameter_r);
         String ref = add("=", parameter_f, parameter_r, type);
         addInvocation(func, ref);
@@ -167,7 +165,7 @@ public class Tercetos implements PropertyChangeListener {
         String parameter_f = TablaSimbolos.getParameter(func);
 
         if (!parameter_f.equals(TablaSimbolos.SIN_PARAMETRO))
-            return true;
+            return false;
 
         addInvocation(func);
 
@@ -312,8 +310,6 @@ public class Tercetos implements PropertyChangeListener {
         Terceto t = get(pos);
         Stack<Integer> references = new Stack<>();
 
-        System.out.println(t);
-
         while (!isLeaf(t) || !references.empty()) {
             for (Integer r : t.getReferences()) {
                 references.push(r);
@@ -360,8 +356,8 @@ public class Tercetos implements PropertyChangeListener {
 
                 int titleLength = title.length();
                 int totalLength = maxLengthFC + maxLengthSC + 4;
-                int leftPadding = (totalLength - titleLength) / 2;
-                int rightPadding = totalLength - titleLength - leftPadding;
+                int leftPadding = Math.max(maxLengthFC, (totalLength - titleLength)) / 2;
+                int rightPadding = Math.max(maxLengthFC, (totalLength - titleLength - leftPadding));
 
                 String border = "+" + "-".repeat(totalLength) + "+";
 
@@ -383,7 +379,7 @@ public class Tercetos implements PropertyChangeListener {
 
     }
 
-    public HashMap<String, ArrayList<Terceto>> getTercetos(){
+    public HashMap<String, ArrayList<Terceto>> getTercetos() {
         return rules;
     }
 

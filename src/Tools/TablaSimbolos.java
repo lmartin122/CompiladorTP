@@ -14,6 +14,7 @@ public class TablaSimbolos {
     public static final String FUNCTION = "FUNCTION";
     public static final String ID = "ID";
     public static final String CLASS = "CLASS";
+    public static final String INTERFACE = "INTERFACE";
 
     public static final String TIPO = "tipo";
     private static final String USO = "uso";
@@ -33,7 +34,6 @@ public class TablaSimbolos {
     // };
 
     public static void addTipo(String tipo, String variable) {
-        System.out.println("La variable " + variable);
         addAtributo(variable, TIPO, tipo);
     };
 
@@ -53,6 +53,10 @@ public class TablaSimbolos {
 
     public static void addClase(String key) {
         tablaSimbolos.put(key, createAttribute(USO, CLASS));
+    };
+
+    public static void addInterface(String key) {
+        tablaSimbolos.put(key, createAttribute(USO, INTERFACE));
     };
 
     public static void addClasePerteneciente(String key, String value_atributo) {
@@ -215,6 +219,10 @@ public class TablaSimbolos {
 
     public static boolean isClass(String k) {
         return hasAttribute(k, CLASS);
+    }
+
+    public static boolean isInterface(String k) {
+        return hasAttribute(k, INTERFACE);
     }
 
     public static String getTypeLexema(String l) {
