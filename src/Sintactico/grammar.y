@@ -76,7 +76,7 @@ class_declaration : CLASS class_name class_body {
                           if (!$3.sval.isEmpty()) {
                             if (TablaClases.implementaMetodosInterfaz($2.sval,$3.sval))
                               Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una CLASS que implementa una interface e implementa todos sus metodos.");
-                            else 
+                            else
                               Logger.logError(aLexico.getProgramPosition(), "Se reconocio una CLASS que implementa una interface y NO implementa todos sus metodos.");
                           }
 
@@ -205,9 +205,9 @@ method_declarator : method_name '(' formal_parameter ')' {
                         Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo con p/j de parametro.");
                         $$ = new ParserVal(ref);
                         TablaSimbolos.addParameter(ref, par);
-                      } else 
+                      } else
                         Logger.logError(aLexico.getProgramPosition(), "No se reconocio un metodo con p/j de parametro.");
-                      
+
                   }
                   | method_name '(' ')' {
                       String ref = $1.sval;
@@ -215,7 +215,7 @@ method_declarator : method_name '(' formal_parameter ')' {
                         Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo sin p/j de parametro.");
                         $$ = new ParserVal(ref);
                         TablaSimbolos.addParameter(ref);
-                      } 
+                      }
                   }
                   | method_name '(' formal_parameter error ')' { Logger.logError(aLexico.getProgramPosition(), "Solo se permite la declaracion de un unico parametro formal.");}
                   | method_name '{' error '}'{ Logger.logError(aLexico.getProgramPosition(), "La declaracion de un metodo debe estar delimitado por parentesis \"(...)\"."); }
@@ -223,8 +223,8 @@ method_declarator : method_name '(' formal_parameter ')' {
 
 {
 
-                    
-                    
+
+
 }
 
 
@@ -300,7 +300,7 @@ interface_name : ID {
                     if (!scope.isDeclaredInMyScope($1.sval)) {
                       scope.stack($1.sval); 
                       TablaClases.addInterface($1.sval);
-                      TablaSimbolos.addInterface($1.sval); 
+                      TablaSimbolos.addInterface($1.sval);
                     } else {
                       Logger.logError(aLexico.getProgramPosition(), "La interface " + $1.sval + " ya esta declarada en el ambito" + scope.getCurrentScope() + ".");
                       $$ = new ParserVal("");
@@ -322,18 +322,18 @@ interface_method_declaration : constant_declaration {Logger.logError(aLexico.get
                              | abstract_method_declaration {
                                 if (!$1.sval.isEmpty()) {
                                   ArrayList<String> ambitos = scope.getAmbitos($1.sval);
-                                  String _method = ambitos.get(0); 
+                                  String _method = ambitos.get(0);
                                   String _class = ambitos.get(2);
-                                  
-                                  TablaClases.addMetodoIMPL(_method, _class);                            
-                                   
+
+                                  TablaClases.addMetodoIMPL(_method, _class);
+
                                   scope.deleteLastScope();
                                 }
                              }
                              | inheritance_declaration {Logger.logError(aLexico.getProgramPosition(), "No esta permitida la herencia en una interface.");}
 ;
 
-constant_declaration : type variable_declarators 
+constant_declaration : type variable_declarators
 ;
 
 abstract_method_declaration : result_type method_declarator ',' {$$ = $2;}
@@ -470,8 +470,19 @@ conversion_expression : TOD '(' arithmetic_operation ')' {
 factor : CTE_DOUBLE {$$ = new ParserVal($1.sval); } 
        | CTE_UINT {$$ = new ParserVal($1.sval);} 
        | CTE_LONG {$$ = new ParserVal(TablaTipos.chequearRangoLong($1.sval, aLexico.getProgramPosition()));} 
-       | '-'CTE_DOUBLE {$$ = new ParserVal(TablaTipos.negarDouble($2.sval));}
-       | '-'CTE_LONG {$$ = new ParserVal(TablaTipos.negarLong($2.sval));}
+       | '-'CTE_DOUBLE { $$ = new ParserVal(TablaTipos.negarDouble($2.sval));
+
+                       }
+
+       | '-'CTE_LONG {
+                        if(!TablaTipos.chequearRangoLongNegativo($2.sval)){
+                            Logger.logWarning(aLexico.getProgramPosition(),"LONG NEGATIVO FUERA DE RANGO SE TRUNCA AL MINIMO PERMITIDO");
+                            $$ = new ParserVal(TablaTipos.negarLong("2147483648"));
+                        } else{
+                            $$ = new ParserVal(TablaTipos.negarLong($2.sval));
+                        }
+                     }
+
        | '-'CTE_UINT {Logger.logError(aLexico.getProgramPosition() ,"Los tipos UINT deben ser sin signo."); $$ = new ParserVal($2.sval);}
 ;
 
@@ -511,7 +522,7 @@ type : primitive_type
 primitive_type : numeric_type
 ;
 
-numeric_type : integral_type 
+numeric_type : integral_type
              | floating_type
 ;
 
@@ -567,7 +578,7 @@ reference_method : primary {
                       Logger.logError(aLexico.getProgramPosition(), "El metodo " + $1.sval + " no esta al alcance.");
                       $$ = new ParserVal("");
                     }
-                    else 
+                    else
                       $$ = new ParserVal(reference);
                }
 ;
@@ -579,7 +590,7 @@ reference_type : primary {
                       Logger.logError(aLexico.getProgramPosition(), "La variable " + $1.sval + " no esta al alcance.");
                       $$ = new ParserVal("");
                     }
-                    else 
+                    else
                       $$ = new ParserVal(reference);
                }
 ;

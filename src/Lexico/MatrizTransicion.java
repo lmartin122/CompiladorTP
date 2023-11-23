@@ -37,9 +37,7 @@ public class MatrizTransicion {
             case '\t' -> 1;
             case '\n', '\r' -> 2; // salto de linea
             case 'a', 'b', 'c', 'e', 'f', 'g', 'h', 'j', 'k', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x',
-                    'y', 'z', 'A', 'B', 'C', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
-                    'T', 'U', 'V', 'W', 'X', 'Y', 'Z' ->
-                3;
+                    'y', 'z' -> 3;
             case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> 4;
             case '-' -> 5;
             case '+' -> 6;
@@ -64,6 +62,8 @@ public class MatrizTransicion {
             case 'd' -> 25;
             case 'i' -> 26;
             case ':' -> 28;
+            case 'A', 'B', 'C', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
+                    'T', 'U', 'V', 'W', 'X', 'Y', 'Z' -> 29; //Letras mayus
             default -> 27;
         };
     }

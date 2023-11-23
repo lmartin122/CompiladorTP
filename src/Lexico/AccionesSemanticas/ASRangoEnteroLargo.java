@@ -21,25 +21,25 @@ public class ASRangoEnteroLargo implements AccionSemantica {
             numero = Long.parseLong(aux);
         } catch (NumberFormatException exception) {
             error = true;
+            System.out.println("Error al parsear LONG");
         }
 
-        if (!error && numero <= (int) Math.pow(2, 31)) {
+        if (!error && numero <= (long) Math.pow(2, 31)) {
+
             aux = aux + "L";
             if (!TablaSimbolos.tablaSimbolos.containsKey(aux)) { // si la constante no está
-                // System.out.print(" ENTERO LARGO AÑADIDO");
-
                 TablaSimbolos.addLong(aux);
+                TablaSimbolos.increaseCounter(aux);
+            } else {
                 TablaSimbolos.increaseCounter(aux);
             }
         } else {
-            TablaSimbolos.addLong(String.valueOf(Math.pow(2, 31)) + "L");
-            // System.out.print("LONG fuera de rango, se convirtio al maximo permitido");
-            Logger.logError(reader.getCurrentLine(), "LONG fuera de rango");
+            TablaSimbolos.addLong(Math.pow(2, 31) + "L");
+            Logger.logWarning(reader.getCurrentLine(), "LONG fuera de rango");
 
         }
 
         buffer.setLength(0);
-
         return new Tupla<>(aux, Parser.CTE_LONG);
     }
 }

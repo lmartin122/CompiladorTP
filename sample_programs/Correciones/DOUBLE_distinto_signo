@@ -1,0 +1,29 @@
+{
+DOUBLE a;b,
+a= 1.0d+1,
+a= -1.0d+1,
+*{Deben estar ambas en la tabla}*
+
+a = -4.0d+3,
+a = 4.0d+3,
+a = -4.0d+3,
+a = -4.0d+3,
+*{Deben estar ambas en la tabla}*
+
+b = 3.0d-2,
+b = 3.0d-2,
+b = 3.0d-2,
+b = -3.0d-2,
+b = -3.0d-2,
+*{Deben estar ambas en la tabla}*
+
+b = -8.0d+0,
+b = -8.0d+0,
+b = -8.0d+0,
+b = -8.0d+0,
+*{Solo debe estar la constante negativa en la tabla}*
+
+a = 2.,
+a = 2.,
+*{Solo debe estar la constante positiva en la tabla}*
+}

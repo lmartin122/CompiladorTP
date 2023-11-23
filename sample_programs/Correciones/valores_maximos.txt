@@ -1,0 +1,21 @@
+{
+    DOUBLE a;b;c;d,
+    LONG e;f;g,
+    UINT h,
+
+
+
+    a = 1.7976931348623157D+308, *{OK. Fuera de rango se debe truncar a 1.7976931348623155E308}*
+    b = 2.2250738585072014D-308, *{OK. Fuera de rango se debe truncar a 9.9E-324}*
+
+    c = -1.7976931348623157D+308, *{OK. Fuera de rango se debe truncar a -1.7976931348623155E308}*
+    d = -2.2250738585072014D-308, *{OK. Fuera de rango se debe truncar a -9.9E-324}*
+
+
+    e = 2147483648_l, *{OK. Fuera de rango se debe truncar a 2147483647}*
+    f = -2147483648_l, *{OK. Dentro del rango, no hacer nada}*
+    g = -2147483649_l, *{OK. Fuera de rango se debe truncar a -2147483648}*
+
+    h = 65536_ui, *{OK. Fuera de rango se debe truncar a 65535}*
+
+}
