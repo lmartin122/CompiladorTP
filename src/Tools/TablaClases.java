@@ -105,8 +105,11 @@ public class TablaClases {
 
         type = TablaSimbolos.getTypeLexema(_attribute + Scope.getScopeMain() + Scope.SEPARATOR + _class);
 
-        if (type == null || type.isEmpty())
-            return "";
+        if (type == null || type.isEmpty()) {
+            type = TablaSimbolos.getParameter(_attribute + Scope.getScopeMain() + Scope.SEPARATOR + _class);
+            if (type == null)
+                return "";
+        }
 
         return TYPE_SEPARATOR + type;
     }
@@ -294,28 +297,29 @@ public class TablaClases {
         };
     }
 
-    private static String acomodarString(String atributo, String instancia) {
-        return instancia.replaceFirst("(?=@)", (atributo.startsWith(".") ? "" : ".") + atributo);
+    private static Tupla<String, String> acomodarString(String id, String instance) {
+        instance = instance.replaceFirst("(?=@)", (id.startsWith(".") ? "" : ".") + id);
+        String attribute = instance.replaceAll(".*:([^:]+)@.*", "$1");
+        instance = instance.replaceAll(":([^@]+)@", "@");
+
+        System.out.println("El id " + instance + " el atributo " + attribute);
+
+        return new Tupla<String, String>(attribute, instance);
     };
 
     private static void addMetodosInstancia(ArrayList<String> methods, String instancia) {
         for (String attribute : methods) {
-            attribute = acomodarString(attribute, instancia);
-
-            TablaSimbolos.addMetodo(attribute);
+            Tupla<String, String> out = acomodarString(attribute, instancia);
+            TablaSimbolos.addFunction(out.getSecond());
+            TablaSimbolos.addParameter(out.getSecond(), out.getFirst());
         }
     }
 
-    private static void addAtributosInstancia(ArrayList<String> attributes, String _instance, String _class) {
+    private static void addAtributosInstancia(ArrayList<String> attributes, String _instance) {
         for (String attribute : attributes) {
-            attribute = acomodarString(attribute, _instance);
-            String type = attribute.replaceAll(".*:(\\w+)@.*", "$1");
-            attribute = attribute.replaceAll(":([^@]+)@", "@");
-            System.out.println("acaa " + attribute + " " + type);
-
-            TablaSimbolos.addIdentificador(attribute);
-            TablaSimbolos.addAtributo(attribute, TablaSimbolos.TIPO, type);
-
+            Tupla<String, String> out = acomodarString(attribute, _instance);
+            TablaSimbolos.addIdentificador(out.getSecond());
+            TablaSimbolos.addTipo(out.getFirst(), out.getSecond());
         }
 
     }
@@ -326,7 +330,7 @@ public class TablaClases {
 
         for (String instancia : instancias) {
             // System.out.println("La instancia " + instancia + " de la clase " + _class);
-            addAtributosInstancia(getAllAtributos(_class), instancia, _class);
+            addAtributosInstancia(getAllAtributos(_class), instancia);
             addMetodosInstancia(getAllMetodos(_class), instancia);
         }
     }
@@ -351,7 +355,7 @@ public class TablaClases {
     // out += TablaClases.i.toString();
     // }
 
-    public static String printTable() {
+    public static String printTable() { // Lo tengo que arreglar
         String out = "";
 
         int maxLengthFC = String.valueOf(classes.size()).length();

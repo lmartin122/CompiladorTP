@@ -385,15 +385,39 @@ assignment : left_hand_side '=' arithmetic_operation  {
            | left_hand_side GREATER_THAN_OR_EQUAL_OPERATOR arithmetic_operation {Logger.logError(aLexico.getProgramPosition(), "Las asignaciones se deben hacer con el caracter '=' o '-='.");}
 ;
 
-left_hand_side : primary
+left_hand_side : reference_type
 ;
 
-field_acces : primary '.' ID {
-                                $$ = new ParserVal($1.sval + "." + $3.sval);
-                             }
+reference_method : primary {
+                    String reference = scope.searchFunc($1.sval);
+
+                    if(reference == null) {
+                      Logger.logError(aLexico.getProgramPosition(), "El metodo " + $1.sval + " no esta al alcance.");
+                      $$ = new ParserVal("");
+                    }
+                    else 
+                      $$ = new ParserVal(reference);
+               }
 ;
-primary : reference_type {$$ = $1; System.out.println("primary: ");}
-        | field_acces {$$ = new ParserVal($1.sval); System.out.println("primary: ");}
+
+
+reference_type : primary {
+                    System.out.println("primary: " + $1.sval);
+                    String reference = scope.searchVar($1.sval);
+                    if(reference == null) {
+                      Logger.logError(aLexico.getProgramPosition(), "La variable " + $1.sval + " no esta al alcance.");
+                      $$ = new ParserVal("");
+                    }
+                    else 
+                      $$ = new ParserVal(reference);
+               }
+;
+
+field_acces : primary '.' ID {$$ = new ParserVal($1.sval + "." + $3.sval);}
+;
+
+primary : ID 
+        | field_acces
 ;
 
 equality_expression : relational_expression {$$ = new ParserVal($1.sval);}
@@ -422,9 +446,9 @@ multiplicative_expression : unary_expression {$$ = new ParserVal($1.sval);}
                           | multiplicative_expression '%' unary_expression {Logger.logError(aLexico.getProgramPosition(), "El operator % no es valido.");}
 ;
 
-unary_expression : factor {$$ = $1;} 
-                 | reference_type {$$ = $1;}
-                 | conversion_expression {$$ = $1;} 
+unary_expression : factor 
+                 | primary
+                 | conversion_expression
                  | '(' arithmetic_operation ')' {
                     if (tercetos.hasNestingExpressions($2.sval)) 
                       Logger.logError(aLexico.getProgramPosition(), "No se permite el anidamiento de expresiones.");
@@ -452,62 +476,30 @@ factor : CTE_DOUBLE {$$ = new ParserVal($1.sval); }
        | '-'CTE_UINT {Logger.logError(aLexico.getProgramPosition() ,"Los tipos UINT deben ser sin signo."); $$ = new ParserVal($2.sval);}
 ;
 
-method_invocation : ID '(' real_parameter ')' {
-                    String ref = scope.searchFunc($1.sval);
-                    if (ref != null ){
-                      Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo, con pj de parametro.");
+method_invocation : reference_method '(' real_parameter ')' {
+                    String ref = $1.sval;
+                    if ( !ref.isEmpty() ){
                       $$ = new ParserVal(ref);
                       
                       if (!tercetos.linkInvocation(ref, $3.sval))
                         Logger.logError(aLexico.getProgramPosition(), "El metodo a invocar no posee parametro formal.");
-                      } else {
-                        Logger.logError(aLexico.getProgramPosition(), "El metodo " + $1.sval + " no esta al alcance.");
-                      }
+                      else
+                        Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo, con pj de parametro.");
+                    } 
                   }
-                  | ID '(' ')' {
-                    String ref = scope.searchFunc($1.sval);
-
-                    if (ref != null ){
-                      Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo, sin pj de parametro.");
+                  | reference_method '(' ')' {
+                    String ref = $1.sval;
+                    if (!ref.isEmpty()){
                       $$ = new ParserVal(ref);
-
-                      if (!tercetos.linkInvocation(ref))
-                        Logger.logError(aLexico.getProgramPosition(), "El metodo a invocar posee parametro formal.");
-                      else 
-                        Logger.logError(aLexico.getProgramPosition(), "El metodo " + $1.sval + " no esta al alcance.");
-                    }
-                  }
-                  | field_acces '(' real_parameter ')' {
-                      String ref = scope.searchFunc($1.sval);
-
-                      if (ref != null ){
-                        Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo desde una clase, con pj de parametro.");
-                        $$ = new ParserVal(ref);
-                        
-                        if (!tercetos.linkInvocation(ref, $3.sval))
-                          Logger.logError(aLexico.getProgramPosition(), "El metodo a invocar no posee parametro formal.");
-                        } else {
-                          Logger.logError(aLexico.getProgramPosition(), "El metodo " + $1.sval + " no esta al alcance.");
-                        }
-                  }
-                  | field_acces '(' ')' {
-  
-                      String ref = scope.searchFunc($1.sval);
                       
-                      if (ref != null ){
-                        Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo desde una clase, sin pj de parametro.");
-                        $$ = new ParserVal(ref);
-
-                        if (!tercetos.linkInvocation(ref))
-                          Logger.logError(aLexico.getProgramPosition(), "El metodo a invocar posee parametro formal.");
-                        else 
-                          Logger.logError(aLexico.getProgramPosition(), "El metodo " + $1.sval + " no esta al alcance.");
-                      }
-                   }
-                  | ID '(' real_parameter error ')' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
-                  | field_acces '(' real_parameter error ')' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
+                      if (!tercetos.linkInvocation(ref))
+                        Logger.logError(aLexico.getProgramPosition(), "El metodo a invocar no posee parametro formal.");
+                      else
+                        Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a un metodo, con pj de parametro.");
+                    } 
+                  }
+                  | reference_method '(' real_parameter error ')' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
 ;
-
 /*
 
 >>>     TYPES
@@ -544,18 +536,6 @@ reference_class : ID {
                     }
                   }
 
-;
-
-reference_type : ID {
-                    String reference = scope.searchVar($1.sval);
-                    if(reference == null) {
-                      Logger.logError(aLexico.getProgramPosition(), "La variable " + $1.sval + " no esta al alcance.");
-                      $$ = new ParserVal("");
-                    }
-                    else 
-                      $$ = new ParserVal(reference);
-                    
-               }
 ;
 
 numeric_type : integral_type 

@@ -417,6 +417,7 @@ public class Tercetos implements PropertyChangeListener {
     // ###############################################################
 
     private void declaredUsed(ArrayList<String> elements) {
+
         for (String factor : elements) {
             if (!Terceto.isNumeric(factor)) {
                 TablaSimbolos.setUsed(factor);
@@ -426,9 +427,14 @@ public class Tercetos implements PropertyChangeListener {
 
     public void declaredFactorsUsed(String ref) {
 
+        if (!Terceto.hasReferefence(ref))
+            return;
+
         int pos = Terceto.getRefPos(ref);
         Terceto t = get(pos);
         Stack<Integer> references = new Stack<>();
+
+        System.out.println(t);
 
         while (!isLeaf(t) || !references.empty()) {
             for (Integer r : t.getReferences()) {

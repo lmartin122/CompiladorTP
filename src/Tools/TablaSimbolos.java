@@ -10,26 +10,31 @@ public class TablaSimbolos {
     public static final String valorLexema = "lexema";
     public static final String SIN_PARAMETRO = "s/p";
 
-    public static final String TIPO = "TIPO";
-    public static final String METODO = "METODO";
+    // public static final String METHOD = "METHOD";
     public static final String FUNCTION = "FUNCTION";
     public static final String ID = "ID";
     public static final String CLASS = "CLASS";
 
-    private static final String CONTADOR = "contador";
+    public static final String TIPO = "tipo";
     private static final String USO = "uso";
+    private static final String CONTADOR = "contador";
     private static final String USADO = "usada_r";
     private static final String PARAMETRO = "parametro";
     private static final String IMPLEMENTADO = "implementado";
     // private static int identifierNumber = 0;
     private static final HashMap<String, String> toErase = createAttribute(USO, ID);
 
-    private static void addTipo(String tipo, String key) {
-        try {
-            tablaSimbolos.get(key).put(TIPO, tipo);
-        } catch (Exception e) {
-            System.out.println("NO SE ENCONTRO LA KEY EN EL MAPA");
-        }
+    // private static void addTipo(String tipo, String key) {
+    // try {
+    // tablaSimbolos.get(key).put(TIPO, tipo);
+    // } catch (Exception e) {
+    // System.out.println("NO SE ENCONTRO LA KEY EN EL MAPA");
+    // }
+    // };
+
+    public static void addTipo(String tipo, String variable) {
+        System.out.println("La variable " + variable);
+        addAtributo(variable, TIPO, tipo);
     };
 
     public static void addTipoVariable(String tipo, String variable) {
@@ -80,10 +85,6 @@ public class TablaSimbolos {
 
     public static void addFunction(String cadena) {
         tablaSimbolos.put(cadena, createAttribute(USO, FUNCTION));
-    }
-
-    public static void addMetodo(String cadena) {
-        tablaSimbolos.put(cadena, createAttribute(USO, METODO));
     }
 
     public static void addIdentificador(String new_symbol) {

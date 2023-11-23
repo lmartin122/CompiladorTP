@@ -1,10 +1,25 @@
 {
-    VOID p (UINT a){
+
+    CLASS w {
+        UINT f,
+
+        VOID t (){
+            PRINT % a %,
+
+            RETURN,
+        }
+    }
+
+    CLASS z {
+        UINT x,
+
+        VOID m(),
+        w,
+    }
+    
+    VOID p (){
         RETURN,
     }
 
-    UINT b,
-
-    p(b),
-
+    z a,
 }
