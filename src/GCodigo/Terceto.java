@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Terceto {
     private String first, second, third, type;
     private boolean flagBrackets;
-    private int i;
+    public int i;
 
     public static final String UNDEFINED = "-";
 
@@ -126,4 +126,8 @@ public class Terceto {
         return ref.matches("[0-9]+");
     }
 
+
+    public int getNumber(){
+        return i;
+    }
 }

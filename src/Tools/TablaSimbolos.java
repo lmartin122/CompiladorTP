@@ -1,6 +1,8 @@
 package Tools;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import GCodigo.Scope;
 
@@ -268,6 +270,10 @@ public class TablaSimbolos {
             return;
 
         tablaSimbolos.get(r).put(USADO, "True");
+    }
+
+    public static List<String> getTablaSimbolos() {
+        return new ArrayList<>(tablaSimbolos.keySet());
     }
 
 }

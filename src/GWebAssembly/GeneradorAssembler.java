@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+
 import GCodigo.Terceto;
 import GCodigo.Tercetos;
 import Tools.TablaSimbolos;
@@ -19,6 +20,7 @@ public class GeneradorAssembler {
     public static int contadorVariablesAux = 0;
     public static HashMap<String, Integer> tercetosAsociados = new HashMap<>();
     private static final Stack<String> pila_tokens = new Stack<>();
+    private static String auxiliar2bytes = "@variable2bytes";
     private static String comparacionFalsa = "";
 
     private static final String OVERFLOW_SUMA_PFLOTANTE = "Error: se excedió el límite permitido (overflow)";
@@ -28,25 +30,15 @@ public class GeneradorAssembler {
 
 
     public static void generarCodigoAssembler(Tercetos tercetosGenerados){ 
-        generarCodigoLibrerias();
         for (Map.Entry<String, ArrayList<Terceto>> func : tercetosGenerados.getTercetos().entrySet()) {
             String etiqueta = func.getKey();
+            
             for (Terceto terceto : func.getValue()) {
-                generarCodigoVariables(terceto);
                 switch (terceto.getFirst()) {
                     case "*":
                     case "+":
-                    case ":=":  
                     case "-":
                     case "/":
-                    case ">=":
-                    case ">":   
-                    case "<=":
-                    case "<":
-                    case "<>":
-                    case "&&":
-                    case "==":
-                    case "||":
                         String tipoOP1 = TablaSimbolos.getTypeLexema(terceto.getSecond());
                         String tipoOP2 = TablaSimbolos.getTypeLexema(terceto.getThird());
                         if(tipoOP1.equals(TablaTipos.DOUBLE_TYPE) && tipoOP2.equals(TablaTipos.DOUBLE_TYPE))
@@ -54,13 +46,30 @@ public class GeneradorAssembler {
                         else
                             generarCodigoOperacionesEnteros(terceto.getFirst(), terceto.getSecond(), terceto.getThird(), terceto.getNumber());
                         break;
-                
+                    case "=":
+                        //HACER LA ASIGNACION
+                        break;
+                    case ">=":
+                    case ">":   
+                    case "<=":
+                    case "<":
+                    case "!!":
+                    case "==":
+                        String tipoOp1 = TablaSimbolos.getTypeLexema(terceto.getSecond());
+                        String tipoOp2 = TablaSimbolos.getTypeLexema(terceto.getThird());
+                        if(tipoOp1.equals(TablaTipos.DOUBLE_TYPE) && tipoOp2.equals(TablaTipos.DOUBLE_TYPE))
+                            generarCodigoOperacionesDouble(terceto.getFirst(), terceto.getSecond(), terceto.getThird(), terceto.getNumber());
+                        else
+                            generarCodigoOperacionesEnteros(terceto.getFirst(), terceto.getSecond(), terceto.getThird(), terceto.getNumber());
+                        break;
                     case "UB":
-
+                        etiqueta = terceto.getSecond(); // Nos fijamos a dónde tenemos que saltar.
+                        generarAssemblerSaltoIncondicional(etiqueta);
                         break;
                 
                     case "CB":
-
+                        etiqueta = terceto.getThird(); // Nos fijamos a dónde tenemos que saltar.
+                        generarAssemblerSaltoCondicional(etiqueta);
                         break;
                 
                     case "CALL":
@@ -74,17 +83,19 @@ public class GeneradorAssembler {
                     default:
                         break;
             }
-                
+            
             }
         }
-
-
+        
+        
         codigoAssembler.append("invoke ExitProcess, 0\n")
               .append("end START");
+        generarCodigoLibrerias();
     }
 
     public static void generarCodigoLibrerias(){ //Importamos las librerías que se necesitan en el Assembler.
-        codigoAssembler.append(".386\n")
+        StringBuilder header = new StringBuilder();
+        header.append(".386\n")
         .append(".model flat, stdcall\n")
         .append("option casemap :none\n")
         .append("include \\masm32\\include\\windows.inc\n")
@@ -93,51 +104,56 @@ public class GeneradorAssembler {
         .append("includelib \\masm32\\lib\\kernel32.lib\n")
         .append("includelib \\masm32\\lib\\masm32.lib\n")
         .append(".data\n") //Empieza la declaración de variables. Primero agregamos las constantes para los errores.
+        .append(auxiliar2bytes).append(" dw ? \n")
         .append("_OVERFLOW_PRODUCTO_ENTERO db \"" + OVERFLOW_PRODUCTO_ENTERO_CON_SIGNO + "\", 0\n")
         .append("_OVERFLOW_PRODUCTO_ENTERO db \"" + OVERFLOW_PRODUCTO_ENTERO_SIN_SIGNO + "\", 0\n")
         .append("_OVERFLOW_SUMA_PFLOTANTE db \"" + OVERFLOW_SUMA_PFLOTANTE + "\", 0\n")
         .append("_INVOCACION_RECURSIVA db \"" + INVOCACION_RECURSIVA + "\", 0\n");
 
+        generarCodigoVariables(header);
+
+        header.append(".code\n");
+        header.append(codigoAssembler);
+        codigoAssembler = header;
+
+        
     }
 
-    public static void generarCodigoVariables(Terceto t){ //Generamos el código para las variables declaradas. 
-            System.out.println("Terceto " + t);
-            System.out.println("Factores del terceto " + t.getFactors());
-            for(String identificadorActual: t.getFactors()){
-                System.out.println("ID Actual " + identificadorActual);
-                String tipo = TablaSimbolos.getTypeLexema(identificadorActual);
-                System.out.println("Tipo " + tipo);
-                String lexema = TablaSimbolos.getLexema(identificadorActual);
-                System.out.println("Lexema " + lexema);
-                if(t.getFirst().equals("=")){
-                    System.out.println("ENTRE PORQUE ES UNA ASIGNACON");
+    public static void generarCodigoVariables(StringBuilder librerias){ //Generamos el código para las variables declaradas. 
+            StringBuilder variables = new StringBuilder();
+            for(String func : TablaSimbolos.getTablaSimbolos()){
+                String tipo = TablaSimbolos.getTypeLexema(func);
+                if(func.startsWith("@")){
+                    if(tipo.equals(TablaTipos.LONG_TYPE)){
+                        librerias.append(func).append(" dd ? \n");
+                    } else if (tipo.equals(TablaTipos.UINT_TYPE))
+                            librerias.append(func).append(" dw ? \n");
+                        else {
+                            librerias.append(func).append(" dq ? \n");
+                        }
+                }
                     switch (tipo) {
                     case TablaTipos.UINT_TYPE:
-                        if(lexema.startsWith("@aux")){
-                            codigoAssembler.append(lexema).append(" dw ? \n");
-                        } else {
-                            codigoAssembler.append("__").append(lexema).append(" dw ? \n");
+                        if(!func.matches(".*\\d.*")){ //Si no es una constante, la declaramos como variable con su lexema. 
+                            librerias.append("__").append(func).append(" dw ? \n");
                         }
                         break;
                     case TablaTipos.DOUBLE_TYPE:
-                        if(lexema.startsWith("@aux")){
-                            codigoAssembler.append(lexema).append(" dq ? \n");
-                        } else {
-                            codigoAssembler.append("__").append(lexema).append(" dq ? \n");
+                        if(!func.matches(".*\\d.*")){
+                            librerias.append("__").append(func).append(" dq ? \n");
                         }
                         break;
                     case TablaTipos.LONG_TYPE:
-                        if(lexema.startsWith("@aux")){
-                            codigoAssembler.append(lexema).append(" dd ? \n");
-                        } else {
-                            codigoAssembler.append("__").append(lexema).append(" dd ? \n");
-                        }
+                        if(!func.matches(".*\\d.*")){
+                            librerias.append("__").append(func).append(" dd ? \n");
+                        }    
                         break;
                 }
-                }
             }
-    }
 
+         
+        
+    }
     
 
     public static void generarCodigoOperacionesEnteros(String operador, String operando1, String operando2, int numeroTerceto){ //Preguntar si tengo que involucrar a la pila al final de cada operacion. PREGUNTAR
@@ -148,24 +164,26 @@ public class GeneradorAssembler {
                     codigoAssembler.append("MOV EAX, ").append("__").append(operando1).append("\n"); //Movemos el valor del OP1 al registro EAX (32 bits).
                     codigoAssembler.append("ADD EAX, ").append("__").append(operando2).append("\n"); //Sumamos los operandos.
                     variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); //Hacemos la variable auxiliar del tipo del resultado de la operación (LONG).
+                    codigoAssembler.append("MOV ").append(variableAuxiliar).append(", EAX\n");
                 } else {
                     codigoAssembler.append("MOV AX, ").append("__").append(operando1).append("\n"); //Movemos el valor del OP1 al registro AX (16 bits).
                     codigoAssembler.append("ADD AX, ").append("__").append(operando2).append("\n"); //Sumamos los operandos.
                     variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto); //Hacemos la variable auxiliar del tipo del resultado de la operación (UINT).
+                    codigoAssembler.append("MOV ").append(variableAuxiliar).append(", AX\n");
                 }
-                codigoAssembler.append("MOV ").append(variableAuxiliar).append(", ").append((TablaSimbolos.getTypeLexema(operando1).equals(TablaTipos.LONG_TYPE)) ? "EAX" : "AX").append("\n");
                 break;
             case "-":
                 if(TablaSimbolos.getTypeLexema(operando1).equals(TablaTipos.LONG_TYPE) && TablaSimbolos.getTypeLexema(operando2).equals(TablaTipos.LONG_TYPE)){
                     codigoAssembler.append("MOV EAX, ").append("__").append(operando1).append("\n"); //Movemos el valor del OP1 al registro EAX (32 bits).
                     codigoAssembler.append("SUB EAX, ").append("__").append(operando2).append("\n"); //Restamos los operandos.
                     variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); //Hacemos la variable auxiliar del tipo del resultado de la operación (LONG).
+                    codigoAssembler.append("MOV ").append(variableAuxiliar).append(", EAX\n");
                 } else {
                     codigoAssembler.append("MOV AX, ").append("__").append(operando1).append("\n"); //Movemos el valor del OP1 al registro AX (16 bits).
                     codigoAssembler.append("SUB AX, ").append("__").append(operando2).append("\n"); //Restamos los operandos.
                     variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto); //Hacemos la variable auxiliar del tipo del resultado de la operación (UINT).
+                    codigoAssembler.append("MOV ").append(variableAuxiliar).append(", AX\n");
                 }
-                codigoAssembler.append("MOV ").append(variableAuxiliar).append(", ").append((TablaSimbolos.getTypeLexema(operando1).equals(TablaTipos.LONG_TYPE)) ? "EAX" : "AX").append("\n");
                 break;
             case "*":
                 if(TablaSimbolos.getTypeLexema(operando1).equals(TablaTipos.LONG_TYPE) && TablaSimbolos.getTypeLexema(operando2).equals(TablaTipos.LONG_TYPE)){
@@ -173,13 +191,14 @@ public class GeneradorAssembler {
                     codigoAssembler.append("MUL ").append("__").append(operando2).append("\n"); //Multiplicamos los operandos.
                     variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); //Hacemos la variable auxiliar del tipo del resultado de la operación (LONG).
                     generarAssemblerOverflowEnterosConSigno(variableAuxiliar);
+                    codigoAssembler.append("MOV ").append(variableAuxiliar).append(", EAX\n");
                 } else {
                     codigoAssembler.append("MOV AX, ").append("__").append(operando1).append("\n"); //Movemos el valor del OP1 al registro AX (16 bits).
                     codigoAssembler.append("MUL ").append("__").append(operando2).append("\n"); //Multiplicamos los operandos.
                     variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto); //Hacemos la variable auxiliar del tipo del resultado de la operación (UINT).
                     generarAssemblerOverflowEnterosSinSigno(variableAuxiliar);
+                    codigoAssembler.append("MOV ").append(variableAuxiliar).append(", AX\n");
                 }  
-                codigoAssembler.append("MOV ").append(variableAuxiliar).append(", ").append((TablaSimbolos.getTypeLexema(operando1).equals(TablaTipos.LONG_TYPE)) ? "EAX" : "AX").append("\n");
                 break;
             case "=":
                 if (TablaSimbolos.getTypeLexema(operando2).equals(TablaTipos.LONG_TYPE) && TablaSimbolos.getTypeLexema(operando1).equals(TablaTipos.LONG_TYPE)) {
@@ -374,7 +393,7 @@ public class GeneradorAssembler {
                 codigoAssembler.append("FSTP ").append(contadorVariablesAux).append("\n"); // Almacenamos el resultado y desapilamos.
                 break;
             
-            case "/": //Controlamos que no sea 0?
+            case "/":
                 codigoAssembler.append("FLD ").append("__").append(operando2).append("\n"); // Cargamos en la pila del coprocesador los valores de punto flotante.
                 codigoAssembler.append("FLD ").append("__").append(operando1).append("\n");
                 codigoAssembler.append("FDIV "); // Hacemos la división de los operandos recién cargados en la pila. 
@@ -491,18 +510,22 @@ public class GeneradorAssembler {
     }
 
     public static void generarAssemblerOverflowFlotantes(String variableAuxiliar) {
-        // Comprueba el bit de overflow en el registro de flags.
+        // Comprueba el bit de overflow en el registro de flags. JA para mayor, JB para menor.
         codigoAssembler.append("FSTSW AX\n"); // Nos fijamos si hay overflow (estado del coprocesador) y lo guardamos en AX.
         codigoAssembler.append("SAHF\n"); // Mueve los flags del estado de la palabra al registro de flags del procesador.
-        codigoAssembler.append("JNO ").append(variableAuxiliar.substring(1)).append("\n"); // Salta a la etiqueta si no hay overflow.
+        codigoAssembler.append("JA ").append(variableAuxiliar.substring(1)).append("\n"); // Salta a la etiqueta si no hay overflow.
         codigoAssembler.append("invoke MessageBox, NULL, addr _OVERFLOW_SUMA_PFLOTANTE, addr _OVERFLOW_SUMA_PFLOTANTE, MB_OK\n");
         codigoAssembler.append("invoke ExitProcess, 0\n");
         codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta del salto si no hay overflow.
     }
     
     
-    public static void generarAssemblerSaltos(){
-        
+    public static void generarAssemblerSaltoIncondicional(String label){
+        codigoAssembler.append("JMP ").append(label).append("\n");
+    }
+
+    public static void generarAssemblerSaltoCondicional(String label){
+        codigoAssembler.append("JLE ").append(label).append("\n");
     }
 
     public static void generarAssemblerErrorFuncionRecursiva(String funcionLlamadora, String funcionLlamada){
@@ -510,12 +533,11 @@ public class GeneradorAssembler {
     }
 
     public static String generarVariableAuxiliar(String tipo, int numeroTerceto){ //Generamos la variable auxiliar que vamos a necesitar para las conversiones y las operaciones aritméticas.
-        String variableAuxiliar = "@aux" + contadorVariablesAux;
-        ++contadorVariablesAux;
+        String variableAuxiliar = "@aux" + numeroTerceto;
         TablaSimbolos.addIdentificador(variableAuxiliar);
-        System.out.println("Voy a agregar el tipo " + TablaSimbolos.getTypeLexema(variableAuxiliar) + ", que mierda tiene tipo -> " + tipo);
-        TablaSimbolos.addAtributo(tipo, "tipo", tipo);
-        tercetosAsociados.put(variableAuxiliar, numeroTerceto);
+        TablaSimbolos.addTipo(tipo, variableAuxiliar);
+        
+        tercetosAsociados.put(variableAuxiliar, numeroTerceto); //Asociamos la variable auxiliar al número del terceto.
         return variableAuxiliar; 
     }
 
