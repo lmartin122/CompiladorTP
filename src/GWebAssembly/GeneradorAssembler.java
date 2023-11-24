@@ -16,7 +16,6 @@ import Tools.TablaTipos;
 public class GeneradorAssembler {
 
     public static StringBuilder codigoAssembler = new StringBuilder();
-    public static int contadorVariablesAux = 0;
     public static HashMap<String, Integer> tercetosAsociados = new HashMap<>();
     private static final Stack<String> pila_tokens = new Stack<>();
     private static String auxiliar2bytes = "@variable2bytes";
@@ -32,6 +31,11 @@ public class GeneradorAssembler {
             String etiqueta = func.getKey();
 
             for (Terceto terceto : func.getValue()) {
+                String tipoOP1 = TablaSimbolos.getTypeLexema(terceto.getSecond());
+                String tipoOP2 = TablaSimbolos.getTypeLexema(terceto.getThird());
+                // System.out.println("Tengo el operando " + terceto.getSecond() + " y " +
+                // terceto.getThird());
+                // System.out.println("Con tipos " + tipoOP1 + " y " + tipoOP2);
                 switch (terceto.getFirst()) {
                     case "*":
                     case "+":
@@ -114,7 +118,8 @@ public class GeneradorAssembler {
 
         generarCodigoVariables(header);
 
-        header.append(".code\n");
+        header.append(".CODE\n")
+                .append("START:\n");
         header.append(codigoAssembler);
         codigoAssembler = header;
 
@@ -746,6 +751,15 @@ public class GeneradorAssembler {
 
         tercetosAsociados.put(variableAuxiliar, numeroTerceto); // Asociamos la variable auxiliar al número del terceto.
         return variableAuxiliar;
+    }
+
+    public static String generarVariableAuxiliarString(String cadena, int numeroTerceto) {
+        String variableAuxiliar = "@aux" + numeroTerceto + " db " + "\"" + cadena + "\"";
+        TablaSimbolos.addIdentificador(variableAuxiliar);
+        TablaSimbolos.addTipo(TablaTipos.STRING, variableAuxiliar);
+        tercetosAsociados.put(variableAuxiliar, numeroTerceto); // Asociamos la variable auxiliar al número del terceto.
+        return variableAuxiliar;
+
     }
 
     public static int getTercetoAsociado(String variableAuxiliar) { // Según alguna variable auxiliar que nos manden,
