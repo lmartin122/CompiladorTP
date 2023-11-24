@@ -607,7 +607,7 @@
 20;6;21;ASDevolverIdentificador
 20;7;21;ASDevolverIdentificador
 20;8;21;ASDevolverIdentificador
-20;9;21;ASDevolverIdentificador
+20;9;20;ASAnadirBuffer
 20;10;21;ASDevolverIdentificador
 20;11;21;ASDevolverIdentificador
 20;12;21;ASDevolverIdentificador
