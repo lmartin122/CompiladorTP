@@ -26,7 +26,6 @@ public class TablaTipos {
     }
 
     public static String negarLong(String lexema) {
-
         long number = 0;
 
         try {
@@ -37,9 +36,20 @@ public class TablaTipos {
         String n_lexema = String.valueOf(number) + "L";
 
         addTablaSimbolos(lexema, n_lexema, "L");
-
+        // TablaSimbolos.decreaseCounter(lexema);
         return n_lexema;
     }
+
+    public static boolean chequearRangoLongNegativo(String lexema) {
+        long n_lexema = 0;
+
+        try {
+            n_lexema = -Long.parseLong(lexema.replace("L", ""));
+        } catch (Exception ex) {
+            System.out.println("ERROR AL CONVERTIR DOUBLE");
+        }
+        return n_lexema >= -2147483648L;
+    };
 
     public static String negarDouble(String lexema) {
 
@@ -76,10 +86,10 @@ public class TablaTipos {
         long number = 0;
 
         try {
-            number = Long.parseLong(lexema);
+            number = Long.parseLong(lexema.replace("L", ""));
         } catch (Exception ex) {
         }
-
+        System.out.println("LONG: " + number);
         if (number > RDN_MAX) {
             Logger.logWarning(p,
                     "El LONG se excedio de rango, el mismo fue truncado al valor " + RDN_MAX + ".");

@@ -1,0 +1,6 @@
+{
+    DOUBLE a;b,
+    a = .d+1, *{Tiene la parte decimal y entera ausente }*
+    b = 1.2d *{no tiene el signo del exponente (obligatorio)}*
+
+}

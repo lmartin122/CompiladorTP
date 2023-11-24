@@ -11,8 +11,8 @@ import Tools.ProgramReader;
 import Tools.Tupla;
 
 public class AnalizadorLexico {
-    private final int ESTADOS = 20; // osea 20 estados 0 a 19
-    private final int SIMBOLOS = 29; // el 27 seria el simbolo "otros"
+    private final int ESTADOS = 21; // osea 21 estados 0 a 20
+    private final int SIMBOLOS = 30; // el 27 seria el simbolo "otros"
 
     public static int estado_error = 0;
     MatrizTransicion matrizTransicion;
@@ -79,7 +79,7 @@ public class AnalizadorLexico {
         AccionSemantica as = null;
         Tupla<String, Short> token = null;
 
-        while (!reader.hasFinished() && estado != 20) {
+        while (!reader.hasFinished() && estado != 21) {
 
             char s = reader.character();
 
@@ -89,7 +89,7 @@ public class AnalizadorLexico {
             if (as != null) {
                 token = as.run(s, reader);
                 if (token != null && AnalizadorLexico.estado_error < 0) {
-                    estado = 20; // terminó de leer en caso de error
+                    estado = 21; // terminó de leer en caso de error
                     estado_error = 1;
                 }
             }
@@ -103,7 +103,9 @@ public class AnalizadorLexico {
         if (hasFinishedTokenizer()) {
             return new Tupla<>("Fin del programa.", (short) 0);
         }
-
+        if(token == null){
+            System.out.println("token null en linea: " + reader.getCurrentLine() + " column: " + reader.getCurrentColumn());
+        }
         Logger.logToken(getProgramPosition(),
                 (token.getFirst() != null) ? "[" + token.getSecond() + ", " +
                         token.getFirst() + "]"

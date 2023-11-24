@@ -4,7 +4,7 @@ import pandas as pd
 sheet_id = {"e":"1rLdF8W5zbBylfM9_4pAV8vZYeowHRthVz-fgfouAEHE", 
             "as":"1LNSfD3MincJ71Ffr1QjJxSHvT3z4Km4R4hJusOmg97M"}
 
-change = {"F": 20,
+change = {"F": 21,
           "E" : -1,
           "nan": "chequear", 
           "A0": "null",
@@ -21,7 +21,8 @@ change = {"F": 20,
           "A11": "ASLimpiarBuffer",
           "EE":"ASIntegerError",
           "EF":"ASFloatError",
-          "ES":"ASSimbolError"
+          "ES":"ASSimbolError",
+          "EI":"ASIdError"
           }
         
 df_e = pd.read_csv(f"https://docs.google.com/spreadsheets/d/{sheet_id['e']}/export?format=csv")

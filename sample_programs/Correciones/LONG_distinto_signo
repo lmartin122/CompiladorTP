@@ -1,0 +1,30 @@
+{
+LONG a;b,
+a = 1_l,
+a = -1_l,
+*{Deben estar ambas en la tabla}*
+
+a = -4_l,
+a = 4_l,
+a = -4_l,
+a = -4_l,
+*{Deben estar ambas en la tabla}*
+
+b = 3_l,
+b = 3_l,
+b = 3_l,
+b = -3_l,
+b = -3_l,
+*{Deben estar ambas en la tabla}*
+
+b = -8_l,
+b = -8_l,
+b = -8_l,
+b = -8_l,
+*{Solo debe estar la constante negativa en la tabla}*
+
+a = 2_l,
+a = 2_l,
+*{Solo debe estar la constante positiva en la tabla}*
+
+}

@@ -1,0 +1,15 @@
+{
+    *{todos estan bien escritos, no deberia tirar error}*
+
+    DOUBLE a;b;c;d,
+    a = 1.2,        *{ok corregido}*
+    b = .1,         *{ok corregido}*
+    d = .6,         *{ok corregido}*
+    c = 3.D+2,      *{ok sin corregir}*
+    c = 3.d+34,     *{ok sin corregir}*
+    b = 2.5D-1,     *{ok sin corregir}*
+    b = 15.,        *{ok corregido}*
+    b = 0.,         *{ok corregido}*
+    b = .3d-1,      *{ok corregido}*
+    d = 1.2d-10,     *{ok sin corregir}*
+}

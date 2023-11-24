@@ -26,21 +26,16 @@ public class ASRangoEntero implements AccionSemantica {
 
         if (!error && numero <= (int) Math.pow(2, 16) - 1) {
 
-            // System.out.println("IF");
-            if (!TablaSimbolos.containsKey(numero)) { // si la constante no está
-                // System.out.print(" ENTERO UI AÑADIDO ");
+            if (!TablaSimbolos.containsKey(numero)) { // si la constante no está;
 
                 TablaSimbolos.addUInteger(numero);
             }
         } else {
-            aux = String.valueOf(Math.pow(2, 16) - 1);
-            TablaSimbolos.addUInteger(aux);
-            // System.out.print(" UI entero fuera de rango, se convirtio al maximo
-            // permitido");
+            TablaSimbolos.addUInteger(65535);
+
             Logger.logWarning(reader.getCurrentLine(), "Unsigned integer fuera de rango");
-            // Hacer algo con yylval ??
+
         }
-        // yylval = numero ?? jijijija
         buffer.setLength(0);
         return new Tupla<>(aux, Parser.CTE_UINT);
     };

@@ -1,5 +1,6 @@
 package Tools;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import GCodigo.Scope;
@@ -154,12 +155,16 @@ public class TablaSimbolos {
         if (tablaSimbolos.containsKey(key))
             if (tablaSimbolos.get(key).containsKey(CONTADOR)) {
                 int counter = Integer.valueOf(tablaSimbolos.get(key).get(CONTADOR));
-                if (counter == 1) {
+                if (counter == 0) {
                     // System.out.println("Eliminado referencia de la tabla de simbolos...");
                     tablaSimbolos.remove(key);
                 } else {
                     counter -= 1;
                     tablaSimbolos.get(key).replace(CONTADOR, String.valueOf(counter));
+                    int counter_final = Integer.valueOf(tablaSimbolos.get(key).get(CONTADOR));
+                    if (counter_final <= 0) {
+                        tablaSimbolos.remove(key);
+                    }
                 }
             }
     }
@@ -207,6 +212,13 @@ public class TablaSimbolos {
         }
 
         return false;
+    }
+
+    public static String getLexema(String k) {
+        if (containsKey(k))
+            return tablaSimbolos.get(k).get(valorLexema);
+
+        return null;
     }
 
     public static boolean isID(String k) {
@@ -258,6 +270,10 @@ public class TablaSimbolos {
             return;
 
         tablaSimbolos.get(r).put(USADO, "True");
+    }
+
+    public static ArrayList<String> getTablaSimbolos() {
+        return new ArrayList<>(tablaSimbolos.keySet());
     }
 
 }
