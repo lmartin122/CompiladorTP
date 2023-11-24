@@ -86,7 +86,6 @@ class_declaration : CLASS class_name class_body {
 
 class_name : ID {
               if(!scope.isDeclaredInMyScope($1.sval)){
-                scope.stack($1.sval); 
                 TablaSimbolos.addClase($1.sval); 
                 TablaClases.addClase($1.sval);
                 $$ = new ParserVal($1.sval);
@@ -94,6 +93,7 @@ class_name : ID {
                 Logger.logError(aLexico.getProgramPosition(), "La clase " + $1.sval + " ya esta declarada en el ambito" + scope.getCurrentScope() + ".");
                 $$ = new ParserVal("");
               }
+                scope.stack($1.sval); 
             }
 ;
 
@@ -163,36 +163,47 @@ variable_initializer : arithmetic_operation
 method_declaration : method_header method_body ',' {
                       if (!$1.sval.isEmpty()) {
                         ArrayList<String> ambitos = scope.getAmbitos($1.sval);
-                        String _method = ambitos.get(0); 
-                        String _class = ambitos.get(2);
-
-                          if ($2.sval.isEmpty()) {
-                            TablaClases.addMetodoIMPL(_method, _class);
-                            TablaSimbolos.setFuncPrototype($1.sval);
-                          } else {
-                            TablaClases.addMetodo(_method, _class);
-                          }
-                      scope.deleteLastScope();
-                      }
-                   }
-                   | method_header method_body {
-                      if (!$1.sval.isEmpty()){
-                          ArrayList<String> ambitos = scope.getAmbitos($1.sval);
+                        if (ambitos.size() > 2) {
                           String _method = ambitos.get(0); 
                           String _class = ambitos.get(2);
 
-                          if ($2.sval.isEmpty()) {
-                            TablaClases.addMetodoIMPL(_method, _class);
-                            TablaSimbolos.setFuncPrototype($1.sval);
-                          } else {
-                            TablaClases.addMetodo(_method, _class);
-                          }
+                            if ($2.sval.isEmpty()) {
+                              TablaClases.addMetodoIMPL(_method, _class);
+                              TablaSimbolos.setFuncPrototype($1.sval);
+                            } else {
+                              TablaClases.addMetodo(_method, _class);
+                              TablaSimbolos.setImplemented($1.sval);
+                            }
+                        } else { 
+                            Logger.logError(aLexico.getProgramPosition(), "Hay un error en la declaracion del metodo.");
+                        }
                       scope.deleteLastScope();
                       }
-                    }
+                   }
+                   | method_header method_body  {
+                      if (!$1.sval.isEmpty()) {
+                        ArrayList<String> ambitos = scope.getAmbitos($1.sval);
+                        
+                        if (ambitos.size() > 2) {
+                          String _method = ambitos.get(0); 
+                          String _class = ambitos.get(2);
+
+                            if ($2.sval.isEmpty()) {
+                              TablaClases.addMetodoIMPL(_method, _class);
+                              TablaSimbolos.setFuncPrototype($1.sval);
+                            } else {
+                              TablaClases.addMetodo(_method, _class);
+                              TablaSimbolos.setImplemented($1.sval);
+                            }
+                        } else { 
+                            Logger.logError(aLexico.getProgramPosition(), "Hay un error en la declaracion del metodo.");
+                        }
+                      scope.deleteLastScope();
+                      }
+                   }
 ;
 
-method_header : result_type method_declarator {$$ = new ParserVal($2.sval);}
+method_header : result_type method_declarator {$$ = $2;}
 ;
 
 result_type : VOID 
@@ -205,8 +216,10 @@ method_declarator : method_name '(' formal_parameter ')' {
                         Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo con p/j de parametro.");
                         $$ = new ParserVal(ref);
                         TablaSimbolos.addParameter(ref, par);
-                      } else 
+                      } else {
                         Logger.logError(aLexico.getProgramPosition(), "No se reconocio un metodo con p/j de parametro.");
+                        $$ = new ParserVal("");
+                      }
                       
                   }
                   | method_name '(' ')' {
@@ -215,7 +228,10 @@ method_declarator : method_name '(' formal_parameter ')' {
                         Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo sin p/j de parametro.");
                         $$ = new ParserVal(ref);
                         TablaSimbolos.addParameter(ref);
+                      } else {
+                        $$ = $1;
                       } 
+                      
                   }
                   | method_name '(' formal_parameter error ')' { Logger.logError(aLexico.getProgramPosition(), "Solo se permite la declaracion de un unico parametro formal.");}
                   | method_name '{' error '}'{ Logger.logError(aLexico.getProgramPosition(), "La declaracion de un metodo debe estar delimitado por parentesis \"(...)\"."); }
@@ -228,8 +244,13 @@ method_declarator : method_name '(' formal_parameter ')' {
 }
 
 
+
+                  
+
+
 method_name : ID {
-                if(!scope.isDeclaredInMyScope($1.sval)){
+                if(!scope.isDeclaredInMyScope($1.sval)) {
+                  $$ = new ParserVal($1.sval);
                   if (scope.hasPassedNesting()) {
                     Logger.logError(aLexico.getProgramPosition(), "Solo se permite 1 nivel de anidamiento en los metodos.");
                     $$ = new ParserVal("");
@@ -239,9 +260,9 @@ method_name : ID {
                     scope.stack($1.sval);
                   }
                 } else {
-                    Logger.logError(aLexico.getProgramPosition(), "El metodo ya esta declarado en el ambito" + scope.getCurrentScope() + ".");
-                    $$ = new ParserVal("");
-                }
+                  Logger.logError(aLexico.getProgramPosition(), "El metodo ya esta declarado en el ambito" + scope.getCurrentScope() + ".");
+                  $$ = new ParserVal("");
+                  }                 
               }
 
 // Permito la creacion de multiples block en un metodo, se debe chequear que luego permita
@@ -287,24 +308,19 @@ interface_type_list : reference_interface
                     | interface_type_list ',' reference_interface {Logger.logError(aLexico.getProgramPosition(), "Las interfaces deben estar separadas por ';'.");}
 ;
 
-interface_declaration : INTERFACE interface_name interface_body {
-                          $$ = $2;
-                          String name = $2.sval;
-                          if (!name.isEmpty()) {
-                            Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una INTERFACE.");
-                          }
-                      }
+interface_declaration : INTERFACE interface_name interface_body {$$ = $2;}
 ;
 
 interface_name : ID {
                     if (!scope.isDeclaredInMyScope($1.sval)) {
-                      scope.stack($1.sval); 
                       TablaClases.addInterface($1.sval);
-                      TablaSimbolos.addInterface($1.sval); 
+                      TablaSimbolos.addInterface($1.sval);
+                      $$ = new ParserVal($1.sval);
                     } else {
                       Logger.logError(aLexico.getProgramPosition(), "La interface " + $1.sval + " ya esta declarada en el ambito" + scope.getCurrentScope() + ".");
                       $$ = new ParserVal("");
                     }
+                      scope.stack($1.sval); 
                 }
 ;
 
@@ -347,8 +363,10 @@ implement_for_declaration : IMPL FOR reference_class ':' implement_for_body
                           | IMPL FOR reference_class error ':' implement_for_body {Logger.logError(aLexico.getProgramPosition(), "Declaracion de IMPL FOR no valida, no es correcta la signatura.");}
 ;
 
-implement_for_body : '{' implement_for_body_declarations '}'
+implement_for_body : '{' implement_for_body_declarations '}' 
                    | '(' implement_for_body_declarations ')' {Logger.logError(aLexico.getProgramPosition(), "El cuerpo de la interface debe estar delimitado por llaves \"{...}\".");}
+                   | '{' '}'
+                   | '(' ')' {Logger.logError(aLexico.getProgramPosition(), "El cuerpo de la interface debe estar delimitado por llaves \"{...}\".");}
 ;
 
 implement_for_body_declarations : implement_for_body_declaration 
@@ -358,14 +376,15 @@ implement_for_body_declarations : implement_for_body_declaration
 implement_for_body_declaration : implement_for_method_declaration
 ;
 
-implement_for_method_declaration : method_header implement_for_method_body {
+//Aca esta el problema del impl for
+implement_for_method_declaration : impl_for_method_header implement_for_method_body {
 
                                     if (!$1.sval.isEmpty()){
 
                                       ArrayList<String> ambitos = scope.getAmbitos($1.sval);
                                       if (ambitos.size() > 2) {
-                                        String _method = ambitos.get(0);                                      
-                                        String _class = ambitos.get(2); 
+                                        String _class = ambitos.get(1); 
+                                        String _method = ambitos.get(2);                                      
 
                                         if (!TablaClases.esUnMetodoAImplementar(_method, _class)){
                                           if (TablaClases.esUnMetodoConcreto(_method, _class)) {
@@ -374,13 +393,45 @@ implement_for_method_declaration : method_header implement_for_method_body {
                                             Logger.logError(aLexico.getProgramPosition(), "Se intentó implementar un metodo que no existe (IMPL FOR)");
                                           }  
                                         } else {
-                                          TablaSimbolos.setImplemented($1.sval);
+                                          TablaSimbolos.setImplemented($1.sval.replaceAll(".*@([^@]*)@([^@]*)@([^@:]*):([^@]*)", "$3@$1@$2"));
                                           TablaClases.setMetodoIMPL(_method, _class);
                                         }
                                       }
                                      }
                                   }
 ;
+
+impl_for_method_header : result_type impl_for_method_declarator {$$ = $2;}
+;
+
+
+
+impl_for_method_declarator : impl_method_name '(' impl_formal_parameter ')' {
+                                String ref = $1.sval;
+                                String par = $3.sval;
+
+                                if (!ref.isEmpty()) 
+                                  $$ = new ParserVal(ref + TablaClases.TYPE_SEPARATOR + par);
+                                else 
+                                  Logger.logError(aLexico.getProgramPosition(), "No se reconocio el metodo a sobreescribir con p/j de parametro.");
+                                
+                            }
+                            | impl_method_name '(' ')' {
+                                $$ = new ParserVal($1.sval + TablaClases.TYPE_SEPARATOR + TablaSimbolos.SIN_PARAMETRO);
+                            }
+                            | impl_method_name '(' formal_parameter error ')' { Logger.logError(aLexico.getProgramPosition(), "Solo se permite la declaracion de un unico parametro formal.");}
+                            | impl_method_name '{' error '}'{ Logger.logError(aLexico.getProgramPosition(), "La declaracion de un metodo debe estar delimitado por parentesis \"(...)\"."); }
+;
+
+impl_formal_parameter : type ID {$$ = $1;}
+;
+
+impl_method_name : ID {
+                    scope.stack($1.sval);
+                    $$ = new ParserVal(scope.getCurrentScope());
+                  }
+;
+
 
 implement_for_method_body : block 
                           | ',' {Logger.logError(aLexico.getProgramPosition(), "Es necesario implementar el metodo de la clase.");}
@@ -447,6 +498,7 @@ multiplicative_expression : unary_expression {$$ = new ParserVal($1.sval);}
 
 unary_expression : factor 
                  | reference_type
+                 | method_invocation {Logger.logError(aLexico.getProgramPosition(), "No se puede invocar un metodo en una expresion.");}
                  | conversion_expression
                  | '(' arithmetic_operation ')' {
                     if (tercetos.hasNestingExpressions($2.sval)) 
@@ -590,7 +642,7 @@ reference_type : primary {
 
 */
 block : '{' block_statements RETURN',' '}' {tercetos.addReturn();}
-      | '{' block_statements RETURN',' block_statements '}' {tercetos.addReturn(); Logger.logWarning(aLexico.getProgramPosition(), "Se esta declarando un bloque sin utilizar luego de un RETURN");}
+      | '{' block_statements RETURN',' block_statements '}' {tercetos.addReturn(); Logger.logWarning(aLexico.getProgramPosition(), "Se esta declarando un bloque sin utilizar luego de un RETURN.");}
       | '{' RETURN',' '}' {tercetos.addReturn();}
       | '{' RETURN',' block_statements '}' {tercetos.addReturn(); Logger.logWarning(aLexico.getProgramPosition(), "Se esta declarando un bloque sin utilizar luego de un RETURN");}
       | '{' block_statements '}' {Logger.logError(aLexico.getProgramPosition(), "Es necesario declarar el retorno del bloque.");}
@@ -771,6 +823,7 @@ function_declaration : method_header method_body_without_prototype {
 ;
 
 method_body_without_prototype : block
+                              | ',' {Logger.logError(aLexico.getProgramPosition(), "Es necesario definir el cuerpo de la funcion.");}
 ;
 
 print_statement : PRINT CADENA ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia PRINT."); tercetos.add("PRINT", $2.sval, "-");}

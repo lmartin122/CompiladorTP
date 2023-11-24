@@ -240,7 +240,6 @@ public class TablaSimbolos {
     }
 
     public static void setFuncPrototype(String r) {
-
         if (!containsKey(r))
             return;
 

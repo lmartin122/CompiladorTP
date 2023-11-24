@@ -1,20 +1,82 @@
 {
     INTERFACE filtro {
-        VOID cum(UINT a),
+        VOID cumple(UINT a),
     }
 
-    CLASS filtro_and {
+    CLASS filtro_igualdad IMPLEMENT filtro {
         UINT b,
 
         VOID cumple(UINT z){
             IF (z == b) {
                 PRINT % cumple %,
+            } ELSE {
+                PRINT % no cumple con la condicion %,
             } END_IF,
             
             RETURN,
         }
 
     }
+
+     CLASS filtro_distinto IMPLEMENT filtro {
+        UINT b,
+
+        VOID cumple(UINT z){
+            IF (z !! b) {
+                PRINT % cumple %,
+            } ELSE {
+                PRINT % no cumple con la condicion %,
+            } END_IF,
+            
+            RETURN,
+        }
+
+    }
+
+    CLASS filtro_or IMPLEMENT filtro {
+        *{ No puedo hacer polimorfismo :( }*
+        filtro_igualdad f1,
+        filtro_distinto f2,
+
+        VOID cumple(UINT a){
+            IF (f1.cumple(a) == 1_ui) {
+                PRINT % cumple %,
+                RETURN,
+            } END_IF,
+
+            IF (f2.cumple(a) == 1_ui) {
+                PRINT % cumple %,
+                RETURN,
+            } END_IF,
+
+            PRINT % no cumple :( %,
+            RETURN,
+        }
+  
+
+    }
+
+     CLASS filtro_and IMPLEMENT filtro {
+        *{ No puedo hacer polimorfismo :( }*
+        filtro_igualdad f1,
+        filtro_distinto f2,
+
+        VOID cumple(UINT a){
+            IF (f1.cumple(a) == 1_ui) {
+                IF (f2.cumple(a) == 1_ui) {
+                    PRINT % cumple %,
+                    RETURN,
+                } END_IF,
+            } END_IF,
+            PRINT % no cumple :( %,
+            RETURN,
+        }
+
+
+
+    }
+
+
 
     UINT b,
     b = 3_ui + b,

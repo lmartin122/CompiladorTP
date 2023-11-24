@@ -1,15 +1,17 @@
 {
     
-    INTERFACE filtro {
-        VOID cumple(),
-    }
+    CLASS filtro {
+        VOID cumple(UINT a),
 
-    CLASS filtro_and IMPLEMENT filtro {
-        VOID cumplee(UINT a){
+        VOID a(),
 
+        VOID implementado(){
             RETURN,
         }
-        VOID cumpleple(UINT a){
+    }
+
+    IMPL FOR filtro : {
+        VOID cumple(UINT a){
             RETURN,
         }
     }

@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import Tools.TablaSimbolos;
-import Tools.TablaTipos;
 
 public class Scope {
     private StringBuilder ambito;
@@ -14,7 +13,7 @@ public class Scope {
     public static final String SEPARATOR = "@";
     private static final String MAIN = "main";
     private static final String S_MAIN = SEPARATOR + MAIN;
-    private final int LIMITED_NESTING = 3;
+    private final int LIMITED_NESTING = 2;
 
     private interface Lambda {
         boolean invoke(String s);
@@ -35,7 +34,9 @@ public class Scope {
     }
 
     public boolean isDeclaredInMyScope(String ref) {
-        // System.out.println(ref + " en el scope " + getCurrentScope());
+        // System.out.println(
+        // ref + " en el scope " + getCurrentScope() + " ya esta declarada? "
+        // + TablaSimbolos.containsKey(ref + getCurrentScope()));
         ref = ref + getCurrentScope();
 
         return TablaSimbolos.containsKey(ref);
@@ -138,14 +139,27 @@ public class Scope {
         ArrayList<String> ambitos = getAmbitos();
         ambitos.remove("main");
 
-        // System.out.println("Estoy en hasPassed " + ambitos
-        // + (ambitos.size() < LIMITED_NESTING));
+        if (ambitos.size() > 1) {
 
-        if (ambitos.size() < LIMITED_NESTING
-                && (TablaSimbolos.isClass(ambitos.get(0)) || TablaSimbolos.isInterface(ambitos.get(0))))
-            return false;
+            System.out.println("Estoy en hasPassed " + ambitos + " es mayor " +
+                    (ambitos.size() >= LIMITED_NESTING) + " no es una c/i " +
+                    !(TablaSimbolos.isClass(ambitos.get(0) + Scope.S_MAIN)
+                            || TablaSimbolos.isInterface(ambitos.get(0) + Scope.S_MAIN)));
 
-        return true;
+            System.out.println(ambitos.get(0) + Scope.S_MAIN + TablaSimbolos.isClass(ambitos.get(0)));
+            // System.out.println(TablaSimbolos.printTable());
+
+        }
+
+        if (ambitos.size() > LIMITED_NESTING)
+            return true;
+
+        if (ambitos.size() == LIMITED_NESTING)
+            if (!(TablaSimbolos.isClass(ambitos.get(0))
+                    || TablaSimbolos.isInterface(ambitos.get(0))))
+                return true;
+
+        return false;
     }
 
     public void addObserver(PropertyChangeListener o) {

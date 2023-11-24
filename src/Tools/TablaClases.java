@@ -1,12 +1,9 @@
 package Tools;
 
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
-
-import javax.swing.text.TabableView;
 
 import GCodigo.Scope;
 
@@ -21,7 +18,7 @@ public class TablaClases {
     private static final String METODOS = "Metodos";
     private static final String IMPL_FOR = "a_implementar";
 
-    private static final String TYPE_SEPARATOR = ":";
+    public static final String TYPE_SEPARATOR = ":";
 
     private interface Lambda {
         ArrayList<String> invoke(String _class);
@@ -229,6 +226,8 @@ public class TablaClases {
     }
 
     public static void setMetodoIMPL(String _method, String _class) {
+        String parts[] = _method.split(":");
+        _method = parts[0];
         removeAttribute(_method, _class, IMPL_FOR);
         addAttribute(_method, _class, METODOS);
     }
@@ -360,16 +359,29 @@ public class TablaClases {
         for (String instancia : instancias) {
             // System.out.println("La instancia " + instancia + " de la clase " + _class);
             addAtributosInstancia(getAllAtributos(_class), instancia);
-            addMetodosInstancia(getAllMetodos(_class), instancia);
+            // addMetodosInstancia(getAllMetodos(_class), instancia); los metodos no van, se
+            // copia cada metodo y este deberia ser unico
         }
     }
 
     public static boolean esUnMetodoConcreto(String _method, String _class) {
-        return TablaClases.containsAttribute(_method, _class, METODOS);
+        ArrayList<String> methodsToImplemented = getAllMetodos(_class);
+        acomodarLista(methodsToImplemented);
+
+        // System.out.println(methodsToImplemented);
+        // System.out.println("metodo que se intenta implementar " + _method);
+
+        return methodsToImplemented.contains(_method);
     }
 
     public static boolean esUnMetodoAImplementar(String _method, String _class) {
-        return TablaClases.containsAttribute(_method, _class, IMPL_FOR);
+        ArrayList<String> methodsToImplemented = getAllMetodosIMPL(_class);
+        acomodarLista(methodsToImplemented);
+
+        // System.out.println(methodsToImplemented);
+        // System.out.println("metodo que se intenta implementar " + _method);
+
+        return methodsToImplemented.contains(_method);
     }
 
     // public static void printTable() {
