@@ -1,8 +1,3 @@
 {
-	LONG a,
-	LONG b,
-	LONG c,
-	a = 1_l,
-	b = 2_l,
-	c = a + b,
+PRINT % hola %,
 }

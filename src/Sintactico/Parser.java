@@ -1003,7 +1003,7 @@ public static void main (String [] args) throws IOException {
       System.out.println("No se produjeron errores.\n"); //Para la parte 4, generacion de codigo maquina
       tercetos.printRules();
       GeneradorAssembler.generarCodigoAssembler(tercetos);
-      System.out.println("TABLA SIMBOLOS " + TablaSimbolos.printTable());
+      System.out.println("TABLA SIMBOLOS \n" + TablaSimbolos.printTable());
       System.out.println("ASSEMBLER \n" + GeneradorAssembler.codigoAssembler);
     } else 
       System.out.println("Se produjeron errores.\n");
