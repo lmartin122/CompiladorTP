@@ -19,6 +19,7 @@ public class TablaClases {
     private static final String IMPL_FOR = "a_implementar";
 
     public static final String TYPE_SEPARATOR = ":";
+    public static final String ATTRIBUTE_SEPARATOR = ".";
 
     private interface Lambda {
         ArrayList<String> invoke(String _class);
@@ -100,7 +101,7 @@ public class TablaClases {
         return;
     }
 
-    private static ArrayList<String> getAttribute(String _class, String _component) {
+    private static ArrayList<String> getAttributes(String _class, String _component) {
         if (existeClase(_class)) {
             ArrayList<String> component = classes.get(_class).get(_component);
             if (component != null) {
@@ -119,9 +120,7 @@ public class TablaClases {
 
     private static String getType(String _class, String _attribute) {
 
-        String type = null;
-
-        type = TablaSimbolos.getTypeLexema(_attribute + Scope.getScopeMain() + Scope.SEPARATOR + _class);
+        String type = TablaSimbolos.getTypeLexema(_attribute + Scope.getScopeMain() + Scope.SEPARATOR + _class);
 
         if (type == null || type.isEmpty()) {
             type = TablaSimbolos.getParameter(_attribute + Scope.getScopeMain() + Scope.SEPARATOR + _class);
@@ -132,7 +131,7 @@ public class TablaClases {
         return TYPE_SEPARATOR + type;
     }
 
-    private static ArrayList<String> getAllAttribute(String _class, Lambda f, Lambda g) {
+    private static ArrayList<String> getAllAttribute(String _class, Lambda f, Lambda g, boolean type) {
         ArrayList<String> out = new ArrayList<>();
 
         Stack<String> hereda = new Stack<>();
@@ -140,10 +139,11 @@ public class TablaClases {
         for (String a : getAtributosTC(_class)) {
             String[] parts = a.split(Scope.SEPARATOR);
 
-            ArrayList<String> TC_attributes = getAllAttribute(parts[0], f, g);
+            ArrayList<String> TC_attributes = getAllAttribute(parts[0], f, g, type);
 
             for (String TC_attribute : TC_attributes) {
-                out.add("." + parts[1] + "." + TC_attribute + getType(parts[1], TC_attribute, _class));
+                out.add(ATTRIBUTE_SEPARATOR + parts[1] + ATTRIBUTE_SEPARATOR + TC_attribute
+                        + ((type) ? getType(parts[1], TC_attribute, _class) : ""));
             }
         }
 
@@ -161,14 +161,15 @@ public class TablaClases {
             ArrayList<String> r_attributes = f.invoke(relative); // Generalizarlo
 
             for (String attribute : r_attributes) {
-                out.add(relative + "." + attribute + getType(relative, attribute, _class));
+                out.add(relative + ATTRIBUTE_SEPARATOR + attribute
+                        + ((type) ? getType(relative, attribute, _class) : ""));
 
             }
 
         }
 
         for (String attribute : g.invoke(_class)) {
-            out.add(attribute + getType(_class, attribute));
+            out.add(attribute + ((type) ? getType(_class, attribute) : ""));
 
         }
 
@@ -213,12 +214,20 @@ public class TablaClases {
         addAttribute(_method, _class, METODOS);
     }
 
+    public static boolean containsMetodo(String _method, String _class) {
+        return containsAttribute(_method, _class, METODOS);
+    }
+
     public static ArrayList<String> getMetodos(String _class) {
-        return getAttribute(_class, METODOS);
+        return getAttributes(_class, METODOS);
     }
 
     public static ArrayList<String> getAllMetodos(String _class) {
-        return getAllAttribute(_class, (e) -> getAllMetodos(e), (e) -> getMetodos(e));
+        return getAllAttribute(_class, (e) -> getAllMetodos(e), (e) -> getMetodos(e), true);
+    }
+
+    public static ArrayList<String> getAllMetodos(String _class, boolean type) {
+        return getAllAttribute(_class, (e) -> getAllMetodos(e), (e) -> getMetodos(e), type);
     }
 
     public static void addMetodoIMPL(String _method, String _class) {
@@ -233,11 +242,15 @@ public class TablaClases {
     }
 
     public static ArrayList<String> getMetodoIMPL(String _class) {
-        return getAttribute(_class, IMPL_FOR);
+        return getAttributes(_class, IMPL_FOR);
     }
 
     public static ArrayList<String> getAllMetodosIMPL(String _class) {
-        return getAllAttribute(_class, (e) -> getAllMetodos(e), (e) -> getMetodoIMPL(e));
+        return getAllAttribute(_class, (e) -> getAllMetodos(e), (e) -> getMetodoIMPL(e), true);
+    }
+
+    public static ArrayList<String> getAllMetodosIMPL(String _class, boolean type) {
+        return getAllAttribute(_class, (e) -> getAllMetodos(e), (e) -> getMetodoIMPL(e), type);
     }
 
     public static void addAtributo(String _attribute, String _class) {
@@ -259,21 +272,95 @@ public class TablaClases {
     }
 
     public static ArrayList<String> getAtributos(String _class) {
-        return getAttribute(_class, ATRIBUTOS);
+        return getAttributes(_class, ATRIBUTOS);
+    }
+
+    public static boolean containsAtributo(String _attribute, String _class) {
+        return containsAttribute(_attribute, _class, ATRIBUTOS);
+    }
+
+    public static void addAtributoTC(String _attribute, String _class) {
+        addAttribute(_attribute, _class, ATRIBUTOS_TIPO_CLASE);
+    }
+
+    public static String getTypeAtributoTC(String _attribute, String _class) {
+
+        for (String at : classes.get(_class).get(ATRIBUTOS_TIPO_CLASE)) {
+            if (!_attribute.isEmpty() && at.contains(_attribute))
+                return at.substring(0, at.indexOf(Scope.SEPARATOR));
+        }
+
+        return "";
     }
 
     public static ArrayList<String> getAtributosTC(String _class) {
-        return getAttribute(_class, ATRIBUTOS_TIPO_CLASE);
+        return getAttributes(_class, ATRIBUTOS_TIPO_CLASE);
+    }
 
+    public static ArrayList<String> getAllAtributos(String _class, boolean type) {
+        return getAllAttribute(_class, (e) -> getAllAtributos(e), (e) -> getAtributos(e), type);
+    }
+
+    public static boolean containsAtributoTC(String _attribute, String _class) {
+        return containsAttribute(_attribute, _class, ATRIBUTOS_TIPO_CLASE);
     }
 
     public static ArrayList<String> getAllAtributos(String _class) {
-        return getAllAttribute(_class, (e) -> getAllAtributos(e), (e) -> getAtributos(e));
+        return getAllAttribute(_class, (e) -> getAllAtributos(e), (e) -> getAtributos(e), true);
     }
 
     public static void addHerencia(String _class, String _inheritance) {
         addAttribute(_inheritance, _class, HERENCIA);
     };
+
+    public static String searchMethod(String r, String scope) {
+        // String parts[] = r.split("\\" + ATTRIBUTE_SEPARATOR, 2);
+        String splitter = "\\" + ATTRIBUTE_SEPARATOR;
+        String main = Scope.getScopeMain();
+
+        int index = r.indexOf(ATTRIBUTE_SEPARATOR);
+        String _class = r.substring(0, index);
+
+        // System.out.println("Me quedo la clase " + _class + " en el scope " + scope);
+
+        // Clase principal
+        _class = TablaSimbolos.getTypeLexema(_class + scope);
+
+        System.out.println(getAllAtributos(_class) + "funciona bien? busco sobre " + _class);
+
+        if (_class.isEmpty())
+            return null;
+
+        String _method = r.substring(index + 1);
+
+        int lastIndex = _method.lastIndexOf(ATTRIBUTE_SEPARATOR);
+
+        System.out.println("la clase " + _class + " metodo " + _method);
+
+        if (lastIndex != -1) {
+            String part = _method.substring(0, lastIndex);
+            _method = _method.substring(lastIndex + 1);
+
+            System.out.println("En el if tengo, la clase " + _class + " metodo " + _method + " y la parte " + part);
+
+            for (String _subClass : part.split(splitter)) {
+                if (containsComponent(_class, ATRIBUTOS_TIPO_CLASE)) {
+                    _class = getTypeAtributoTC(_subClass, _class);
+                    System.out.println("La sub clase es " + _class);
+                } else if (containsHerencia(_subClass, _class)) {
+                    _class = _subClass;
+                } else
+                    return null;
+            }
+
+        }
+
+        System.out.println(_method + main + Scope.SEPARATOR + _class);
+        if (containsMetodo(_method, _class))
+            return _method + main + Scope.SEPARATOR + _class;
+
+        return null;
+    }
 
     public static ArrayList<String> getHerencia(String _class) {
         ArrayList<String> out = new ArrayList<>();
@@ -284,6 +371,10 @@ public class TablaClases {
             }
 
         return out;
+    };
+
+    public static boolean containsHerencia(String _inheritance, String _class) {
+        return containsAttribute(_inheritance, _class, HERENCIA);
     };
 
     public static String chequeoAtributoSobreescrito(String _class) {
@@ -326,7 +417,7 @@ public class TablaClases {
     }
 
     private static Tupla<String, String> acomodarString(String id, String instance) {
-        instance = instance.replaceFirst("(?=@)", (id.startsWith(".") ? "" : ".") + id);
+        instance = instance.replaceFirst("(?=@)", (id.startsWith(ATTRIBUTE_SEPARATOR) ? "" : ATTRIBUTE_SEPARATOR) + id);
         String attribute = instance.replaceAll(".*:([^:]+)@.*", "$1");
         instance = instance.replaceAll(":([^@]+)@", "@");
 
@@ -335,13 +426,14 @@ public class TablaClases {
         return new Tupla<String, String>(attribute, instance);
     };
 
-    private static void addMetodosInstancia(ArrayList<String> methods, String instancia) {
-        for (String attribute : methods) {
-            Tupla<String, String> out = acomodarString(attribute, instancia);
-            TablaSimbolos.addFunction(out.getSecond());
-            TablaSimbolos.addParameter(out.getSecond(), out.getFirst());
-        }
-    }
+    // private void addMetodosInstancia(ArrayList<String> methods, String instancia)
+    // {
+    // for (String attribute : methods) {
+    // Tupla<String, String> out = acomodarString(attribute, instancia);
+    // TablaSimbolos.addFunction(out.getSecond());
+    // TablaSimbolos.addParameter(out.getSecond(), out.getFirst());
+    // }
+    // }
 
     private static void addAtributosInstancia(ArrayList<String> attributes, String _instance) {
         for (String attribute : attributes) {

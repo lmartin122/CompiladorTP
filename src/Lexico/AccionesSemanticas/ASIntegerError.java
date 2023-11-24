@@ -13,7 +13,7 @@ public class ASIntegerError implements AccionSemantica {
         Logger.logError(reader.getCurrentLine(), "El integer esta mal escrito.");
 
         reader.returnCharacter();
-        this.buffer.setLength(0);
+        AccionSemantica.buffer.setLength(0);
         AnalizadorLexico.estado_error = -1;
         return new Tupla<>(null, (short) Parser.CTE_LONG);
     }

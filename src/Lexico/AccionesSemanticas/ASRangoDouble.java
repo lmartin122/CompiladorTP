@@ -4,11 +4,9 @@ import Sintactico.Parser;
 import Tools.Logger;
 import Tools.ProgramReader;
 import Tools.TablaSimbolos;
-import Tools.TablaTipos;
 import Tools.Tupla;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 
 public class ASRangoDouble implements AccionSemantica {
     /*
@@ -37,20 +35,21 @@ public class ASRangoDouble implements AccionSemantica {
         } catch (Exception ex) {
             error = true;
         }
-        System.out.println("DOUBLEEE: " + numero);
+        // System.out.println("DOUBLEEE: " + numero);
         if (numero.compareTo(RDP_MAX) >= 0) {
 
             Logger.logWarning(reader.getCurrentLine(),
-                    "El DOUBLE se excedio de rango MAXIMO , el mismo fue truncado al valor " + Math.nextDown(Double.MAX_VALUE));
+                    "El DOUBLE se excedio de rango MAXIMO , el mismo fue truncado al valor "
+                            + Math.nextDown(Double.MAX_VALUE));
 
             auxBuffer = String.valueOf(Math.nextDown(Double.MAX_VALUE));
 
-        } else if((numero.compareTo(RDP_MIN) <= 0  && numero.compareTo(BigDecimal.valueOf(0)) != 0) || error){
+        } else if ((numero.compareTo(RDP_MIN) <= 0 && numero.compareTo(BigDecimal.valueOf(0)) != 0) || error) {
             Logger.logWarning(reader.getCurrentLine(),
-                    "El DOUBLE se excedio de rango MINIMO , el mismo fue truncado al valor " + (Math.nextUp(Double.MIN_VALUE)));
+                    "El DOUBLE se excedio de rango MINIMO , el mismo fue truncado al valor "
+                            + (Math.nextUp(Double.MIN_VALUE)));
             auxBuffer = String.valueOf(Math.nextUp(Double.MIN_VALUE));
         }
-
 
         if (!TablaSimbolos.containsKey(auxBuffer)) {
             // System.out.print(" DOUBLE AÑADIDO");

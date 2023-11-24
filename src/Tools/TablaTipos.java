@@ -89,7 +89,7 @@ public class TablaTipos {
             number = Long.parseLong(lexema.replace("L", ""));
         } catch (Exception ex) {
         }
-        System.out.println("LONG: " + number);
+        // System.out.println("LONG: " + number);
         if (number > RDN_MAX) {
             Logger.logWarning(p,
                     "El LONG se excedio de rango, el mismo fue truncado al valor " + RDN_MAX + ".");

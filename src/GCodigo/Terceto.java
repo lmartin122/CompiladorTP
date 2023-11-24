@@ -126,8 +126,7 @@ public class Terceto {
         return ref.matches("[0-9]+");
     }
 
-
-    public int getNumber(){
+    public int getNumber() {
         return i;
     }
 }

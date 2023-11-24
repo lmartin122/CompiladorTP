@@ -1,19 +1,30 @@
 {
-    
-    CLASS filtro {
-        VOID cumple(UINT a),
 
-        VOID a(),
-
-        VOID implementado(){
+    CLASS l {
+        UINT a,
+        VOID xxl (){
             RETURN,
         }
     }
 
-    IMPL FOR filtro : {
-        VOID cumple(UINT a){
+    CLASS m {
+        VOID b (){
             RETURN,
         }
+        VOID c (),
+        l,
     }
+
+
+    CLASS mm  {
+        m z,
+        VOID t(UINT a){
+            RETURN,
+        }
+        m,
+    }
+
+    mm f,
+    f.z.l.xxl(),
 
 }

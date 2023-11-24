@@ -46,7 +46,6 @@ public class Scope {
         StringBuilder amb = new StringBuilder(ambito);
         String toSearch = r + getCurrentScope();
 
-        // Si es una clase podriamos usar lo que esta haciendo martin para buscarlo
         while (!outMain(toSearch) && f.invoke(toSearch)) {
             deleteLastScope(amb);
             toSearch = r + amb.toString();
@@ -140,14 +139,13 @@ public class Scope {
         ambitos.remove("main");
 
         if (ambitos.size() > 1) {
+            // System.out.println("Estoy en hasPassed " + ambitos + " es mayor " +
+            // (ambitos.size() >= LIMITED_NESTING) + " no es una c/i " +
+            // !(TablaSimbolos.isClass(ambitos.get(0) + Scope.S_MAIN)
+            // || TablaSimbolos.isInterface(ambitos.get(0) + Scope.S_MAIN)));
 
-            System.out.println("Estoy en hasPassed " + ambitos + " es mayor " +
-                    (ambitos.size() >= LIMITED_NESTING) + " no es una c/i " +
-                    !(TablaSimbolos.isClass(ambitos.get(0) + Scope.S_MAIN)
-                            || TablaSimbolos.isInterface(ambitos.get(0) + Scope.S_MAIN)));
-
-            System.out.println(ambitos.get(0) + Scope.S_MAIN + TablaSimbolos.isClass(ambitos.get(0)));
-            // System.out.println(TablaSimbolos.printTable());
+            // System.out.println(ambitos.get(0) + Scope.S_MAIN +
+            // TablaSimbolos.isClass(ambitos.get(0)));
 
         }
 

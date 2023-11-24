@@ -143,7 +143,7 @@ public class Tercetos implements PropertyChangeListener {
         return (f.contains("-")) ? "<=" : ">=";
     }
 
-    public boolean linkInvocation(String func, String parameter_r) {
+    public boolean linkFunction(String func, String parameter_r) {
 
         String parameter_f = TablaSimbolos.getParameter(func);
 
@@ -160,7 +160,7 @@ public class Tercetos implements PropertyChangeListener {
         return true;
     }
 
-    public boolean linkInvocation(String func) {
+    public boolean linkFunction(String func) {
 
         String parameter_f = TablaSimbolos.getParameter(func);
 
@@ -168,6 +168,20 @@ public class Tercetos implements PropertyChangeListener {
             return false;
 
         addInvocation(func);
+
+        return true;
+    }
+
+    public boolean linkMethod(String func, String parameter_r) {
+
+        System.out.println(func + " con el parametro " + parameter_r);
+
+        return true;
+    }
+
+    public boolean linkMethod(String func) {
+
+        System.out.println(func);
 
         return true;
     }
@@ -253,8 +267,8 @@ public class Tercetos implements PropertyChangeListener {
         return ERROR;
     }
 
-    private boolean isLeaf(Terceto t) {
-        return !t.hasReferefence(t.getSecond() + t.getThird());
+    private static boolean isLeaf(Terceto t) {
+        return !Terceto.hasReferefence(t.getSecond() + t.getThird());
     }
 
     public boolean hasNestingExpressions(String r) {
