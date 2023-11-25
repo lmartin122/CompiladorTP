@@ -294,6 +294,8 @@ public class TablaSimbolos {
     }
 
     public static void setImplemented(String r) {
+        System.out.println("Set implemented a " + r);
+
         if (!containsKey(r))
             return;
 

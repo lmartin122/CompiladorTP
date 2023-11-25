@@ -37,6 +37,9 @@ VOID LONG UINT DOUBLE CADENA ID CTE_DOUBLE CTE_UINT CTE_LONG
 
 */
 program : '{' type_declarations '}'
+        | '{' '}'
+        |
+        | '(' ')' {Logger.logError(aLexico.getProgramPosition(), "Un programa debe estar delimitado por llaves '{}'.");} 
         | error {Logger.logError(aLexico.getProgramPosition(), "No se reconocio el programa.");} 
 ;
 
@@ -400,6 +403,7 @@ implement_for_method_declaration : impl_for_method_header block  {
                                           TablaClases.setMetodoIMPL(_method, _class);
                                         }
                                       }
+                                      scope.deleteLastScope();
                                      }
                                   }
                                   | impl_for_method_header',' {Logger.logError(aLexico.getProgramPosition(), "Es necesario implementar el metodo de la clase.");}

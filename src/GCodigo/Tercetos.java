@@ -18,8 +18,8 @@ public class Tercetos implements PropertyChangeListener {
     private String scope;
 
     // Constantes
-    private static final String ERROR = "error";
-    private static final String TYPE_TOD = "DOUBLE";
+    public static final String ERROR = "error";
+    public static final String TYPE_TOD = "DOUBLE";
 
     public Tercetos() {
         rules = new HashMap<>();

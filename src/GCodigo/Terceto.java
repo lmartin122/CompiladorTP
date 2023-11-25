@@ -8,6 +8,7 @@ public class Terceto {
     public int i;
 
     public static final String UNDEFINED = "-";
+    public static final String LABEL = "Label";
 
     public Terceto(String... values) {
         first = values[0];
