@@ -265,6 +265,13 @@ public class TablaSimbolos {
         return "";
     }
 
+    public static String getUse(String l) {
+        if (containsKey(l))
+            return tablaSimbolos.get(l).get(USO);
+
+        return "";
+    }
+
     public static String getRefAttribute(String l) {
         if (containsKey(l))
             return tablaSimbolos.get(l).get(REF);
