@@ -1,0 +1,7 @@
+{
+    LONG l;g,
+
+    l = 3_l,
+    h = 4_l, *{h no existe}*
+
+}

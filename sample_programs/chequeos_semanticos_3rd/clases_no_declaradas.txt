@@ -1,0 +1,11 @@
+{
+    CLASS auto {
+        LONG altura;ancho;largo,
+        VOID metodo(){
+            RETURN,
+        }
+    }
+
+    auto a,
+    auto2 b, *{clase auto2 no existe}*
+}

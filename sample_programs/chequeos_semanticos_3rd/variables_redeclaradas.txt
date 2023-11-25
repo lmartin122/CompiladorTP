@@ -1,0 +1,5 @@
+{
+    LONG a;b;c,
+
+    UINT a, *{a ya existe}*
+}

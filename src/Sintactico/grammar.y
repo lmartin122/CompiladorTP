@@ -116,8 +116,11 @@ class_member_declaration : field_declaration
 field_declaration : type variable_declarators ',' {
                       if (!($1.sval.isEmpty() || $2.sval.isEmpty())) {
                         ArrayList<String> ambitos = scope.getAmbitos($2.sval);
-                        String _attributes = ambitos.get(0); 
-                        String _class = ambitos.get(2);
+                        String _attributes = ambitos.get(0);
+                        String _class = "";
+                        if (ambitos.size() >= 2){
+                            _class = ambitos.get(2);
+                        }
 
                         Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una declaracion de atributo/s.");
                         TablaSimbolos.addTipoVariable($1.sval, $2.sval);

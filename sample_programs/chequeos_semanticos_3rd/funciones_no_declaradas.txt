@@ -1,0 +1,9 @@
+{
+    VOID funcion1(){
+        RETURN,
+    }
+
+    funcion2(),
+
+
+}
