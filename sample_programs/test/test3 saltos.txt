@@ -1,0 +1,9 @@
+{
+UINT a,
+a = 3_ui,
+IF (2_ui > 1_ui) {
+a = 2_ui,
+} ELSE {
+a = 3_ui,
+} END_IF,
+}
