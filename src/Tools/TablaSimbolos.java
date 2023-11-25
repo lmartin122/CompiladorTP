@@ -107,7 +107,7 @@ public class TablaSimbolos {
     }
 
     private static void setAtributo(String key, String atributo, String value_atributo) {
-        System.out.println(key + " tiene " + tablaSimbolos.get(key).toString());
+        // System.out.println(key + " tiene " + tablaSimbolos.get(key).toString());
         tablaSimbolos.get(key).put(atributo, value_atributo);
     }
 

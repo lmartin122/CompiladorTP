@@ -74,10 +74,11 @@ class_declaration : CLASS class_name class_body {
                           if (error != null) 
                             Logger.logError(aLexico.getProgramPosition(), error);
                           if (!$3.sval.isEmpty()) {
-                            if (TablaClases.implementaMetodosInterfaz($2.sval,$3.sval))
+                            String msj = TablaClases.implementaMetodosInterfaz($2.sval,$3.sval);
+                            if (msj.isEmpty())
                               Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una CLASS que implementa una interface e implementa todos sus metodos.");
                             else
-                              Logger.logError(aLexico.getProgramPosition(), "Se reconocio una CLASS que implementa una interface y NO implementa todos sus metodos.");
+                              Logger.logError(aLexico.getProgramPosition(), msj);
                           }
 
                         }            
@@ -212,7 +213,7 @@ method_header : result_type method_declarator {$$ = $2;}
               | type method_declarator {Logger.logError(aLexico.getProgramPosition(), "No se permite retornar un tipo, el retorno debe ser VOID."); $$ = new ParserVal("");}
 ;
 
-result_type : VOID 
+result_type : VOID
 ;
 
 method_declarator : method_name '(' formal_parameter ')' {
@@ -363,9 +364,9 @@ abstract_method_header : result_type method_declarator ',' {$$ = $2;}
 ;
 
 implement_for_declaration : IMPL FOR reference_class ':' implement_for_body 
-                          | IMPL FOR reference_class ':' error ',' {Logger.logError(aLexico.getProgramPosition(), "Es necesario implementar el cuerpo del metodo.");}
+                          | IMPL FOR reference_class ':' empty_statement {Logger.logError(aLexico.getProgramPosition(), "Es necesario implementar el cuerpo del metodo.");}
                           | IMPL FOR error ':' implement_for_body ',' {Logger.logError(aLexico.getProgramPosition(), "Se debe referenciar a una clase.");}
-                          | IMPL FOR reference_class error ':' implement_for_body {Logger.logError(aLexico.getProgramPosition(), "Declaracion de IMPL FOR no valida, no es correcta la signatura.");}
+                          | IMPL FOR reference_class implement_for_body {Logger.logError(aLexico.getProgramPosition(), "Seguido de la referencia a la clase debe ir el caracter ':'.");}
 ;
 
 implement_for_body : '{' implement_for_body_declarations '}' 
@@ -374,15 +375,12 @@ implement_for_body : '{' implement_for_body_declarations '}'
                    | '(' ')' {Logger.logError(aLexico.getProgramPosition(), "El cuerpo de la interface debe estar delimitado por llaves \"{...}\".");}
 ;
 
-implement_for_body_declarations : implement_for_body_declaration 
-                                | implement_for_body_declarations implement_for_body_declaration
-;
-
-implement_for_body_declaration : implement_for_method_declaration
+implement_for_body_declarations : implement_for_method_declaration 
+                                | implement_for_body_declarations implement_for_method_declaration
 ;
 
 //Aca esta el problema del impl for
-implement_for_method_declaration : impl_for_method_header implement_for_method_body {
+implement_for_method_declaration : impl_for_method_header block  {
 
                                     if (!$1.sval.isEmpty()){
 
@@ -404,9 +402,13 @@ implement_for_method_declaration : impl_for_method_header implement_for_method_b
                                       }
                                      }
                                   }
+                                  | impl_for_method_header',' {Logger.logError(aLexico.getProgramPosition(), "Es necesario implementar el metodo de la clase.");}
+                                  | impl_for_method_header ';' {Logger.logError(aLexico.getProgramPosition(), "Es necesario implementar el metodo de la clase.");}
 ;
 
+
 impl_for_method_header : result_type impl_for_method_declarator {$$ = $2;}
+                       | type impl_for_method_declarator {Logger.logError(aLexico.getProgramPosition(), "No se permite retornar un tipo, el retorno debe ser VOID."); $$ = new ParserVal("");}
 ;
 
 
@@ -439,9 +441,7 @@ impl_method_name : ID {
 ;
 
 
-implement_for_method_body : block 
-                          | ',' {Logger.logError(aLexico.getProgramPosition(), "Es necesario implementar el metodo de la clase.");}
-;
+
 
 /*
 
@@ -838,10 +838,10 @@ if_then_else_body : if_else_then_body ELSE if_else_body
 
 for_in_range_statement : FOR for_in_range_initializer IN RANGE for_in_range_cond for_in_range_body {
                           Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia FOR IN RANGE.");
-                          tercetos.add("+", $2.sval, "-", );
+                          tercetos.add("+", $2.sval, "-");
                           tercetos.backPatching();
                           tercetos.stack();
-                          tercetos.add("=", $2.sval, $$.sval, tercetos.typeTerceto($2.sval, $$));
+                          tercetos.add("=", $2.sval, $$.sval);
                           tercetos.backPatching();
                           tercetos.addUncondBranch(false);
                           tercetos.backPatching(0); //Agrego el salto del CB

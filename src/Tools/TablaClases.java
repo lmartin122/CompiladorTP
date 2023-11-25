@@ -46,36 +46,46 @@ public class TablaClases {
     private static void acomodarLista(ArrayList<String> methods) {
         for (int i = 0; i < methods.size(); i++) {
             String method_c = methods.get(i);
-            String[] parts = method_c.split(TYPE_SEPARATOR);
-            String method = parts[0];
-            String type = TablaSimbolos.getTypeLexema(parts[1]);
+            int j = method_c.indexOf(TYPE_SEPARATOR);
+            int k = method_c.indexOf(REF_SEPARATOR);
+            String method = method_c.substring(0, j);
+            String parameter = method_c.substring(j + 1, k);
+            String type = TablaSimbolos.getTypeLexema(parameter);
 
-            methods.set(i, (type.isEmpty()) ? method_c : method + TYPE_SEPARATOR + type);
+            methods.set(i, (type.isEmpty()) ? method + TYPE_SEPARATOR + parameter : method + TYPE_SEPARATOR + type);
         }
 
     };
 
-    public static boolean implementaMetodosInterfaz(String _class, String _interface) {
+    public static String implementaMetodosInterfaz(String _class, String _interface) {
 
         ArrayList<String> methodsToImplemented = getAllMetodosIMPL(_interface);
         ArrayList<String> methodsImplemented = getAllMetodos(_class);
+        ArrayList<String> methodsPrototype = getAllMetodosIMPL(_class);
+
+        // System.out.println("Metodos a implementar " + methodsToImplemented);
+        // System.out.println("metodo implementados " + methodsImplemented);
 
         acomodarLista(methodsImplemented);
         acomodarLista(methodsToImplemented);
+        acomodarLista(methodsPrototype);
 
-        // System.out.println(_class + " implementa " + _interface);
-        // System.out.println("Existe la clase a implementar? " +
-        // existeClase(_interface));
-        // System.out.println("Metodos a implementar: " +
-        // methodsToImplemented.toString());
-        // System.out.println("Metodos implementados: " + methodsImplemented);
+        // System.out.println("Metodos a implementar acomodados " +
+        // methodsToImplemented);
+        // System.out.println("Metodos implementados acomodados" + methodsImplemented);
+        // System.out.println("Metodos prototipos acomodados" + methodsPrototype);
 
         for (String method : methodsToImplemented) {
+            if (methodsPrototype.contains(method))
+                return "Se reconocio una CLASS que implementa una interface y NO reimplementa el metodo "
+                        + method.substring(0, method.indexOf(TYPE_SEPARATOR)) + ".";
+
             if (!methodsImplemented.contains(method))
-                return false;
+                return "Se reconocio una CLASS que implementa una interface y NO implementa el metodo "
+                        + method.substring(0, method.indexOf(TYPE_SEPARATOR)) + ".";
         }
 
-        return true;
+        return "";
     }
 
     public static boolean existeClase(String clase) {

@@ -1,33 +1,29 @@
 {
 
-    CLASS j {
-        UINT z,
+    INTERFACE j {
+        VOID z(LONG c),
     }
 
-    CLASS l {
+    CLASS l IMPLEMENT j {
         UINT a,
-        j x,
         VOID xxl (UINT a){
             RETURN,
         }
+        VOID z(LONG a){
+            RETURN,
+        }
+        VOID y(),
+
     }
+
+    IMPL FOR l : {
+        VOID z(LONG a) {
+            RETURN,
+        }
+    }
+
 
     l a,
 
-    CLASS mm  {
-        VOID t(){
-            UINT c,
-            a.xxl(c),
-            RETURN,
-        }
-        VOID z(){
-            a.xxl(3_ui),
-            RETURN,
-        }
-    }
-
-    mm f,
-    f.t(),
-    f.z(),
 
 }
