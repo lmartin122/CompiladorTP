@@ -73,9 +73,9 @@ public final class Logger {
             out += s;
         }
 
-        for (String s : rules) {
-            out += s;
-        }
+        // for (String s : rules) {
+        // out += s;
+        // }
 
         out += "\n>>>    TABLA DE SIMBOLOS\n";
 

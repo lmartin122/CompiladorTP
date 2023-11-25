@@ -347,9 +347,16 @@ interface_method_declaration : constant_declaration {Logger.logError(aLexico.get
 constant_declaration : type variable_declarators
 ;
 
-abstract_method_declaration : result_type method_declarator ',' {$$ = $2;}
-                            | result_type method_declarator {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' en el final de la sentencia.");}
-                            | result_type method_declarator ';' {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' no \';\'en el final de la sentencia.");}
+abstract_method_declaration : abstract_method_header
+                            | abstract_method_header_with_block {$$ = new ParserVal(""); Logger.logError(aLexico.getProgramPosition(), "No se puede declarar un bloque dentro de un metodo en una interface.");}
+;
+
+abstract_method_header_with_block : result_type method_declarator block
+;
+
+abstract_method_header : result_type method_declarator ',' {$$ = $2;}
+                       | result_type method_declarator {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' en el final de la sentencia.");}
+                       | result_type method_declarator ';' {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' no \';\'en el final de la sentencia.");}
 ;
 
 implement_for_declaration : IMPL FOR reference_class ':' implement_for_body 
@@ -661,10 +668,10 @@ reference_function : ID {
 
 reference_method : field_acces {
                     String instance = TablaClases.getInstance($1.sval);
-                    instance = scope.searchInstance(instance);
+                    String instance_s = scope.searchInstance(instance);
 
-                    if (instance != null) {
-                      String reference = TablaClases.searchMethod($1.sval, scope.getAmbito(instance));
+                    if (instance_s != null) {
+                      String reference = TablaClases.searchMethod($1.sval, scope.getAmbito(instance_s));
 
                       if(reference == null) {
                         Logger.logError(aLexico.getProgramPosition(), "El metodo " + $1.sval + " no esta al alcance.");
@@ -698,6 +705,7 @@ reference_type : primary {
 block : '{' block_statements RETURN',' '}' {tercetos.addReturn();}
       | '{' block_statements RETURN',' block_statements '}' {tercetos.addReturn(); Logger.logWarning(aLexico.getProgramPosition(), "Se esta declarando un bloque sin utilizar luego de un RETURN.");}
       | '{' RETURN',' '}' {tercetos.addReturn();}
+      | '{' RETURN '}' {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una ',' luego del RETURN");}
       | '{' RETURN',' block_statements '}' {tercetos.addReturn(); Logger.logWarning(aLexico.getProgramPosition(), "Se esta declarando un bloque sin utilizar luego de un RETURN");}
       | '{' block_statements '}' {Logger.logError(aLexico.getProgramPosition(), "Es necesario declarar el retorno del bloque.");}
       | '(' block_statements RETURN',' ')' {Logger.logError(aLexico.getProgramPosition(), "Un bloque debe estar delimitado por llaves \"{...} y es necesario declarar el retorno del bloque.");}
@@ -781,9 +789,13 @@ empty_statement : ','
 if_then_declaration : IF if_then_cond if_then_body END_IF ','  {
                          tercetos.backPatching(0);
                          tercetos.addLabel();
-                         Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia IF.");}
-                    | IF if_then_cond if_then_body error ',' {Logger.logError(aLexico.getProgramPosition(), "La sentencia de control IF debe terminar con la palabra reservada END_IF.");}
-;
+                    }
+                    | IF if_then_cond if_then_body END_IF ';' {Logger.logError(aLexico.getProgramPosition(), "La sentencia de control IF debe terminar con ','.");}
+                    | IF if_then_cond if_then_body ',' {Logger.logError(aLexico.getProgramPosition(), "La sentencia de control IF debe terminar con la palabra reservada END_IF.");}
+                    | IF if_then_cond if_then_body ';' {Logger.logError(aLexico.getProgramPosition(), "La sentencia de control IF debe terminar con la palabra reservada END_IF y con finalizar con ','.");}   
+                    | IF if_then_cond if_then_body END_IF error '}' {Logger.logError(aLexico.getProgramPosition(), "La sentencia de control IF debe terminar con ','.");}
+                    | IF if_then_cond if_then_body error '}' {Logger.logError(aLexico.getProgramPosition(), "La sentencia de control IF debe terminar con ','.");}
+; 
 
 if_then_cond : '(' equality_expression ')' {tercetos.addCondBranch($2.sval);}
              | '(' error ')' {Logger.logError(aLexico.getProgramPosition(), "La condicion de la sentencia de control IF no es correcta.");}
@@ -801,6 +813,11 @@ if_then_else_declaration : IF if_then_cond if_then_else_body END_IF ',' {
                             tercetos.backPatching(0);
                             tercetos.addLabel();
                           }
+                          | IF if_then_cond if_then_else_body ',' {Logger.logError(aLexico.getProgramPosition(), "La sentencia de control IF ELSE debe terminar con la palabra reservada END_IF.");}
+                          | IF if_then_cond if_then_else_body END_IF ';' {Logger.logError(aLexico.getProgramPosition(), "La sentencia de control IF ELSE debe terminar con ','.");}
+                          | IF if_then_cond if_then_else_body ';' {Logger.logError(aLexico.getProgramPosition(), "La sentencia de control IF ELSE debe terminar con la palabra reservada END_IF y con finalizar con ','.");}
+                          | IF if_then_cond if_then_else_body END_IF error '}' {Logger.logError(aLexico.getProgramPosition(), "La sentencia de control IF ELSE debe terminar con ','.");}
+                          | IF if_then_cond if_then_else_body error '}' {Logger.logError(aLexico.getProgramPosition(), "La sentencia de control IF ELSE debe terminar con ','.");}
 ; 
 
 if_else_then_body : executable_statement {tercetos.backPatching(1); tercetos.addUncondBranch(); tercetos.addLabel();}
@@ -818,10 +835,10 @@ if_then_else_body : if_else_then_body ELSE if_else_body
 
 for_in_range_statement : FOR for_in_range_initializer IN RANGE for_in_range_cond for_in_range_body {
                           Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia FOR IN RANGE.");
-                          tercetos.add("+", $2.sval, "-");
+                          tercetos.add("+", $2.sval, "-", );
                           tercetos.backPatching();
                           tercetos.stack();
-                          tercetos.add("=", $2.sval, $$.sval);
+                          tercetos.add("=", $2.sval, $$.sval, tercetos.typeTerceto($2.sval, $$));
                           tercetos.backPatching();
                           tercetos.addUncondBranch(false);
                           tercetos.backPatching(0); //Agrego el salto del CB
@@ -863,27 +880,32 @@ for_in_range_body : executable_block
                   | executable_statement
 ;
 
-for_init : factor {$$ = new ParserVal($1.sval);}
+for_init : factor
 ;
 
-for_update : factor {$$ = new ParserVal($1.sval);}
+for_update : factor
 ;
 
-for_end : factor {$$ = new ParserVal($1.sval);}
+for_end : factor
 ;
 
 function_declaration : method_header method_body_without_prototype {
-                        scope.deleteLastScope();
+                        if (!$1.sval.isEmpty())
+                          scope.deleteLastScope();
                       }
 ;
 
 method_body_without_prototype : block
-                              | ',' {Logger.logError(aLexico.getProgramPosition(), "Es necesario definir el cuerpo de la funcion.");}
+                              | ',' {$$ = new ParserVal(""); Logger.logError(aLexico.getProgramPosition(), "Es necesario definir el cuerpo de la funcion.");}
 ;
 
-print_statement : PRINT CADENA ',' {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia PRINT."); tercetos.add("PRINT", $2.sval, "-");}
-                | PRINT error ',' {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una cadena en la sentencia PRINT.");}
+print_statement : PRINT CADENA ',' {tercetos.add("PRINT", $2.sval, "-");}
+                | PRINT CADENA error {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' en el final de la sentencia.");}
                 | PRINT CADENA ';' {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' en el final de la sentencia.");}
+                | PRINT factor ',' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite imprimir variables del tipo CADENA.");}
+                | PRINT primary ',' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite imprimir variables del tipo CADENA.");}
+                | PRINT invocation ',' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite imprimir variables del tipo CADENA.");}
+                | PRINT ',' {tercetos.add("PRINT", "", "-");}
                 | PRINT '\0' {Logger.logError(aLexico.getProgramPosition(), "Se esperaba un % que cierre la cadena.");}
 ;
 %%

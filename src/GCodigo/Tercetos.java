@@ -143,7 +143,7 @@ public class Tercetos implements PropertyChangeListener {
     }
 
     public String getComparator(String f) {
-        return (f.contains("-")) ? "<=" : ">=";
+        return (f.contains("-")) ? ">=" : "<=";
     }
 
     public boolean linkFunction(String func, String parameter_r) {
