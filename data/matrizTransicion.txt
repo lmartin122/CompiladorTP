@@ -480,7 +480,7 @@
 15;29;21;ASChequeoOperador
 16;0;16;null
 16;1;16;null
-16;2;16;null
+16;2;16;ASFinComentario
 16;3;16;null
 16;4;16;null
 16;5;16;null
@@ -510,7 +510,7 @@
 16;29;16;null
 17;0;16;null
 17;1;16;null
-17;2;16;null
+17;2;16;ASFinComentario
 17;3;16;null
 17;4;16;null
 17;5;16;null

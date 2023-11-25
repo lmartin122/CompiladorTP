@@ -1,0 +1,11 @@
+{
+    VOID funcion1(){
+        RETURN,
+    }
+
+    VOID funcion1(){
+        LONG l,
+        RETURN,
+    }
+
+}

@@ -1,0 +1,12 @@
+{
+    CLASS auto {
+        LONG altura,
+        VOID metodo(){
+            RETURN,
+        }
+    }
+
+    CLASS auto {
+        LONG altura,
+    }
+}
