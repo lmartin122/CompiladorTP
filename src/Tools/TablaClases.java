@@ -20,10 +20,14 @@ public class TablaClases {
 
     public static final String TYPE_SEPARATOR = ":";
     public static final String ATTRIBUTE_SEPARATOR = ".";
+    public static final String REF_SEPARATOR = "_";
 
     private interface Lambda {
         ArrayList<String> invoke(String _class);
+    }
 
+    private interface Gamma {
+        ArrayList<String> invoke(String _class, boolean type);
     }
 
     public static void addClase(String _class) {
@@ -120,7 +124,8 @@ public class TablaClases {
 
     private static String getType(String _class, String _attribute) {
 
-        String type = TablaSimbolos.getTypeLexema(_attribute + Scope.getScopeMain() + Scope.SEPARATOR + _class);
+        String ref = _attribute + Scope.getScopeMain() + Scope.SEPARATOR + _class;
+        String type = TablaSimbolos.getTypeLexema(ref);
 
         if (type == null || type.isEmpty()) {
             type = TablaSimbolos.getParameter(_attribute + Scope.getScopeMain() + Scope.SEPARATOR + _class);
@@ -128,10 +133,10 @@ public class TablaClases {
                 return "";
         }
 
-        return TYPE_SEPARATOR + type;
+        return TYPE_SEPARATOR + type + REF_SEPARATOR + ref;
     }
 
-    private static ArrayList<String> getAllAttribute(String _class, Lambda f, Lambda g, boolean type) {
+    private static ArrayList<String> getAllAttribute(String _class, Gamma f, Lambda g, boolean type) {
         ArrayList<String> out = new ArrayList<>();
 
         Stack<String> hereda = new Stack<>();
@@ -142,7 +147,7 @@ public class TablaClases {
             ArrayList<String> TC_attributes = getAllAttribute(parts[0], f, g, type);
 
             for (String TC_attribute : TC_attributes) {
-                out.add(ATTRIBUTE_SEPARATOR + parts[1] + ATTRIBUTE_SEPARATOR + TC_attribute
+                out.add(parts[1] + ATTRIBUTE_SEPARATOR + TC_attribute
                         + ((type) ? getType(parts[1], TC_attribute, _class) : ""));
             }
         }
@@ -158,7 +163,7 @@ public class TablaClases {
             for (String family : getHerencia(relative))
                 hereda.push(family);
 
-            ArrayList<String> r_attributes = f.invoke(relative); // Generalizarlo
+            ArrayList<String> r_attributes = f.invoke(relative, type);
 
             for (String attribute : r_attributes) {
                 out.add(relative + ATTRIBUTE_SEPARATOR + attribute
@@ -223,11 +228,11 @@ public class TablaClases {
     }
 
     public static ArrayList<String> getAllMetodos(String _class) {
-        return getAllAttribute(_class, (e) -> getAllMetodos(e), (e) -> getMetodos(e), true);
+        return getAllAttribute(_class, (x, y) -> getAllMetodos(x, true), (e) -> getMetodos(e), true);
     }
 
     public static ArrayList<String> getAllMetodos(String _class, boolean type) {
-        return getAllAttribute(_class, (e) -> getAllMetodos(e), (e) -> getMetodos(e), type);
+        return getAllAttribute(_class, (x, y) -> getAllMetodos(x, y), (e) -> getMetodos(e), type);
     }
 
     public static void addMetodoIMPL(String _method, String _class) {
@@ -246,11 +251,11 @@ public class TablaClases {
     }
 
     public static ArrayList<String> getAllMetodosIMPL(String _class) {
-        return getAllAttribute(_class, (e) -> getAllMetodos(e), (e) -> getMetodoIMPL(e), true);
+        return getAllAttribute(_class, (x, y) -> getAllMetodos(x, true), (e) -> getMetodoIMPL(e), true);
     }
 
     public static ArrayList<String> getAllMetodosIMPL(String _class, boolean type) {
-        return getAllAttribute(_class, (e) -> getAllMetodos(e), (e) -> getMetodoIMPL(e), type);
+        return getAllAttribute(_class, (x, y) -> getAllMetodos(x, type), (e) -> getMetodoIMPL(e), false);
     }
 
     public static void addAtributo(String _attribute, String _class) {
@@ -298,7 +303,7 @@ public class TablaClases {
     }
 
     public static ArrayList<String> getAllAtributos(String _class, boolean type) {
-        return getAllAttribute(_class, (e) -> getAllAtributos(e), (e) -> getAtributos(e), type);
+        return getAllAttribute(_class, (x, y) -> getAllAtributos(x, type), ((e) -> getAtributos(e)), type);
     }
 
     public static boolean containsAtributoTC(String _attribute, String _class) {
@@ -306,47 +311,52 @@ public class TablaClases {
     }
 
     public static ArrayList<String> getAllAtributos(String _class) {
-        return getAllAttribute(_class, (e) -> getAllAtributos(e), (e) -> getAtributos(e), true);
+        return getAllAttribute(_class, (x, y) -> getAllAtributos(x, true), (e) -> getAtributos(e), true);
     }
 
     public static void addHerencia(String _class, String _inheritance) {
         addAttribute(_inheritance, _class, HERENCIA);
     };
 
+    public static String getInstance(String s) {
+        return s.substring(0, s.indexOf(ATTRIBUTE_SEPARATOR));
+    }
+
     public static String searchMethod(String r, String scope) {
-        // String parts[] = r.split("\\" + ATTRIBUTE_SEPARATOR, 2);
         String splitter = "\\" + ATTRIBUTE_SEPARATOR;
         String main = Scope.getScopeMain();
 
-        int index = r.indexOf(ATTRIBUTE_SEPARATOR);
-        String _class = r.substring(0, index);
+        String _instance = getInstance(r);
 
-        // System.out.println("Me quedo la clase " + _class + " en el scope " + scope);
+        System.out.println("Me quedo la clase " + _instance + " en el scope " + scope);
 
         // Clase principal
-        _class = TablaSimbolos.getTypeLexema(_class + scope);
+        String _class = TablaSimbolos.getTypeLexema(_instance + scope);
 
-        System.out.println(getAllAtributos(_class) + "funciona bien? busco sobre " + _class);
+        // System.out.println(getAllAtributos(_class) + "funciona bien? busco sobre " +
+        // _class);
 
         if (_class.isEmpty())
             return null;
 
+        int index = r.indexOf(ATTRIBUTE_SEPARATOR);
         String _method = r.substring(index + 1);
 
         int lastIndex = _method.lastIndexOf(ATTRIBUTE_SEPARATOR);
 
-        System.out.println("la clase " + _class + " metodo " + _method);
+        // System.out.println("la clase " + _class + " metodo " + _method);
 
         if (lastIndex != -1) {
             String part = _method.substring(0, lastIndex);
             _method = _method.substring(lastIndex + 1);
 
-            System.out.println("En el if tengo, la clase " + _class + " metodo " + _method + " y la parte " + part);
+            // System.out.println("En el if tengo, la clase " + _class + " metodo " +
+            // _method + " y la parte " + part);
 
             for (String _subClass : part.split(splitter)) {
                 if (containsComponent(_class, ATRIBUTOS_TIPO_CLASE)) {
                     _class = getTypeAtributoTC(_subClass, _class);
-                    System.out.println("La sub clase es " + _class);
+                    // System.out.println("La sub clase es " + _class);
                 } else if (containsHerencia(_subClass, _class)) {
                     _class = _subClass;
                 } else
@@ -355,9 +365,9 @@ public class TablaClases {
 
         }
 
-        System.out.println(_method + main + Scope.SEPARATOR + _class);
+        // System.out.println(_method + main + Scope.SEPARATOR + _class);
         if (containsMetodo(_method, _class))
-            return _method + main + Scope.SEPARATOR + _class;
+            return _instance + TYPE_SEPARATOR + _method + main + Scope.SEPARATOR + _class;
 
         return null;
     }
@@ -416,17 +426,33 @@ public class TablaClases {
         };
     }
 
-    private static Tupla<String, String> acomodarString(String id, String instance) {
-        instance = instance.replaceFirst("(?=@)", (id.startsWith(ATTRIBUTE_SEPARATOR) ? "" : ATTRIBUTE_SEPARATOR) + id);
-        String attribute = instance.replaceAll(".*:([^:]+)@.*", "$1");
+    private static String getTipo(String type) {
+        return type.substring(0, type.indexOf(REF_SEPARATOR));
+    }
+
+    private static String getRef(String ref) {
+        return ref.substring(ref.indexOf(REF_SEPARATOR) + 1);
+    }
+
+    private static String getTipoYReferencia(String id) {
+        return id.substring(id.indexOf(TYPE_SEPARATOR) + 1);
+    }
+
+    private static String getAtributoInstancia(String id, String instance) {
+
+        id = id.substring(0, id.indexOf(TYPE_SEPARATOR));
+
+        instance = instance.replaceFirst("(?=@)",
+                (id.startsWith(ATTRIBUTE_SEPARATOR) ? "" : ATTRIBUTE_SEPARATOR) + id);
         instance = instance.replaceAll(":([^@]+)@", "@");
 
-        // System.out.println("El id " + instance + " el atributo " + attribute);
+        // System.out.println("El id " + id + " y la instancia " + instance);
 
-        return new Tupla<String, String>(attribute, instance);
+        return instance;
     };
 
-    // private void addMetodosInstancia(ArrayList<String> methods, String instancia)
+    // private void addMetodosInstancia(ArrayList<String> methods, String
+    // instancia23)
     // {
     // for (String attribute : methods) {
     // Tupla<String, String> out = acomodarString(attribute, instancia);
@@ -437,9 +463,14 @@ public class TablaClases {
 
     private static void addAtributosInstancia(ArrayList<String> attributes, String _instance) {
         for (String attribute : attributes) {
-            Tupla<String, String> out = acomodarString(attribute, _instance);
-            TablaSimbolos.addIdentificador(out.getSecond());
-            TablaSimbolos.addTipo(out.getFirst(), out.getSecond());
+            // System.out.println("Viene completito " + attribute);
+            String id = getAtributoInstancia(attribute, _instance);
+            String ref = getRef(getTipoYReferencia(attribute));
+            String type = getTipo(getTipoYReferencia(attribute));
+
+            TablaSimbolos.addIdentificador(id);
+            TablaSimbolos.addTipo(type, id);
+            TablaSimbolos.addRef(ref, id);
         }
 
     }
@@ -450,7 +481,9 @@ public class TablaClases {
 
         for (String instancia : instancias) {
             // System.out.println("La instancia " + instancia + " de la clase " + _class);
+
             addAtributosInstancia(getAllAtributos(_class), instancia);
+
             // addMetodosInstancia(getAllMetodos(_class), instancia); los metodos no van, se
             // copia cada metodo y este deberia ser unico
         }

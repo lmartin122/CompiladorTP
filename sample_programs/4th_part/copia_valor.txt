@@ -12,22 +12,28 @@
         }
     }
 
-    l a,
+    CLASS m {
+        VOID b (){
+            RETURN,
+        }
+        VOID c (),
+        l,
+    }
+
 
     CLASS mm  {
-        VOID t(){
+        m z,
+        VOID t(l a){
             UINT c,
             a.xxl(c),
             RETURN,
         }
-        VOID z(){
-            a.xxl(3_ui),
-            RETURN,
-        }
+        m,
     }
 
+    UINT a,
     mm f,
-    f.t(),
-    f.z(),
+    l p,
+    f.t(p),
 
 }

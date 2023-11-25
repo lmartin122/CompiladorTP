@@ -122,8 +122,10 @@ field_declaration : type variable_declarators ',' {
                         Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una declaracion de atributo/s.");
                         TablaSimbolos.addTipoVariable($1.sval, $2.sval);
                         
-                        if (TablaSimbolos.isClass($1.sval + Scope.getScopeMain()))
+                        if (TablaSimbolos.isClass($1.sval + Scope.getScopeMain())) {
+                            TablaSimbolos.addUsoInstancia($2.sval);
                             TablaClases.addAtributos($1.sval, _attributes, _class);
+                        }
                         else 
                             TablaClases.addAtributos(_attributes, _class);
                       }
@@ -214,11 +216,9 @@ method_declarator : method_name '(' formal_parameter ')' {
                       String ref = $1.sval;
                       String par = $3.sval;
                       if (!ref.isEmpty() && !par.isEmpty()) {
-                        Logger.logRule(aLexico.getProgramPosition(), "Se reconocio un metodo con p/j de parametro.");
                         $$ = new ParserVal(ref);
                         TablaSimbolos.addParameter(ref, par);
                       } else {
-                        Logger.logError(aLexico.getProgramPosition(), "No se reconocio un metodo con p/j de parametro.");
                         $$ = new ParserVal("");
                       }
                       
@@ -237,17 +237,6 @@ method_declarator : method_name '(' formal_parameter ')' {
                   | method_name '(' formal_parameter error ')' { Logger.logError(aLexico.getProgramPosition(), "Solo se permite la declaracion de un unico parametro formal.");}
                   | method_name '{' error '}'{ Logger.logError(aLexico.getProgramPosition(), "La declaracion de un metodo debe estar delimitado por parentesis \"(...)\"."); }
 ;
-
-{
-
-
-
-}
-
-
-
-                  
-
 
 method_name : ID {
                 if(!scope.isDeclaredInMyScope($1.sval)) {
@@ -272,12 +261,17 @@ method_body : block
             | ',' {$$ = new ParserVal("");}// Propotipo de metodo -> ID '(' ')' ',' sin block
 ;
 
+
+
 formal_parameter : type variable_declarator_id {
-                      if (!$2.sval.isEmpty()){
-                        $$ = new ParserVal($2.sval);
-                        TablaSimbolos.addTipoVariable($1.sval, $2.sval);
-                      }
-                   }
+                      if (TablaSimbolos.isClass($1.sval + Scope.getScopeMain())) 
+                        Logger.logError(aLexico.getProgramPosition(), "No se permite que un parametro real sea del tipo de una clase.");
+                      
+                      if (!$2.sval.isEmpty()) {
+                          $$ = new ParserVal($2.sval);
+                          TablaSimbolos.addTipoVariable($1.sval, $2.sval);
+                      } else $$ = new ParserVal(""); 
+                  }
 ;
 
 real_parameter : arithmetic_operation
@@ -425,6 +419,7 @@ impl_for_method_declarator : impl_method_name '(' impl_formal_parameter ')' {
 ;
 
 impl_formal_parameter : type ID {$$ = $1;}
+        
 ;
 
 impl_method_name : ID {
@@ -567,7 +562,7 @@ invocation : reference_function '(' real_parameter ')' {
                 if ( !ref.isEmpty() ){
                   $$ = new ParserVal(ref);
                   
-                  if (!tercetos.linkMethod(ref, $3.sval))
+                  if (!tercetos.linkMethod(ref, $3.sval, scope.getCurrentScope()))
                     Logger.logError(aLexico.getProgramPosition(), "La funcion a invocar no posee parametro formal.");
                   else
                     Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a una funcion, con pj de parametro.");
@@ -579,7 +574,7 @@ invocation : reference_function '(' real_parameter ')' {
                 if (!ref.isEmpty()){
                   $$ = new ParserVal(ref);
                   
-                  if (!tercetos.linkMethod(ref))
+                  if (!tercetos.linkMethod(ref, scope.getCurrentScope()))
                     Logger.logError(aLexico.getProgramPosition(), "La funcion a invocar no posee parametro formal.");
                   else
                     Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a una funcion, con pj de parametro.");
@@ -598,6 +593,7 @@ invocation : reference_function '(' real_parameter ')' {
 type : primitive_type
      | class_type
 ;
+
 
 primitive_type : numeric_type
 ;
@@ -664,14 +660,21 @@ reference_function : ID {
 ;
 
 reference_method : field_acces {
-                    String reference = TablaClases.searchMethod($1.sval, scope.getCurrentScope());
+                    String instance = TablaClases.getInstance($1.sval);
+                    instance = scope.searchInstance(instance);
 
-                    if(reference == null) {
-                      Logger.logError(aLexico.getProgramPosition(), "El metodo " + $1.sval + " no esta al alcance.");
-                      $$ = new ParserVal("");
+                    if (instance != null) {
+                      String reference = TablaClases.searchMethod($1.sval, scope.getAmbito(instance));
+
+                      if(reference == null) {
+                        Logger.logError(aLexico.getProgramPosition(), "El metodo " + $1.sval + " no esta al alcance.");
+                        $$ = new ParserVal("");
+                      } else
+                        $$ = new ParserVal(reference);
+                    } else {
+                        Logger.logError(aLexico.getProgramPosition(), "La instancia " + instance + " no esta al alcance.");
+                        $$ = new ParserVal("");
                     }
-                    else
-                      $$ = new ParserVal(reference);
                }
 ;
 
@@ -741,6 +744,7 @@ local_variable_declaration : type variable_declarators ',' {
 
                                 if (TablaSimbolos.isClass($1.sval + Scope.getScopeMain())) {
                                   TablaClases.addInstancia($1.sval, $2.sval);
+                                  TablaSimbolos.addUsoInstancia($2.sval);
                                 }
                                 Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una declaracion de variable local.");
                               }

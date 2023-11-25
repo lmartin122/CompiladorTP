@@ -79,6 +79,16 @@ public class Scope {
                 (e) -> !(TablaSimbolos.isInterface(e)));
     }
 
+    public String searchInstance(String r) {
+        return search(r,
+                (e) -> !(TablaSimbolos.isInstance(e)));
+    }
+
+    public String getAmbito(String ref) {
+        // System.out.println("el ambito que me viene es" + ref);
+        return ref.substring(ref.indexOf(Scope.SEPARATOR));
+    }
+
     public ArrayList<String> getAmbitos() {
         return getAmbitos(getCurrentScope());
     }

@@ -16,15 +16,17 @@ public class TablaSimbolos {
     public static final String ID = "ID";
     public static final String CLASS = "CLASS";
     public static final String INTERFACE = "INTERFACE";
+    public static final String INSTANCE = "INSTANCE";
 
     public static final String TIPO = "tipo";
-    private static final String USO = "uso";
-    private static final String CONTADOR = "contador";
-    private static final String USADO = "usada_r";
-    private static final String PARAMETRO = "parametro";
-    private static final String IMPLEMENTADO = "implementado";
+    public static final String REF = "atributo";
+    public static final String USO = "uso";
+    public static final String CONTADOR = "contador";
+    public static final String USADO = "usada_r";
+    public static final String PARAMETRO = "parametro";
+    public static final String IMPLEMENTADO = "implementado";
     // private static int identifierNumber = 0;
-    private static final HashMap<String, String> toErase = createAttribute(USO, ID);
+    private static final String toErase = USO;
 
     // private static void addTipo(String tipo, String key) {
     // try {
@@ -38,6 +40,22 @@ public class TablaSimbolos {
         addAtributo(variable, TIPO, tipo);
     };
 
+    public static void addRef(String ref, String variable) {
+        addAtributo(variable, REF, ref);
+    };
+
+    public static void addInstancia(String uso, String variable) {
+        setAtributo(variable, USO, uso);
+    };
+
+    public static void addUsoInstancia(String variable) {
+        String[] identificadores = variable.split(";");
+
+        for (String identificador : identificadores) {
+            addInstancia(INSTANCE, identificador);
+        }
+    };
+
     public static void addTipoVariable(String tipo, String variable) {
         // System.out.println(variable + " ES DE TIPO: " + tipo + " SCOPE: " + scope);
         String[] identificadores = variable.split(";");
@@ -45,7 +63,6 @@ public class TablaSimbolos {
         for (String identificador : identificadores) {
             addTipo(tipo, identificador);
         }
-        ;
     };
 
     public static void addCadena(String cadena) {
@@ -60,6 +77,7 @@ public class TablaSimbolos {
         tablaSimbolos.put(key, createAttribute(USO, INTERFACE));
     };
 
+    // Esto se usa?
     public static void addClasePerteneciente(String key, String value_atributo) {
         String aux = "";
         try {
@@ -85,6 +103,11 @@ public class TablaSimbolos {
     }
 
     public static void addAtributo(String key, String atributo, String value_atributo) {
+        tablaSimbolos.get(key).put(atributo, value_atributo);
+    }
+
+    private static void setAtributo(String key, String atributo, String value_atributo) {
+        System.out.println(key + " tiene " + tablaSimbolos.get(key).toString());
         tablaSimbolos.get(key).put(atributo, value_atributo);
     }
 
@@ -202,7 +225,8 @@ public class TablaSimbolos {
     }
 
     public static void purge() {
-        tablaSimbolos.entrySet().removeIf(entry -> entry.getValue().equals(toErase) && Scope.outMain(entry.getKey()));
+        tablaSimbolos.entrySet()
+                .removeIf(entry -> entry.getValue().containsKey(toErase) && Scope.outMain(entry.getKey()));
     }
 
     private static boolean hasAttribute(String k, String a) {
@@ -212,13 +236,6 @@ public class TablaSimbolos {
         }
 
         return false;
-    }
-
-    public static String getLexema(String k) {
-        if (containsKey(k))
-            return tablaSimbolos.get(k).get(valorLexema);
-
-        return null;
     }
 
     public static boolean isID(String k) {
@@ -237,9 +254,20 @@ public class TablaSimbolos {
         return hasAttribute(k, INTERFACE);
     }
 
+    public static boolean isInstance(String k) {
+        return hasAttribute(k, INSTANCE);
+    }
+
     public static String getTypeLexema(String l) {
         if (containsKey(l))
             return tablaSimbolos.get(l).get(TIPO);
+
+        return "";
+    }
+
+    public static String getRefAttribute(String l) {
+        if (containsKey(l))
+            return tablaSimbolos.get(l).get(REF);
 
         return "";
     }
@@ -271,6 +299,27 @@ public class TablaSimbolos {
 
         tablaSimbolos.get(r).put(USADO, "True");
     }
+
+    // Pense que me iba a funcionar pero no je
+    // public static ArrayList<String> getListAttributes(String lexema, String
+    // scope) {
+    // if (!containsKey(lexema))
+    // return null;
+
+    // ArrayList<String> out = new ArrayList<>();
+
+    // for (String k : getTablaSimbolos()) {
+    // int i = k.indexOf(Scope.SEPARATOR);
+    // String splitL = k.substring(0, i);
+    // String splitR = k.substring(i + 1);
+
+    // if (splitL.contains(lexema + TablaClases.ATTRIBUTE_SEPARATOR) &&
+    // splitR.equals(scope))
+    // out.add(k);
+    // }
+
+    // return out;
+    // }
 
     public static ArrayList<String> getTablaSimbolos() {
         return new ArrayList<>(tablaSimbolos.keySet());

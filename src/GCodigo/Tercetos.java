@@ -5,7 +5,10 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Stack;
 
+import Tools.TablaClases;
 import Tools.TablaSimbolos;
+import Tools.Tupla;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -147,15 +150,14 @@ public class Tercetos implements PropertyChangeListener {
 
         String parameter_f = TablaSimbolos.getParameter(func);
 
-        if (parameter_f.equals(TablaSimbolos.SIN_PARAMETRO))
+        String type = typeTerceto(parameter_f, parameter_r);
+
+        if (parameter_f.equals(TablaSimbolos.SIN_PARAMETRO) || type.equals(ERROR))
             return false;
 
-        System.out.println("La funcion en linkInvo " + func);
-
-        String type = typeTerceto(parameter_f, parameter_r);
-        String ref = add("=", parameter_f, parameter_r, type);
+        String ref = copyValue(parameter_f, parameter_r, type);
         addInvocation(func, ref);
-        add("=", parameter_r, parameter_f, type);
+        copyValue(parameter_r, parameter_f, type);
 
         return true;
     }
@@ -172,18 +174,76 @@ public class Tercetos implements PropertyChangeListener {
         return true;
     }
 
-    public boolean linkMethod(String func, String parameter_r) {
+    private String getInstance(String s) {
+        return s.substring(0, s.indexOf(TablaClases.TYPE_SEPARATOR));
+    }
 
-        System.out.println(func + " con el parametro " + parameter_r);
+    private String getMethod(String s) {
+        return s.substring(s.indexOf(TablaClases.TYPE_SEPARATOR) + 1);
+    }
+
+    private void copyValue(ArrayList<String> stOperands, ArrayList<String> ndOperands) {
+        for (int i = 0; i < stOperands.size(); i++) {
+            String stOp = stOperands.get(i);
+            String ndOp = ndOperands.get(i);
+            copyValue(stOp, ndOp);
+        }
+
+    }
+
+    private String copyValue(String stOperand, String ndOperand) {
+        String type = TablaSimbolos.getTypeLexema(stOperand);
+        return add("=", stOperand, ndOperand, type);
+    }
+
+    private String copyValue(String stOperand, String ndOperand, String type) {
+        return add("=", stOperand, ndOperand, type);
+    }
+
+    private ArrayList<String> getAttributes(ArrayList<String> func) {
+        ArrayList<String> out = new ArrayList<>();
+
+        func.forEach(e -> out.add(TablaSimbolos.getRefAttribute(e)));
+
+        return out;
+    }
+
+    private void addInstanceToVariable(ArrayList<String> ref, String _instance, String scope) {
+        String separator = TablaClases.ATTRIBUTE_SEPARATOR;
+
+        for (int i = 0; i < ref.size(); i++) {
+            String _var = ref.get(i);
+            _var = _var.replaceFirst("^",
+                    (_var.startsWith(separator) ? _instance : _instance + separator));
+            ref.set(i, _var + scope);
+        }
+    }
+
+    public boolean linkMethod(String i_m, String parameter_r, String scope) {
+        String _instance = getInstance(i_m);
+        String method = getMethod(i_m);
+
+        String _class = TablaSimbolos.getTypeLexema(_instance + scope);
+
+        // System.out.println("Es la clase " + _class + " y la instancia " + _instance);
+
+        ArrayList<String> variables = TablaClases.getAllAtributos(_class, false);
+        addInstanceToVariable(variables, _instance, scope);
+        ArrayList<String> attributes = getAttributes(variables);
+
+        copyValue(attributes, variables);
+
+        // Perdon por la especie de if por tipos :(
+        if ((parameter_r != null) ? !linkFunction(method, parameter_r) : !linkFunction(method))
+            return false;
+
+        copyValue(variables, attributes);
 
         return true;
     }
 
-    public boolean linkMethod(String func) {
-
-        System.out.println(func);
-
-        return true;
+    public boolean linkMethod(String i_m, String scope) {
+        return linkMethod(i_m, null, scope);
     }
 
     private String addInvocation(String ref, String p) {
