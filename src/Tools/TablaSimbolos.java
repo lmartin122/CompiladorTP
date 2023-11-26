@@ -49,19 +49,27 @@ public class TablaSimbolos {
     };
 
     public static void addUsoInstancia(String variable) {
+        int i = variable.indexOf(Scope.SEPARATOR);
+        String ambito = variable.substring(i);
+        variable = variable.substring(0, i);
         String[] identificadores = variable.split(";");
 
         for (String identificador : identificadores) {
-            addInstancia(INSTANCE, identificador);
+            // System.out.println("El atributo " + identificador + ambito);
+            addInstancia(INSTANCE, identificador + ambito);
         }
     };
 
     public static void addTipoVariable(String tipo, String variable) {
-        // System.out.println(variable + " ES DE TIPO: " + tipo + " SCOPE: " + scope);
+        // System.out.println(variable + " ES DE TIPO: " + tipo);
+        int i = variable.indexOf(Scope.SEPARATOR);
+        String ambito = variable.substring(i);
+        variable = variable.substring(0, i);
         String[] identificadores = variable.split(";");
 
         for (String identificador : identificadores) {
-            addTipo(tipo, identificador);
+            // System.out.println("El atributo " + identificador + ambito);
+            addTipo(tipo, identificador + ambito);
         }
     };
 
@@ -300,7 +308,7 @@ public class TablaSimbolos {
     }
 
     public static void setImplemented(String r) {
-        System.out.println("Set implemented a " + r);
+        // System.out.println("Set implemented a " + r);
 
         if (!containsKey(r))
             return;
@@ -313,7 +321,7 @@ public class TablaSimbolos {
         String[] variables = v.split(";");
 
         for (String var : variables) {
-            System.out.println("la variable " + var);
+            // System.out.println("la variable " + var);
             addUsedVariable(var);
         }
     }

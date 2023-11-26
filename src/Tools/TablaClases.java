@@ -488,12 +488,17 @@ public class TablaClases {
 
     public static void addInstancia(String _class, String variable_declarators) {
 
+        int i = variable_declarators.indexOf(Scope.SEPARATOR);
+        String ambito = variable_declarators.substring(i);
+        variable_declarators = variable_declarators.substring(0, i);
         String[] instancias = variable_declarators.split(";");
+
+        // System.out.println("Las variables son " + variable_declarators);
 
         for (String instancia : instancias) {
             // System.out.println("La instancia " + instancia + " de la clase " + _class);
 
-            addAtributosInstancia(getAllAtributos(_class), instancia);
+            addAtributosInstancia(getAllAtributos(_class), instancia + ambito);
 
             // addMetodosInstancia(getAllMetodos(_class), instancia); los metodos no van, se
             // copia cada metodo y este deberia ser unico

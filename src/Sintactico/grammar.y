@@ -118,6 +118,7 @@ class_member_declaration : field_declaration
 ;
 
 field_declaration : type variable_declarators ',' {
+                      System.out.println("Las variables son las siguientes, estoy en gramatica " + $2.sval);
                       if (!($1.sval.isEmpty() || $2.sval.isEmpty())) {
                         ArrayList<String> ambitos = scope.getAmbitos($2.sval);
                         String _attributes = ambitos.get(0);
@@ -130,8 +131,9 @@ field_declaration : type variable_declarators ',' {
                         TablaSimbolos.addTipoVariable($1.sval, $2.sval);
                         
                         if (TablaSimbolos.isClass($1.sval + Scope.getScopeMain())) {
-                            TablaSimbolos.addUsoInstancia($2.sval);
                             TablaClases.addAtributos($1.sval, _attributes, _class);
+                            TablaClases.addInstancia($1.sval, $2.sval);
+                            TablaSimbolos.addUsoInstancia($2.sval);
                         }
                         else {
                             TablaSimbolos.addUsedVariables($2.sval);
@@ -143,7 +145,7 @@ field_declaration : type variable_declarators ',' {
 ;
 
 variable_declarators : variable_declarator 
-                     | variable_declarators ';' variable_declarator { $$ = new ParserVal($1.sval + ";" + $3.sval );}
+                     | variable_declarators ';' variable_declarator { $$ = new ParserVal($1.sval.substring(0, $1.sval.indexOf(Scope.SEPARATOR)) + ";" + $3.sval);}
 ;
 
 variable_declarator : variable_declarator_id
