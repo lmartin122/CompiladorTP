@@ -133,11 +133,11 @@ field_declaration : type variable_declarators ',' {
                             TablaSimbolos.addUsoInstancia($2.sval);
                             TablaClases.addAtributos($1.sval, _attributes, _class);
                         }
-                        else 
+                        else {
+                            TablaSimbolos.addUsedVariables($2.sval);
                             TablaClases.addAtributos(_attributes, _class);
+                        }
                       }
-
-           
                    }
                   | type variable_declarators {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' en el final de la sentencia.");}
 ;
@@ -160,7 +160,7 @@ variable_declarator_id : ID {
                               $$ = new ParserVal(scope.changeScope($1.sval));
                           }
                           else {
-                              Logger.logError(aLexico.getProgramPosition(), "La variable " + $1.sval + " ya esta declarado en el ambito " + scope.getCurrentScope() + ".");
+                              Logger.logError(aLexico.getProgramPosition() - 1, "La variable " + $1.sval + " ya esta declarado en el ambito " + scope.getCurrentScope() + ".");
                               $$ = new ParserVal("");
                           }
                         }
@@ -352,6 +352,7 @@ interface_method_declaration : constant_declaration {Logger.logError(aLexico.get
 ;
 
 constant_declaration : type variable_declarators
+                     | type variable_declarators ','
 ;
 
 abstract_method_declaration : abstract_method_header
@@ -753,6 +754,8 @@ executable_statement : if_then_declaration
 ;
 
 
+
+
 local_variable_declaration : type variable_declarators ',' {
                               if (!($1.sval.isEmpty() || $2.sval.isEmpty())) {
                                 TablaSimbolos.addTipoVariable($1.sval, $2.sval);                      
@@ -760,9 +763,10 @@ local_variable_declaration : type variable_declarators ',' {
                                 if (TablaSimbolos.isClass($1.sval + Scope.getScopeMain())) {
                                   TablaClases.addInstancia($1.sval, $2.sval);
                                   TablaSimbolos.addUsoInstancia($2.sval);
-                                }
+                                } else
+                                  TablaSimbolos.addUsedVariables($2.sval);
                                 Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una declaracion de variable local.");
-                              }
+                              } 
                             }
 ;
 

@@ -1,22 +1,26 @@
 {
-    UINT a,
+    UINT a; b; c,
 
-    a = 3_ui,
-
-    IF ((3_ui * a + 10_ui) >= 20_ui * 1_ui + 10_ui){
-        PRINT,
-        PRINT,
-
-    } ELSE {
-        FOR a IN RANGE (0_ui; 10_ui; 1_ui){
-            PRINT,
-            PRINT,
+    CLASS my_clase {
+        UINT z,
+        VOID x(){
+            UINT k,
+            k = c + z * a,
+            RETURN,
         }
-    } END_IF,
+        VOID y(),
+    }
 
-    DOUBLE c,
 
-    c = TOD(10_ui + 1_ui * 3_ui),
+    my_clase j,
+
+
+
+    INTERFACE g {
+        VOID x(),
+    }
+
+    g d,
 
 
 }

@@ -2,12 +2,13 @@ package Tools;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.TreeMap;
 
 import GCodigo.Scope;
 
 public class TablaSimbolos {
 
-    public static final HashMap<String, HashMap<String, String>> tablaSimbolos = new HashMap<>();
+    public static final TreeMap<String, TreeMap<String, String>> tablaSimbolos = new TreeMap<>();
     public static final String valorLexema = "lexema";
     public static final String SIN_PARAMETRO = "s/p";
 
@@ -26,7 +27,6 @@ public class TablaSimbolos {
     public static final String PARAMETRO = "parametro";
     public static final String IMPLEMENTADO = "implementado";
     // private static int identifierNumber = 0;
-    private static final String toErase = USO;
 
     // private static void addTipo(String tipo, String key) {
     // try {
@@ -192,8 +192,8 @@ public class TablaSimbolos {
             }
     }
 
-    public static HashMap<String, String> createAttribute(String key, String value) {
-        HashMap<String, String> out = new HashMap<>();
+    public static TreeMap<String, String> createAttribute(String key, String value) {
+        TreeMap<String, String> out = new TreeMap<>();
         out.put(key, value);
         return out;
     }
@@ -201,7 +201,7 @@ public class TablaSimbolos {
     public static void changeKey(String lexema, String n_lexema) {
 
         if (tablaSimbolos.containsKey(lexema)) {
-            HashMap<String, String> attributes = tablaSimbolos.get(lexema);
+            TreeMap<String, String> attributes = tablaSimbolos.get(lexema);
             tablaSimbolos.remove(lexema);
             tablaSimbolos.put(n_lexema, attributes);
         } else {
@@ -212,9 +212,11 @@ public class TablaSimbolos {
     public static String printTable() {
         String out = "";
 
-        for (HashMap.Entry<String, HashMap<String, String>> m : tablaSimbolos.entrySet()) {
-            HashMap<String, String> values = m.getValue();
+        for (HashMap.Entry<String, TreeMap<String, String>> m : tablaSimbolos.entrySet()) {
+
+            TreeMap<String, String> values = m.getValue();
             out += "Clave " + m.getKey() + ": ";
+
             for (HashMap.Entry<String, String> v : values.entrySet()) {
                 out += "(" + v.getKey() + ": " + v.getValue() + ") ";
             }
@@ -226,7 +228,11 @@ public class TablaSimbolos {
 
     public static void purge() {
         tablaSimbolos.entrySet()
-                .removeIf(entry -> entry.getValue().containsKey(toErase) && Scope.outMain(entry.getKey()));
+                .removeIf(entry -> (entry.getValue().size() == 1 && entry.getValue().get(USO).equals(ID)));
+    }
+
+    public static void purge(String ref) {
+
     }
 
     private static boolean hasAttribute(String k, String a) {
@@ -300,6 +306,23 @@ public class TablaSimbolos {
             return;
 
         tablaSimbolos.get(r).put(IMPLEMENTADO, "True");
+    }
+
+    public static void addUsedVariables(String v) {
+
+        String[] variables = v.split(";");
+
+        for (String var : variables) {
+            System.out.println("la variable " + var);
+            addUsedVariable(var);
+        }
+    }
+
+    public static void addUsedVariable(String v) {
+        if (!containsKey(v))
+            return;
+
+        tablaSimbolos.get(v).put(USADO, "False");
     }
 
     public static void setUsed(String r) {

@@ -481,6 +481,7 @@ public class TablaClases {
             TablaSimbolos.addIdentificador(id);
             TablaSimbolos.addTipo(type, id);
             TablaSimbolos.addRef(ref, id);
+            TablaSimbolos.addUsedVariable(id);
         }
 
     }
