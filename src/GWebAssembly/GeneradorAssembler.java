@@ -246,7 +246,7 @@ public class GeneradorAssembler {
                                                                                             // al registro EAX (32
                                                                                             // bits).
                         codigoAssembler.append("ADD EAX, ").append(operando2).append("\n"); // Sumamos los operandos.
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Hacemos la
+                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
                                                                                                          // variable
                                                                                                          // auxiliar del
                                                                                                          // tipo del
@@ -266,7 +266,7 @@ public class GeneradorAssembler {
                                                                                                          // registro EAX
                                                                                                          // (32 bits).
                         codigoAssembler.append("ADD EAX, ").append(operando2).append("\n"); // Sumamos los operandos.
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Hacemos la
+                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
                                                                                                          // variable
                                                                                                          // auxiliar del
                                                                                                          // tipo del
@@ -282,7 +282,7 @@ public class GeneradorAssembler {
                                                                                                          // (32 bits).
                         codigoAssembler.append("ADD EAX, ").append("__").append(operando2).append("\n"); // Sumamos los
                                                                                                          // operandos.
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Hacemos la
+                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
                                                                                                          // variable
                                                                                                          // auxiliar del
                                                                                                          // tipo del
@@ -296,7 +296,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MOV AX, ").append(operando1).append("\n"); // Movemos el valor del OP1
                                                                                            // al registro EAX (32 bits).
                         codigoAssembler.append("ADD AX, ").append(operando2).append("\n"); // Sumamos los operandos.
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Hacemos la
+                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
                                                                                                          // variable
                                                                                                          // auxiliar del
                                                                                                          // tipo del
@@ -311,7 +311,7 @@ public class GeneradorAssembler {
                                                                                                         // EAX (32
                                                                                                         // bits).
                         codigoAssembler.append("ADD AX, ").append(operando2).append("\n"); // Sumamos los operandos.
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Hacemos la
+                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
                                                                                                          // variable
                                                                                                          // auxiliar del
                                                                                                          // tipo del
@@ -327,7 +327,7 @@ public class GeneradorAssembler {
                                                                                                         // bits).
                         codigoAssembler.append("ADD AX, ").append("__").append(operando2).append("\n"); // Sumamos los
                                                                                                         // operandos.
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Hacemos la
+                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
                                                                                                          // variable
                                                                                                          // auxiliar del
                                                                                                          // tipo del
@@ -355,7 +355,7 @@ public class GeneradorAssembler {
                                                                                             // al registro EAX (32
                                                                                             // bits).
                         codigoAssembler.append("SUB EAX, ").append(operando2).append("\n"); // Sumamos los operandos.
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Hacemos la
+                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
                                                                                                          // variable
                                                                                                          // auxiliar del
                                                                                                          // tipo del
@@ -375,7 +375,7 @@ public class GeneradorAssembler {
                                                                                                          // registro EAX
                                                                                                          // (32 bits).
                         codigoAssembler.append("SUB EAX, ").append(operando2).append("\n"); // Sumamos los operandos.
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Hacemos la
+                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
                                                                                                          // variable
                                                                                                          // auxiliar del
                                                                                                          // tipo del
@@ -391,7 +391,7 @@ public class GeneradorAssembler {
                                                                                                          // (32 bits).
                         codigoAssembler.append("SUB EAX, ").append("__").append(operando2).append("\n"); // Sumamos los
                                                                                                          // operandos.
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Hacemos la
+                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
                                                                                                          // variable
                                                                                                          // auxiliar del
                                                                                                          // tipo del
@@ -405,7 +405,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MOV AX, ").append(operando1).append("\n"); // Movemos el valor del OP1
                                                                                            // al registro EAX (32 bits).
                         codigoAssembler.append("SUB AX, ").append(operando2).append("\n"); // Sumamos los operandos.
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Hacemos la
+                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
                                                                                                          // variable
                                                                                                          // auxiliar del
                                                                                                          // tipo del
@@ -420,7 +420,7 @@ public class GeneradorAssembler {
                                                                                                         // EAX (32
                                                                                                         // bits).
                         codigoAssembler.append("SUB AX, ").append(operando2).append("\n"); // Sumamos los operandos.
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Hacemos la
+                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
                                                                                                          // variable
                                                                                                          // auxiliar del
                                                                                                          // tipo del
@@ -436,7 +436,7 @@ public class GeneradorAssembler {
                                                                                                         // bits).
                         codigoAssembler.append("SUB AX, ").append("__").append(operando2).append("\n"); // Sumamos los
                                                                                                         // operandos.
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Hacemos la
+                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
                                                                                                          // variable
                                                                                                          // auxiliar del
                                                                                                          // tipo del
@@ -464,7 +464,7 @@ public class GeneradorAssembler {
                                                                                             // al registro EAX (32
                                                                                             // bits).
                         codigoAssembler.append("MUL EAX, ").append(operando2).append("\n"); // Sumamos los operandos.
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Hacemos la
+                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
                                                                                                          // variable
                                                                                                          // auxiliar del
                                                                                                          // tipo del
@@ -484,7 +484,7 @@ public class GeneradorAssembler {
                                                                                                          // registro EAX
                                                                                                          // (32 bits).
                         codigoAssembler.append("MUL EAX, ").append(operando2).append("\n"); // Sumamos los operandos.
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Hacemos la
+                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
                                                                                                          // variable
                                                                                                          // auxiliar del
                                                                                                          // tipo del
@@ -500,7 +500,7 @@ public class GeneradorAssembler {
                                                                                                          // (32 bits).
                         codigoAssembler.append("MUL EAX, ").append("__").append(operando2).append("\n"); // Sumamos los
                                                                                                          // operandos.
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Hacemos la
+                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
                                                                                                          // variable
                                                                                                          // auxiliar del
                                                                                                          // tipo del
@@ -525,7 +525,7 @@ public class GeneradorAssembler {
                                                                                            // al registro EAX (32 bits).
                         codigoAssembler.append("MUL AX, ").append(operando2).append("\n"); // Multiplicamos los
                                                                                            // operandos.
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Hacemos la
+                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
                                                                                                          // variable
                                                                                                          // auxiliar del
                                                                                                          // tipo del
@@ -541,7 +541,7 @@ public class GeneradorAssembler {
                                                                                                         // bits).
                         codigoAssembler.append("MUL AX, ").append(operando2).append("\n"); // Multiplicamos los
                                                                                            // operandos.
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Hacemos la
+                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
                                                                                                          // variable
                                                                                                          // auxiliar del
                                                                                                          // tipo del
@@ -558,7 +558,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MUL AX, ").append("__").append(operando2).append("\n"); // Multiplicamos
                                                                                                         // los
                                                                                                         // operandos.
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Hacemos la
+                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
                                                                                                          // variable
                                                                                                          // auxiliar del
                                                                                                          // tipo del
@@ -624,7 +624,7 @@ public class GeneradorAssembler {
                         } else {
                             operando1 = operando1.substring(0, 1);
                         }
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto);
+                        variableAuxiliar = generarVariableAuxiliar();
                         codigoAssembler.append("MOV EAX, ").append(operando1).append("\n"); // Guardamos el dividendo en
                                                                                             // el registro EAX (32
                                                                                             // bits).
@@ -638,7 +638,7 @@ public class GeneradorAssembler {
                         } else {
                             operando2 = operando2.substring(0, 1);
                         }
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto);
+                        variableAuxiliar = generarVariableAuxiliar();
                         codigoAssembler.append("MOV EAX, ").append("__").append(operando1).append("\n"); // Guardamos el
                                                                                                          // dividendo en
                                                                                                          // el registro
@@ -648,7 +648,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MOV ").append(variableAuxiliar); // Guardamos el valor en la variable
                                                                                  // auxiliar.
                     } else {
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto);
+                        variableAuxiliar = generarVariableAuxiliar();
                         codigoAssembler.append("MOV EAX, ").append("__").append(operando1).append("\n"); // Guardamos el
                                                                                                          // dividendo en
                                                                                                          // el registro
@@ -661,7 +661,7 @@ public class GeneradorAssembler {
                     }
                 } else {
                     if (esConstante(operando2) && esConstante(operando1)) {
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto);
+                        variableAuxiliar = generarVariableAuxiliar();
                         codigoAssembler.append("MOV AX, ").append(operando1).append("\n"); // Guardamos el dividendo en
                                                                                            // el registro AX (16 bits).
                         codigoAssembler.append("DIV AX, ").append(operando2); // Realizamos la división.
@@ -669,7 +669,7 @@ public class GeneradorAssembler {
                                                                                                 // de la división en AX
                                                                                                 // (16 bits).
                     } else if (esConstante(operando2) && !esConstante(operando1)) {
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto);
+                        variableAuxiliar = generarVariableAuxiliar();
                         codigoAssembler.append("MOV AX, ").append("__").append(operando1).append("\n"); // Guardamos el
                                                                                                         // dividendo en
                                                                                                         // el registro
@@ -679,7 +679,7 @@ public class GeneradorAssembler {
                                                                                                 // de la división en AX
                                                                                                 // (16 bits).
                     } else {
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto);
+                        variableAuxiliar = generarVariableAuxiliar();
                         codigoAssembler.append("MOV AX, ").append("__").append(operando1).append("\n"); // Guardamos el
                                                                                                         // dividendo en
                                                                                                         // el registro
@@ -707,7 +707,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MOV EAX, ").append(operando2).append("\n");
                         codigoAssembler.append("CMP EAX, ").append(operando1).append("\n"); // Comparamos los valores
                                                                                             // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -737,7 +737,7 @@ public class GeneradorAssembler {
                                                                                                          // los valores
                                                                                                          // entre
                                                                                                          // operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -765,7 +765,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MOV EAX, ").append("__").append(operando2).append("\n");
                         codigoAssembler.append("CMP EAX, ").append(operando1).append("\n"); // Comparamos los valores
                                                                                             // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -790,7 +790,7 @@ public class GeneradorAssembler {
                                                                                                          // los valores
                                                                                                          // entre
                                                                                                          // operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -825,7 +825,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MOV AX, ").append(operando2).append("\n");
                         codigoAssembler.append("CMP AX, ").append(operando1).append("\n"); // Comparamos los valores
                                                                                            // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -855,7 +855,7 @@ public class GeneradorAssembler {
                                                                                                         // los valores
                                                                                                         // entre
                                                                                                         // operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -883,7 +883,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MOV AX, ").append("__").append(operando2).append("\n");
                         codigoAssembler.append("CMP AX, ").append(operando1).append("\n"); // Comparamos los valores
                                                                                            // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -908,7 +908,7 @@ public class GeneradorAssembler {
                                                                                                         // los valores
                                                                                                         // entre
                                                                                                         // operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -948,7 +948,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MOV EAX, ").append(operando2).append("\n");
                         codigoAssembler.append("CMP EAX, ").append(operando1).append("\n"); // Comparamos los valores
                                                                                             // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -980,7 +980,7 @@ public class GeneradorAssembler {
                                                                                                          // los valores
                                                                                                          // entre
                                                                                                          // operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1010,7 +1010,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MOV EAX, ").append("__").append(operando2).append("\n");
                         codigoAssembler.append("CMP EAX, ").append(operando1).append("\n"); // Comparamos los valores
                                                                                             // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1037,7 +1037,7 @@ public class GeneradorAssembler {
                                                                                                          // los valores
                                                                                                          // entre
                                                                                                          // operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1074,7 +1074,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MOV AX, ").append(operando2).append("\n");
                         codigoAssembler.append("CMP AX, ").append(operando1).append("\n"); // Comparamos los valores
                                                                                            // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1106,7 +1106,7 @@ public class GeneradorAssembler {
                                                                                                         // los valores
                                                                                                         // entre
                                                                                                         // operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1136,7 +1136,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MOV AX, ").append("__").append(operando2).append("\n");
                         codigoAssembler.append("CMP AX, ").append(operando1).append("\n"); // Comparamos los valores
                                                                                            // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1163,7 +1163,7 @@ public class GeneradorAssembler {
                                                                                                         // los valores
                                                                                                         // entre
                                                                                                         // operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1204,7 +1204,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MOV EAX, ").append(operando2).append("\n");
                         codigoAssembler.append("CMP EAX, ").append(operando1).append("\n"); // Comparamos los valores
                                                                                             // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1236,7 +1236,7 @@ public class GeneradorAssembler {
                                                                                                          // los valores
                                                                                                          // entre
                                                                                                          // operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1266,7 +1266,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MOV EAX, ").append("__").append(operando2).append("\n");
                         codigoAssembler.append("CMP EAX, ").append(operando1).append("\n"); // Comparamos los valores
                                                                                             // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1293,7 +1293,7 @@ public class GeneradorAssembler {
                                                                                                          // los valores
                                                                                                          // entre
                                                                                                          // operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1330,7 +1330,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MOV AX, ").append(operando2).append("\n");
                         codigoAssembler.append("CMP AX, ").append(operando1).append("\n"); // Comparamos los valores
                                                                                            // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1362,7 +1362,7 @@ public class GeneradorAssembler {
                                                                                                         // los valores
                                                                                                         // entre
                                                                                                         // operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1392,7 +1392,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MOV AX, ").append("__").append(operando2).append("\n");
                         codigoAssembler.append("CMP AX, ").append(operando1).append("\n"); // Comparamos los valores
                                                                                            // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1419,7 +1419,7 @@ public class GeneradorAssembler {
                                                                                                         // los valores
                                                                                                         // entre
                                                                                                         // operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1460,7 +1460,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MOV EAX, ").append(operando2).append("\n");
                         codigoAssembler.append("CMP EAX, ").append(operando1).append("\n"); // Comparamos los valores
                                                                                             // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1490,7 +1490,7 @@ public class GeneradorAssembler {
                                                                                                          // los valores
                                                                                                          // entre
                                                                                                          // operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1518,7 +1518,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MOV EAX, ").append("__").append(operando2).append("\n");
                         codigoAssembler.append("CMP EAX, ").append(operando1).append("\n"); // Comparamos los valores
                                                                                             // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1543,7 +1543,7 @@ public class GeneradorAssembler {
                                                                                                          // los valores
                                                                                                          // entre
                                                                                                          // operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1578,7 +1578,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MOV AX, ").append(operando2).append("\n");
                         codigoAssembler.append("CMP AX, ").append(operando1).append("\n"); // Comparamos los valores
                                                                                            // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1608,7 +1608,7 @@ public class GeneradorAssembler {
                                                                                                         // los valores
                                                                                                         // entre
                                                                                                         // operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1636,7 +1636,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MOV AX, ").append("__").append(operando2).append("\n");
                         codigoAssembler.append("CMP AX, ").append(operando1).append("\n"); // Comparamos los valores
                                                                                            // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1661,7 +1661,7 @@ public class GeneradorAssembler {
                                                                                                         // los valores
                                                                                                         // entre
                                                                                                         // operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1700,7 +1700,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MOV EAX, ").append(operando2).append("\n");
                         codigoAssembler.append("CMP EAX, ").append(operando1).append("\n"); // Comparamos los valores
                                                                                             // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1732,7 +1732,7 @@ public class GeneradorAssembler {
                                                                                                          // los valores
                                                                                                          // entre
                                                                                                          // operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1762,7 +1762,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MOV EAX, ").append("__").append(operando2).append("\n");
                         codigoAssembler.append("CMP EAX, ").append(operando1).append("\n"); // Comparamos los valores
                                                                                             // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1789,7 +1789,7 @@ public class GeneradorAssembler {
                                                                                                          // los valores
                                                                                                          // entre
                                                                                                          // operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1826,7 +1826,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MOV AX, ").append(operando2).append("\n");
                         codigoAssembler.append("CMP AX, ").append(operando1).append("\n"); // Comparamos los valores
                                                                                            // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1858,7 +1858,7 @@ public class GeneradorAssembler {
                                                                                                         // los valores
                                                                                                         // entre
                                                                                                         // operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1888,7 +1888,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MOV AX, ").append("__").append(operando2).append("\n");
                         codigoAssembler.append("CMP AX, ").append(operando1).append("\n"); // Comparamos los valores
                                                                                            // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1915,7 +1915,7 @@ public class GeneradorAssembler {
                                                                                                         // los valores
                                                                                                         // entre
                                                                                                         // operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1956,7 +1956,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MOV EAX, ").append(operando2).append("\n");
                         codigoAssembler.append("CMP EAX, ").append(operando1).append("\n"); // Comparamos los valores
                                                                                             // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -1988,7 +1988,7 @@ public class GeneradorAssembler {
                                                                                                          // los valores
                                                                                                          // entre
                                                                                                          // operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -2018,7 +2018,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MOV EAX, ").append("__").append(operando2).append("\n");
                         codigoAssembler.append("CMP EAX, ").append(operando1).append("\n"); // Comparamos los valores
                                                                                             // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -2045,7 +2045,7 @@ public class GeneradorAssembler {
                                                                                                          // los valores
                                                                                                          // entre
                                                                                                          // operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.LONG_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -2082,7 +2082,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MOV AX, ").append(operando2).append("\n");
                         codigoAssembler.append("CMP AX, ").append(operando1).append("\n"); // Comparamos los valores
                                                                                            // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -2114,7 +2114,7 @@ public class GeneradorAssembler {
                                                                                                         // los valores
                                                                                                         // entre
                                                                                                         // operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -2144,7 +2144,7 @@ public class GeneradorAssembler {
                         codigoAssembler.append("MOV AX, ").append("__").append(operando2).append("\n");
                         codigoAssembler.append("CMP AX, ").append(operando1).append("\n"); // Comparamos los valores
                                                                                            // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -2171,7 +2171,7 @@ public class GeneradorAssembler {
                                                                                                         // los valores
                                                                                                         // entre
                                                                                                         // operandos
-                        variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto); // Guardamos el
+                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
                                                                                                          // valor de la
                                                                                                          // comparación.
                         // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
@@ -2217,7 +2217,7 @@ public class GeneradorAssembler {
                                                                                    // flotante.
                     codigoAssembler.append("FLD ").append(operando1).append("\n");
                     codigoAssembler.append("FADD "); // Hacemos la suma de los operandos recién cargados en la pila.
-                    variableAuxiliar = generarVariableAuxiliar(TablaTipos.DOUBLE_TYPE, numeroTerceto);
+                    variableAuxiliar = generarVariableAuxiliar();
                     codigoAssembler.append("FSTP ").append(variableAuxiliar).append("\n"); // Almacenamos el resultado y
                                                                                            // desapilamos.
                     generarAssemblerOverflowFlotantes(variableAuxiliar);
@@ -2227,7 +2227,7 @@ public class GeneradorAssembler {
                                                                                    // flotante.
                     codigoAssembler.append("FLD ").append("__").append(operando1).append("\n");
                     codigoAssembler.append("FADD "); // Hacemos la suma de los operandos recién cargados en la pila.
-                    variableAuxiliar = generarVariableAuxiliar(TablaTipos.DOUBLE_TYPE, numeroTerceto);
+                    variableAuxiliar = generarVariableAuxiliar();
                     codigoAssembler.append("FSTP ").append(variableAuxiliar).append("\n"); // Almacenamos el resultado y
                                                                                            // desapilamos.
                     generarAssemblerOverflowFlotantes(variableAuxiliar);
@@ -2238,7 +2238,7 @@ public class GeneradorAssembler {
                                                                                                 // flotante.
                     codigoAssembler.append("FLD ").append("__").append(operando1).append("\n");
                     codigoAssembler.append("FADD "); // Hacemos la suma de los operandos recién cargados en la pila.
-                    variableAuxiliar = generarVariableAuxiliar(TablaTipos.DOUBLE_TYPE, numeroTerceto);
+                    variableAuxiliar = generarVariableAuxiliar();
                     codigoAssembler.append("FSTP ").append(variableAuxiliar).append("\n"); // Almacenamos el resultado y
                                                                                            // desapilamos.
                     generarAssemblerOverflowFlotantes(variableAuxiliar);
@@ -2252,7 +2252,7 @@ public class GeneradorAssembler {
                                                                                    // flotante.
                     codigoAssembler.append("FLD ").append(operando1).append("\n");
                     codigoAssembler.append("FSUB "); // Hacemos la resta de los operandos recién cargados en la pila.
-                    variableAuxiliar = generarVariableAuxiliar(TablaTipos.DOUBLE_TYPE, numeroTerceto);
+                    variableAuxiliar = generarVariableAuxiliar();
                     codigoAssembler.append("FSTP ").append(variableAuxiliar).append("\n"); // Almacenamos el resultado y
                                                                                            // desapilamos.
                 } else if (esConstante(operando2) && !esConstante(operando1)) {
@@ -2261,7 +2261,7 @@ public class GeneradorAssembler {
                                                                                    // flotante.
                     codigoAssembler.append("FLD ").append("__").append(operando1).append("\n");
                     codigoAssembler.append("FSUB "); // Hacemos la resta de los operandos recién cargados en la pila.
-                    variableAuxiliar = generarVariableAuxiliar(TablaTipos.DOUBLE_TYPE, numeroTerceto);
+                    variableAuxiliar = generarVariableAuxiliar();
                     codigoAssembler.append("FSTP ").append(variableAuxiliar).append("\n"); // Almacenamos el resultado y
                                                                                            // desapilamos.
                 } else {
@@ -2271,7 +2271,7 @@ public class GeneradorAssembler {
                                                                                                 // flotante.
                     codigoAssembler.append("FLD ").append("__").append(operando1).append("\n");
                     codigoAssembler.append("FSUB "); // Hacemos la resta de los operandos recién cargados en la pila.
-                    variableAuxiliar = generarVariableAuxiliar(TablaTipos.DOUBLE_TYPE, numeroTerceto);
+                    variableAuxiliar = generarVariableAuxiliar();
                     codigoAssembler.append("FSTP ").append(variableAuxiliar).append("\n"); // Almacenamos el resultado y
                                                                                            // desapilamos.
                 }
@@ -2285,7 +2285,7 @@ public class GeneradorAssembler {
                     codigoAssembler.append("FLD ").append(operando1).append("\n");
                     codigoAssembler.append("FMUL "); // Hacemos la multiplicación de los operandos recién cargados en la
                                                      // pila.
-                    variableAuxiliar = generarVariableAuxiliar(TablaTipos.DOUBLE_TYPE, numeroTerceto);
+                    variableAuxiliar = generarVariableAuxiliar();
                     codigoAssembler.append("FSTP ").append(variableAuxiliar).append("\n"); // Almacenamos el resultado y
                                                                                            // desapilamos.
                 } else if (esConstante(operando2) && !esConstante(operando1)) {
@@ -2295,7 +2295,7 @@ public class GeneradorAssembler {
                     codigoAssembler.append("FLD ").append("__").append(operando1).append("\n");
                     codigoAssembler.append("FMUL "); // Hacemos la multiplicación de los operandos recién cargados en la
                                                      // pila.
-                    variableAuxiliar = generarVariableAuxiliar(TablaTipos.DOUBLE_TYPE, numeroTerceto);
+                    variableAuxiliar = generarVariableAuxiliar();
                     codigoAssembler.append("FSTP ").append(variableAuxiliar).append("\n"); // Almacenamos el resultado y
                                                                                            // desapilamos.
                 } else {
@@ -2306,7 +2306,7 @@ public class GeneradorAssembler {
                     codigoAssembler.append("FLD ").append("__").append(operando1).append("\n");
                     codigoAssembler.append("FMUL "); // Hacemos la multiplicación de los operandos recién cargados en la
                                                      // pila.
-                    variableAuxiliar = generarVariableAuxiliar(TablaTipos.DOUBLE_TYPE, numeroTerceto);
+                    variableAuxiliar = generarVariableAuxiliar();
                     codigoAssembler.append("FSTP ").append(variableAuxiliar).append("\n"); // Almacenamos el resultado y
                                                                                            // desapilamos.
                 }
@@ -2319,7 +2319,7 @@ public class GeneradorAssembler {
                                                                                    // flotante.
                     codigoAssembler.append("FLD ").append(operando1).append("\n");
                     codigoAssembler.append("FDIV "); // Hacemos la división de los operandos recién cargados en la pila.
-                    variableAuxiliar = generarVariableAuxiliar(TablaTipos.DOUBLE_TYPE, numeroTerceto);
+                    variableAuxiliar = generarVariableAuxiliar();
                     codigoAssembler.append("FSTP ").append(variableAuxiliar).append("\n"); // Almacenamos el resultado y
                                                                                            // desapilamos.
                 } else if (esConstante(operando2) && !esConstante(operando1)) {
@@ -2328,7 +2328,7 @@ public class GeneradorAssembler {
                                                                                    // flotante.
                     codigoAssembler.append("FLD ").append("__").append(operando1).append("\n");
                     codigoAssembler.append("FDIV "); // Hacemos la división de los operandos recién cargados en la pila.
-                    variableAuxiliar = generarVariableAuxiliar(TablaTipos.DOUBLE_TYPE, numeroTerceto);
+                    variableAuxiliar = generarVariableAuxiliar();
                     codigoAssembler.append("FSTP ").append(variableAuxiliar).append("\n"); // Almacenamos el resultado y
                                                                                            // desapilamos.
                 } else {
@@ -2338,7 +2338,7 @@ public class GeneradorAssembler {
                                                                                                 // flotante.
                     codigoAssembler.append("FLD ").append("__").append(operando1).append("\n");
                     codigoAssembler.append("FDIV "); // Hacemos la división de los operandos recién cargados en la pila.
-                    variableAuxiliar = generarVariableAuxiliar(TablaTipos.DOUBLE_TYPE, numeroTerceto);
+                    variableAuxiliar = generarVariableAuxiliar();
                     codigoAssembler.append("FSTP ").append(variableAuxiliar).append("\n"); // Almacenamos el resultado y
                                                                                            // desapilamos.
                 }
@@ -2355,7 +2355,7 @@ public class GeneradorAssembler {
                                                                                 // comparación.
                 codigoAssembler.append("MOV AX ").append(auxiliar).append("\n"); // Lo movemos a AX.
                 codigoAssembler.append("SAHF ").append("\n"); // Guardamos los bits menos significativos.
-                variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto);
+                variableAuxiliar = generarVariableAuxiliar();
 
                 codigoAssembler.append("MOV ").append(variableAuxiliar).append(" OFFh\n");
                 codigoAssembler.append("JAE ").append(variableAuxiliar.substring(1)).append("\n"); // Saltamos a la
@@ -2374,7 +2374,7 @@ public class GeneradorAssembler {
                 codigoAssembler.append("FSTSW ").append(auxiliar).append("\n");
                 codigoAssembler.append("MOV AX ").append(auxiliar).append("\n");
                 codigoAssembler.append("SAHF ").append("\n");
-                variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto);
+                variableAuxiliar = generarVariableAuxiliar();
 
                 codigoAssembler.append("MOV ").append(variableAuxiliar).append(" OFFh\n");
                 codigoAssembler.append("JBE ").append(variableAuxiliar.substring(1)).append("\n");
@@ -2389,7 +2389,7 @@ public class GeneradorAssembler {
                 codigoAssembler.append("FSTSW ").append(auxiliar).append("\n");
                 codigoAssembler.append("MOV AX ").append(auxiliar).append("\n");
                 codigoAssembler.append("SAHF ").append("\n");
-                variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto);
+                variableAuxiliar = generarVariableAuxiliar();
 
                 codigoAssembler.append("MOV ").append(variableAuxiliar).append(" OFFh\n");
                 codigoAssembler.append("JA ").append(variableAuxiliar.substring(1)).append("\n");
@@ -2404,7 +2404,7 @@ public class GeneradorAssembler {
                 codigoAssembler.append("FSTSW ").append(auxiliar).append("\n");
                 codigoAssembler.append("MOV AX ").append(auxiliar).append("\n");
                 codigoAssembler.append("SAHF ").append("\n");
-                variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto);
+                variableAuxiliar = generarVariableAuxiliar();
 
                 codigoAssembler.append("MOV ").append(variableAuxiliar).append(" OFFh\n");
                 codigoAssembler.append("JB ").append(variableAuxiliar.substring(1)).append("\n");
@@ -2418,7 +2418,7 @@ public class GeneradorAssembler {
                 codigoAssembler.append("FSTSW ").append(auxiliar).append("\n");
                 codigoAssembler.append("MOV AX ").append(auxiliar).append("\n");
                 codigoAssembler.append("SAHF ").append("\n");
-                variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto);
+                variableAuxiliar = generarVariableAuxiliar();
 
                 codigoAssembler.append("MOV ").append(variableAuxiliar).append(" OFFh\n");
                 codigoAssembler.append("JNE ").append(variableAuxiliar.substring(1)).append("\n");
@@ -2433,7 +2433,7 @@ public class GeneradorAssembler {
                 codigoAssembler.append("FSTSW ").append(auxiliar).append("\n");
                 codigoAssembler.append("MOV AX ").append(auxiliar).append("\n");
                 codigoAssembler.append("SAHF ").append("\n");
-                variableAuxiliar = generarVariableAuxiliar(TablaTipos.UINT_TYPE, numeroTerceto);
+                variableAuxiliar = generarVariableAuxiliar();
 
                 codigoAssembler.append("MOV ").append(variableAuxiliar).append(" OFFh\n");
                 codigoAssembler.append("JE ").append(variableAuxiliar.substring(1)).append("\n");
@@ -2501,12 +2501,7 @@ public class GeneradorAssembler {
     public static void generarAssemblerSaltoCondicional() {
         codigoAssembler.append("JLE ").append(OP2).append("\n");
         switch (OP1) {
-            case value:
-
-                break;
-
-            default:
-                break;
+            //fijarse con qué operación saltar
         }
     }
 
@@ -2538,7 +2533,7 @@ public class GeneradorAssembler {
 
     public static void generarAssemblerTOD() {
 
-        if (type.equals(Tercetos.ERROR))
+        if (type.equals(Terceto.ERROR))
             return; // A chequear
 
         generarConversionExplicita(generarVariableAuxiliar());
