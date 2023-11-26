@@ -22,13 +22,14 @@ public class GeneradorAssembler {
     private static String auxiliar2bytes = "@variable2bytes";
 
     private static final String AUX = "@aux";
+    private static String auxiliar = "";
     private static final String OVERFLOW_SUMA_PFLOTANTE = "Error: se excedió el límite permitido (overflow)";
     private static final String OVERFLOW_PRODUCTO_ENTERO_SIN_SIGNO = "Error: se excedió el límite permitido (overflow)";
     private static final String OVERFLOW_PRODUCTO_ENTERO_CON_SIGNO = "Error: se excedió el límite permitido (overflow)";
     private static final String INVOCACION_RECURSIVA = "Error: no se permiten declaraciones recursivas.";
     private static final String ERROR_MSJ_POR_PANTALLA = "Error: se terminará el programa.";
 
-    private static String tag = null;
+    private static String tag = null; //Ambito
     private static String OP = null;
     private static String OP1 = null;
     private static String OP2 = null;
@@ -37,19 +38,29 @@ public class GeneradorAssembler {
     private static String comparacionFalsa = "";
 
     private static String getOperando(String r) {
-
         if (r.contains("["))
+        {
             r = r.replaceAll("\\D", "");
-        else
-            return r;
+            if (r.equals(Terceto.UNDEFINED))
+                return r;
+            
+            if (Integer.valueOf(r) > number)
+                return Terceto.LABEL + r;
 
-        if (r.equals(Terceto.UNDEFINED))
-            return r;
-
-        if (Integer.valueOf(r).compareTo(number) <= 0)
-            return Terceto.LABEL + r;
-
-        return AUX + r + tag;
+            return AUX + r + tag;
+        }else{
+            if(OP.equals("PRINT")){
+                return r;
+            }
+            if (esConstante(r)){
+                r = r.replaceAll("\\D", "");
+                return r;
+            }
+            if(r.startsWith("@")){
+                return r;
+            }
+            return "__" + r;
+        }
     }
 
     public static void generarCodigoAssembler(Tercetos tercetosGenerados) {
@@ -62,7 +73,6 @@ public class GeneradorAssembler {
                 OP = terceto.getFirst();
                 OP1 = getOperando(terceto.getSecond());
                 OP2 = getOperando(terceto.getThird());
-
                 switch (OP) {
                     case "*":
                     case "+":
@@ -77,8 +87,10 @@ public class GeneradorAssembler {
                     case "==":
                         switch (type) {
                             case TablaTipos.UINT_TYPE:
+                                generarCodigoOperacionesEnterosSinSigno();
+                                break;
                             case TablaTipos.LONG_TYPE:
-                                generarCodigoOperacionesEnteros(OP, OP1, OP2, number);
+                                generarCodigoOperacionesEnterosConSigno();
                                 break;
                             case TablaTipos.DOUBLE_TYPE:
                                 generarCodigoOperacionesDouble(OP, OP1, OP2, number);
@@ -89,9 +101,6 @@ public class GeneradorAssembler {
                                 break;
                         }
 
-                        // Lo que hice fue para un terceto normal, por ej (+,a@main,2_ui), le cargo 2 a
-                        // "a". Pero tengo que ver si tengo una referencia a otro terceto, tengo que
-                        // buscarlo.
                         break;
                     case "UB":
                         // Nos fijamos a dónde tenemos que saltar en el segundo operando.
@@ -113,23 +122,11 @@ public class GeneradorAssembler {
                         break;
 
                     case "TOD":
-                        // System.out.println(
-                        // "Tengo el operando " + terceto.getSecond() + " y " + terceto.getThird() +
-                        // "\n");
-                        // System.out.println("Con tipos " + tipoOP1 + " y " + tipoOP2 + "\n");
-                        // System.out.println("El numero del terceto del tod es " +
-                        // terceto.getNumber());
                         generarAssemblerTOD();
                         break;
 
                     case "PRINT":
-                        // generarAssemblerPrint()
-                        String aux = generarVariableAuxiliarString(terceto.getSecond(), terceto.getNumber());
-                        codigoAssembler.append("MOV AH, 9").append("\n");
-                        codigoAssembler.append("MOV DX, ").append(aux.subSequence(0, 5)).append("\n");
-                        codigoAssembler.append("INT 21h ").append("\n");
-                        codigoAssembler.append("MOV AH, 4CH").append("\n");
-                        codigoAssembler.append("INT 21h").append("\n");
+                        generarAssemblerPrint();
                         break;
                     default:
                         if (OP.contains(Terceto.LABEL)) {
@@ -222,1978 +219,104 @@ public class GeneradorAssembler {
         codigoAssembler.append("FILD ").append(OP1).append("\n");
     }
 
-    public static void generarCodigoOperacionesEnteros(String operador, String operando1, String operando2,
-            int numeroTerceto) { // Preguntar si tengo que involucrar a la pila al final de cada operacion.
-                                 // PREGUNTAR
-        String variableAuxiliar;
-        String tipoOperando1 = TablaSimbolos.getTypeLexema(operando1);
-        String tipoOperando2 = TablaSimbolos.getTypeLexema(operando2);
-        switch (operador) {
+    public static void generarAssemblerPrint(){
+        String aux = generarVariableAuxiliarString();
+        codigoAssembler.append("MOV AH, 9").append("\n");
+        codigoAssembler.append("MOV DX, ").append(aux.subSequence(0, 5)).append("\n");
+        codigoAssembler.append("INT 21h ").append("\n");
+        codigoAssembler.append("MOV AH, 4CH").append("\n");
+        codigoAssembler.append("INT 21h").append("\n");
+    }
+
+    public static void generarCodigoOperacionesEnterosConSigno() { 
+        switch (OP) {
             case "+":
-                if (tipoOperando1.equals(TablaTipos.LONG_TYPE) && tipoOperando2.equals(TablaTipos.LONG_TYPE)) {
-                    if (esConstante(operando2) && esConstante(operando1)) { // Nos fijamos si es una constante.
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV EAX, ").append(operando1).append("\n"); // Movemos el valor del OP1
-                                                                                            // al registro EAX (32
-                                                                                            // bits).
-                        codigoAssembler.append("ADD EAX, ").append(operando2).append("\n"); // Sumamos los operandos.
-                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
-                                                                                                         // variable
-                                                                                                         // auxiliar del
-                                                                                                         // tipo del
-                                                                                                         // resultado de
-                                                                                                         // la operación
-                                                                                                         // (LONG).
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", EAX\n");
-                    } else if (esConstante(operando2) && !esConstante(operando1)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV EAX, ").append("__").append(operando1).append("\n"); // Movemos el
-                                                                                                         // valor del
-                                                                                                         // OP1 al
-                                                                                                         // registro EAX
-                                                                                                         // (32 bits).
-                        codigoAssembler.append("ADD EAX, ").append(operando2).append("\n"); // Sumamos los operandos.
-                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
-                                                                                                         // variable
-                                                                                                         // auxiliar del
-                                                                                                         // tipo del
-                                                                                                         // resultado de
-                                                                                                         // la operación
-                                                                                                         // (LONG).
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", EAX\n");
-                    } else {
-                        codigoAssembler.append("MOV EAX, ").append("__").append(operando1).append("\n"); // Movemos el
-                                                                                                         // valor del
-                                                                                                         // OP1 al
-                                                                                                         // registro EAX
-                                                                                                         // (32 bits).
-                        codigoAssembler.append("ADD EAX, ").append("__").append(operando2).append("\n"); // Sumamos los
-                                                                                                         // operandos.
-                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
-                                                                                                         // variable
-                                                                                                         // auxiliar del
-                                                                                                         // tipo del
-                                                                                                         // resultado de
-                                                                                                         // la operación
-                                                                                                         // (LONG).
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", EAX\n");
-                    }
-                } else {
-                    if (esConstante(operando2) && esConstante(operando1)) { // Nos fijamos si es una constante.
-                        codigoAssembler.append("MOV AX, ").append(operando1).append("\n"); // Movemos el valor del OP1
-                                                                                           // al registro EAX (32 bits).
-                        codigoAssembler.append("ADD AX, ").append(operando2).append("\n"); // Sumamos los operandos.
-                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
-                                                                                                         // variable
-                                                                                                         // auxiliar del
-                                                                                                         // tipo del
-                                                                                                         // resultado de
-                                                                                                         // la operación
-                                                                                                         // (LONG).
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", AX\n");
-                    } else if (esConstante(operando2) && !esConstante(operando1)) {
-                        codigoAssembler.append("MOV AX, ").append("__").append(operando1).append("\n"); // Movemos el
-                                                                                                        // valor del OP1
-                                                                                                        // al registro
-                                                                                                        // EAX (32
-                                                                                                        // bits).
-                        codigoAssembler.append("ADD AX, ").append(operando2).append("\n"); // Sumamos los operandos.
-                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
-                                                                                                         // variable
-                                                                                                         // auxiliar del
-                                                                                                         // tipo del
-                                                                                                         // resultado de
-                                                                                                         // la operación
-                                                                                                         // (LONG).
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", AX\n");
-                    } else {
-                        codigoAssembler.append("MOV AX, ").append("__").append(operando1).append("\n"); // Movemos el
-                                                                                                        // valor del OP1
-                                                                                                        // al registro
-                                                                                                        // EAX (32
-                                                                                                        // bits).
-                        codigoAssembler.append("ADD AX, ").append("__").append(operando2).append("\n"); // Sumamos los
-                                                                                                        // operandos.
-                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
-                                                                                                         // variable
-                                                                                                         // auxiliar del
-                                                                                                         // tipo del
-                                                                                                         // resultado de
-                                                                                                         // la operación
-                                                                                                         // (LONG).
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", AX\n");
-                    }
-                }
+                    codigoAssembler.append("MOV EAX, ").append(OP1).append("\n");
+                    codigoAssembler.append("ADD EAX, ").append(OP2).append("\n");
+                    auxiliar = generarVariableAuxiliar();
+                    codigoAssembler.append("MOV ").append(auxiliar).append(", EAX\n");
                 break;
             case "-":
-                if (tipoOperando1.equals(TablaTipos.LONG_TYPE) && tipoOperando2.equals(TablaTipos.LONG_TYPE)) {
-                    if (esConstante(operando2) && esConstante(operando1)) { // Nos fijamos si es una constante.
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV EAX, ").append(operando1).append("\n"); // Movemos el valor del OP1
-                                                                                            // al registro EAX (32
-                                                                                            // bits).
-                        codigoAssembler.append("SUB EAX, ").append(operando2).append("\n"); // Sumamos los operandos.
-                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
-                                                                                                         // variable
-                                                                                                         // auxiliar del
-                                                                                                         // tipo del
-                                                                                                         // resultado de
-                                                                                                         // la operación
-                                                                                                         // (LONG).
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", EAX\n");
-                    } else if (esConstante(operando2) && !esConstante(operando1)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV EAX, ").append("__").append(operando1).append("\n"); // Movemos el
-                                                                                                         // valor del
-                                                                                                         // OP1 al
-                                                                                                         // registro EAX
-                                                                                                         // (32 bits).
-                        codigoAssembler.append("SUB EAX, ").append(operando2).append("\n"); // Sumamos los operandos.
-                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
-                                                                                                         // variable
-                                                                                                         // auxiliar del
-                                                                                                         // tipo del
-                                                                                                         // resultado de
-                                                                                                         // la operación
-                                                                                                         // (LONG).
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", EAX\n");
-                    } else {
-                        codigoAssembler.append("MOV EAX, ").append("__").append(operando1).append("\n"); // Movemos el
-                                                                                                         // valor del
-                                                                                                         // OP1 al
-                                                                                                         // registro EAX
-                                                                                                         // (32 bits).
-                        codigoAssembler.append("SUB EAX, ").append("__").append(operando2).append("\n"); // Sumamos los
-                                                                                                         // operandos.
-                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
-                                                                                                         // variable
-                                                                                                         // auxiliar del
-                                                                                                         // tipo del
-                                                                                                         // resultado de
-                                                                                                         // la operación
-                                                                                                         // (LONG).
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", EAX\n");
-                    }
-                } else {
-                    if (esConstante(operando2) && esConstante(operando1)) { // Nos fijamos si es una constante.
-                        codigoAssembler.append("MOV AX, ").append(operando1).append("\n"); // Movemos el valor del OP1
-                                                                                           // al registro EAX (32 bits).
-                        codigoAssembler.append("SUB AX, ").append(operando2).append("\n"); // Sumamos los operandos.
-                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
-                                                                                                         // variable
-                                                                                                         // auxiliar del
-                                                                                                         // tipo del
-                                                                                                         // resultado de
-                                                                                                         // la operación
-                                                                                                         // (LONG).
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", AX\n");
-                    } else if (esConstante(operando2) && !esConstante(operando1)) {
-                        codigoAssembler.append("MOV AX, ").append("__").append(operando1).append("\n"); // Movemos el
-                                                                                                        // valor del OP1
-                                                                                                        // al registro
-                                                                                                        // EAX (32
-                                                                                                        // bits).
-                        codigoAssembler.append("SUB AX, ").append(operando2).append("\n"); // Sumamos los operandos.
-                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
-                                                                                                         // variable
-                                                                                                         // auxiliar del
-                                                                                                         // tipo del
-                                                                                                         // resultado de
-                                                                                                         // la operación
-                                                                                                         // (LONG).
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", AX\n");
-                    } else {
-                        codigoAssembler.append("MOV AX, ").append("__").append(operando1).append("\n"); // Movemos el
-                                                                                                        // valor del OP1
-                                                                                                        // al registro
-                                                                                                        // EAX (32
-                                                                                                        // bits).
-                        codigoAssembler.append("SUB AX, ").append("__").append(operando2).append("\n"); // Sumamos los
-                                                                                                        // operandos.
-                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
-                                                                                                         // variable
-                                                                                                         // auxiliar del
-                                                                                                         // tipo del
-                                                                                                         // resultado de
-                                                                                                         // la operación
-                                                                                                         // (LONG).
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", AX\n");
-                    }
-                }
-                break;
+                    codigoAssembler.append("MOV EAX, ").append(OP1).append("\n");
+                    codigoAssembler.append("SUB EAX, ").append(OP2).append("\n");
+                    auxiliar = generarVariableAuxiliar();
+                    codigoAssembler.append("MOV ").append(auxiliar).append(", EAX\n");
             case "*":
-                if (tipoOperando1.equals(TablaTipos.LONG_TYPE) && tipoOperando2.equals(TablaTipos.LONG_TYPE)) {
-                    if (esConstante(operando2) && esConstante(operando1)) { // Nos fijamos si es una constante.
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV EAX, ").append(operando1).append("\n"); // Movemos el valor del OP1
-                                                                                            // al registro EAX (32
-                                                                                            // bits).
-                        codigoAssembler.append("MUL EAX, ").append(operando2).append("\n"); // Sumamos los operandos.
-                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
-                                                                                                         // variable
-                                                                                                         // auxiliar del
-                                                                                                         // tipo del
-                                                                                                         // resultado de
-                                                                                                         // la operación
-                                                                                                         // (LONG).
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", EAX\n");
-                    } else if (esConstante(operando2) && !esConstante(operando1)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV EAX, ").append("__").append(operando1).append("\n"); // Movemos el
-                                                                                                         // valor del
-                                                                                                         // OP1 al
-                                                                                                         // registro EAX
-                                                                                                         // (32 bits).
-                        codigoAssembler.append("MUL EAX, ").append(operando2).append("\n"); // Sumamos los operandos.
-                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
-                                                                                                         // variable
-                                                                                                         // auxiliar del
-                                                                                                         // tipo del
-                                                                                                         // resultado de
-                                                                                                         // la operación
-                                                                                                         // (LONG).
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", EAX\n");
-                    } else {
-                        codigoAssembler.append("MOV EAX, ").append("__").append(operando1).append("\n"); // Movemos el
-                                                                                                         // valor del
-                                                                                                         // OP1 al
-                                                                                                         // registro EAX
-                                                                                                         // (32 bits).
-                        codigoAssembler.append("MUL EAX, ").append("__").append(operando2).append("\n"); // Sumamos los
-                                                                                                         // operandos.
-                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
-                                                                                                         // variable
-                                                                                                         // auxiliar del
-                                                                                                         // tipo del
-                                                                                                         // resultado de
-                                                                                                         // la operación
-                                                                                                         // (LONG).
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", EAX\n");
-                    }
-                } else {
-                    if (esConstante(operando2) && esConstante(operando1)) { // Nos fijamos si es una constante.
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV AX, ").append(operando1).append("\n"); // Movemos el valor del OP1
-                                                                                           // al registro EAX (32 bits).
-                        codigoAssembler.append("MUL AX, ").append(operando2).append("\n"); // Multiplicamos los
-                                                                                           // operandos.
-                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
-                                                                                                         // variable
-                                                                                                         // auxiliar del
-                                                                                                         // tipo del
-                                                                                                         // resultado de
-                                                                                                         // la operación
-                                                                                                         // (LONG).
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", AX\n");
-                    } else if (esConstante(operando2) && !esConstante(operando1)) {
-                        codigoAssembler.append("MOV AX, ").append("__").append(operando1).append("\n"); // Movemos el
-                                                                                                        // valor del OP1
-                                                                                                        // al registro
-                                                                                                        // EAX (32
-                                                                                                        // bits).
-                        codigoAssembler.append("MUL AX, ").append(operando2).append("\n"); // Multiplicamos los
-                                                                                           // operandos.
-                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
-                                                                                                         // variable
-                                                                                                         // auxiliar del
-                                                                                                         // tipo del
-                                                                                                         // resultado de
-                                                                                                         // la operación
-                                                                                                         // (LONG).
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", AX\n");
-                    } else {
-                        codigoAssembler.append("MOV AX, ").append("__").append(operando1).append("\n"); // Movemos el
-                                                                                                        // valor del OP1
-                                                                                                        // al registro
-                                                                                                        // EAX (32
-                                                                                                        // bits).
-                        codigoAssembler.append("MUL AX, ").append("__").append(operando2).append("\n"); // Multiplicamos
-                                                                                                        // los
-                                                                                                        // operandos.
-                        variableAuxiliar = generarVariableAuxiliar(); // Hacemos la
-                                                                                                         // variable
-                                                                                                         // auxiliar del
-                                                                                                         // tipo del
-                                                                                                         // resultado de
-                                                                                                         // la operación
-                                                                                                         // (LONG).
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", AX\n");
-                    }
-                }
-                break;
+                    codigoAssembler.append("MOV EAX, ").append(OP1).append("\n");
+                    codigoAssembler.append("MUL EAX, ").append(OP2).append("\n");
+                    auxiliar = generarVariableAuxiliar();
+                    codigoAssembler.append("MOV ").append(auxiliar).append(", EAX\n");
             case "=":
-                if (tipoOperando2.equals(TablaTipos.LONG_TYPE) && tipoOperando1.equals(TablaTipos.LONG_TYPE)) {
-                    // Asignación de enteros largos (32 bits)
-                    if (esConstante(operando2)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV EAX, ").append(operando2).append("\n"); // Movemos el valor de op2 a
-                                                                                            // EAX
-                        codigoAssembler.append("MOV ").append("__").append(operando1).append(", EAX\n"); // Asignamos el
-                                                                                                         // valor de EAX
-                                                                                                         // a op1
-                    } else {
-                        codigoAssembler.append("MOV EAX, ").append("__").append(operando2).append("\n"); // Movemos el
-                                                                                                         // valor de op2
-                                                                                                         // a EAX
-                        codigoAssembler.append("MOV ").append("__").append(operando1).append(", EAX\n"); // Asignamos el
-                                                                                                         // valor de EAX
-                                                                                                         // a op1
-                    }
-                } else {
-                    // Asignación de enteros sin signo (16 bits)
-                    if (TablaSimbolos.getUse(operando2) == null) {
-                        codigoAssembler.append("MOV AX, ").append(operando2).append("\n"); // Movemos el valor de op2 a
-                                                                                           // AX
-                        codigoAssembler.append("MOV ").append("__").append(operando1).append(", AX\n"); // Asignamos el
-                                                                                                        // valor de AX a
-                                                                                                        // op1
-                    } else {
-                        codigoAssembler.append("MOV AX, ").append("__").append(operando2).append("\n"); // Movemos el
-                                                                                                        // valor de op2
-                                                                                                        // a AX
-                        codigoAssembler.append("MOV ").append("__").append(operando1).append(", AX\n"); // Asignamos el
-                                                                                                        // valor de AX a
-                                                                                                        // op1
-                    }
-
-                }
+                    codigoAssembler.append("MOV EAX, ").append(OP2).append("\n");
+                    codigoAssembler.append("MOV ").append(OP1).append(", EAX\n"); 
                 break;
             case "/":
-                if (tipoOperando2.equals(TablaTipos.LONG_TYPE) && tipoOperando1.equals(TablaTipos.LONG_TYPE)) {
-
-                    if (esConstante(operando2) && esConstante(operando1)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        variableAuxiliar = generarVariableAuxiliar();
-                        codigoAssembler.append("MOV EAX, ").append(operando1).append("\n"); // Guardamos el dividendo en
-                                                                                            // el registro EAX (32
-                                                                                            // bits).
-                        codigoAssembler.append("DIV EAX, ").append(operando2).append("\n"); // Realizamos la división.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar); // Guardamos el valor en la variable
-                                                                                 // auxiliar.
-
-                    } else if (esConstante(operando2) && !esConstante(operando1)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        variableAuxiliar = generarVariableAuxiliar();
-                        codigoAssembler.append("MOV EAX, ").append("__").append(operando1).append("\n"); // Guardamos el
-                                                                                                         // dividendo en
-                                                                                                         // el registro
-                                                                                                         // EAX (32
-                                                                                                         // bits).
-                        codigoAssembler.append("DIV EAX, ").append(operando2).append("\n"); // Realizamos la división.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar); // Guardamos el valor en la variable
-                                                                                 // auxiliar.
-                    } else {
-                        variableAuxiliar = generarVariableAuxiliar();
-                        codigoAssembler.append("MOV EAX, ").append("__").append(operando1).append("\n"); // Guardamos el
-                                                                                                         // dividendo en
-                                                                                                         // el registro
-                                                                                                         // EAX (32
-                                                                                                         // bits).
-                        codigoAssembler.append("DIV EAX, ").append("__").append(operando2).append("\n"); // Realizamos
-                                                                                                         // la división.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar); // Guardamos el valor en la variable
-                                                                                 // auxiliar.
-                    }
-                } else {
-                    if (esConstante(operando2) && esConstante(operando1)) {
-                        variableAuxiliar = generarVariableAuxiliar();
-                        codigoAssembler.append("MOV AX, ").append(operando1).append("\n"); // Guardamos el dividendo en
-                                                                                           // el registro AX (16 bits).
-                        codigoAssembler.append("DIV AX, ").append(operando2); // Realizamos la división.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", AX"); // Guardo el resultado
-                                                                                                // de la división en AX
-                                                                                                // (16 bits).
-                    } else if (esConstante(operando2) && !esConstante(operando1)) {
-                        variableAuxiliar = generarVariableAuxiliar();
-                        codigoAssembler.append("MOV AX, ").append("__").append(operando1).append("\n"); // Guardamos el
-                                                                                                        // dividendo en
-                                                                                                        // el registro
-                                                                                                        // AX (16 bits).
-                        codigoAssembler.append("DIV AX, ").append(operando2); // Realizamos la división.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", AX"); // Guardo el resultado
-                                                                                                // de la división en AX
-                                                                                                // (16 bits).
-                    } else {
-                        variableAuxiliar = generarVariableAuxiliar();
-                        codigoAssembler.append("MOV AX, ").append("__").append(operando1).append("\n"); // Guardamos el
-                                                                                                        // dividendo en
-                                                                                                        // el registro
-                                                                                                        // AX (16 bits).
-                        codigoAssembler.append("DIV AX, ").append("__").append(operando2); // Realizamos la división.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", AX"); // Guardo el resultado
-                                                                                                // de la división en AX
-                                                                                                // (16 bits).
-                    }
-                }
+                    auxiliar = generarVariableAuxiliar();
+                    codigoAssembler.append("MOV EAX, ").append("__").append(OP1).append("\n");
+                    codigoAssembler.append("DIV EAX, ").append("__").append(OP2);
+                    codigoAssembler.append("MOV ").append(auxiliar).append(", EAX");
                 break;
             case "==":
-                if (tipoOperando2.equals(TablaTipos.LONG_TYPE) && tipoOperando1.equals(TablaTipos.LONG_TYPE)) {
-                    if (esConstante(operando1) && esConstante(operando2)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV EAX, ").append(operando2).append("\n");
-                        codigoAssembler.append("CMP EAX, ").append(operando1).append("\n"); // Comparamos los valores
-                                                                                            // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                          // ser
-                                                                                                          // verdadera
-                                                                                                          // la
-                                                                                                          // comparación,
-                                                                                                          // saltamos a
-                                                                                                          // la etiqueta
-                                                                                                          // que hacemos
-                                                                                                          // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JNE "; // Guardamos la comparacion si llega a ser falso.
-                    } else if (!esConstante(operando1) && esConstante(operando2)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV EAX, ").append(operando2).append("\n");
-                        codigoAssembler.append("CMP EAX, ").append("__").append(operando1).append("\n"); // Comparamos
-                                                                                                         // los valores
-                                                                                                         // entre
-                                                                                                         // operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                          // ser
-                                                                                                          // verdadera
-                                                                                                          // la
-                                                                                                          // comparación,
-                                                                                                          // saltamos a
-                                                                                                          // la etiqueta
-                                                                                                          // que hacemos
-                                                                                                          // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JNE "; // Guardamos la comparacion si llega a ser falso.
-                    } else if (esConstante(operando1) && !esConstante(operando2)) {
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV EAX, ").append("__").append(operando2).append("\n");
-                        codigoAssembler.append("CMP EAX, ").append(operando1).append("\n"); // Comparamos los valores
-                                                                                            // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                          // ser
-                                                                                                          // verdadera
-                                                                                                          // la
-                                                                                                          // comparación,
-                                                                                                          // saltamos a
-                                                                                                          // la etiqueta
-                                                                                                          // que hacemos
-                                                                                                          // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JNE "; // Guardamos la comparacion si llega a ser falso.
-                    } else {
-                        codigoAssembler.append("MOV EAX, ").append("__").append(operando2).append("\n");
-                        codigoAssembler.append("CMP EAX, ").append("__").append(operando1).append("\n"); // Comparamos
-                                                                                                         // los valores
-                                                                                                         // entre
-                                                                                                         // operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                          // ser
-                                                                                                          // verdadera
-                                                                                                          // la
-                                                                                                          // comparación,
-                                                                                                          // saltamos a
-                                                                                                          // la etiqueta
-                                                                                                          // que hacemos
-                                                                                                          // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JNE "; // Guardamos la comparacion si llega a ser falso.
-                    }
-                } else {
-                    if (esConstante(operando1) && esConstante(operando2)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV AX, ").append(operando2).append("\n");
-                        codigoAssembler.append("CMP AX, ").append(operando1).append("\n"); // Comparamos los valores
-                                                                                           // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                          // ser
-                                                                                                          // verdadera
-                                                                                                          // la
-                                                                                                          // comparación,
-                                                                                                          // saltamos a
-                                                                                                          // la etiqueta
-                                                                                                          // que hacemos
-                                                                                                          // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JNE "; // Guardamos la comparacion si llega a ser falso.
-                    } else if (!esConstante(operando1) && esConstante(operando2)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV AX, ").append(operando2).append("\n");
-                        codigoAssembler.append("CMP AX, ").append("__").append(operando1).append("\n"); // Comparamos
-                                                                                                        // los valores
-                                                                                                        // entre
-                                                                                                        // operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                          // ser
-                                                                                                          // verdadera
-                                                                                                          // la
-                                                                                                          // comparación,
-                                                                                                          // saltamos a
-                                                                                                          // la etiqueta
-                                                                                                          // que hacemos
-                                                                                                          // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JNE "; // Guardamos la comparacion si llega a ser falso.
-                    } else if (esConstante(operando1) && !esConstante(operando2)) {
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV AX, ").append("__").append(operando2).append("\n");
-                        codigoAssembler.append("CMP AX, ").append(operando1).append("\n"); // Comparamos los valores
-                                                                                           // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                          // ser
-                                                                                                          // verdadera
-                                                                                                          // la
-                                                                                                          // comparación,
-                                                                                                          // saltamos a
-                                                                                                          // la etiqueta
-                                                                                                          // que hacemos
-                                                                                                          // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JNE "; // Guardamos la comparacion si llega a ser falso.
-                    } else {
-                        codigoAssembler.append("MOV AX, ").append("__").append(operando2).append("\n");
-                        codigoAssembler.append("CMP AX, ").append("__").append(operando1).append("\n"); // Comparamos
-                                                                                                        // los valores
-                                                                                                        // entre
-                                                                                                        // operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                          // ser
-                                                                                                          // verdadera
-                                                                                                          // la
-                                                                                                          // comparación,
-                                                                                                          // saltamos a
-                                                                                                          // la etiqueta
-                                                                                                          // que hacemos
-                                                                                                          // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JNE "; // Guardamos la comparacion si llega a ser falso.
-                    }
-                }
-
+                    codigoAssembler.append("MOV EAX, ").append(OP2).append("\n");
+                    codigoAssembler.append("CMP EAX, ").append(OP1).append("\n");
+                    auxiliar = generarVariableAuxiliar(); 
+                    // codigoAssembler.append("MOV ").append(auxiliar).append(", 0FFh\n");
+                    codigoAssembler.append("JE ").append(auxiliar.substring(1)).append("\n");
+                    codigoAssembler.append("MOV ").append(auxiliar).append(", 00h\n"); 
+                    codigoAssembler.append(auxiliar.substring(1)).append(":\n"); 
+                    comparacionFalsa = "JNE "; 
                 break;
 
             case ">=": // JAE, JB
-                if (tipoOperando2.equals(TablaTipos.LONG_TYPE) && tipoOperando1.equals(TablaTipos.LONG_TYPE)) {
-                    if (esConstante(operando1) && esConstante(operando2)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV EAX, ").append(operando2).append("\n");
-                        codigoAssembler.append("CMP EAX, ").append(operando1).append("\n"); // Comparamos los valores
-                                                                                            // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JAE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JB "; // Guardamos la comparacion si llega a ser falso.
-                    } else if (!esConstante(operando1) && esConstante(operando2)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV EAX, ").append(operando2).append("\n");
-                        codigoAssembler.append("CMP EAX, ").append("__").append(operando1).append("\n"); // Comparamos
-                                                                                                         // los valores
-                                                                                                         // entre
-                                                                                                         // operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JAE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JB "; // Guardamos la comparacion si llega a ser falso.
-                    } else if (esConstante(operando1) && !esConstante(operando2)) {
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV EAX, ").append("__").append(operando2).append("\n");
-                        codigoAssembler.append("CMP EAX, ").append(operando1).append("\n"); // Comparamos los valores
-                                                                                            // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JAE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JB "; // Guardamos la comparacion si llega a ser falso.
-                    } else {
-                        codigoAssembler.append("MOV EAX, ").append("__").append(operando2).append("\n");
-                        codigoAssembler.append("CMP EAX, ").append("__").append(operando1).append("\n"); // Comparamos
-                                                                                                         // los valores
-                                                                                                         // entre
-                                                                                                         // operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JAE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JB "; // Guardamos la comparacion si llega a ser falso.
-                    }
-                } else {
-                    if (esConstante(operando1) && esConstante(operando2)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV AX, ").append(operando2).append("\n");
-                        codigoAssembler.append("CMP AX, ").append(operando1).append("\n"); // Comparamos los valores
-                                                                                           // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JAE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JB "; // Guardamos la comparacion si llega a ser falso.
-                    } else if (!esConstante(operando1) && esConstante(operando2)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV AX, ").append(operando2).append("\n");
-                        codigoAssembler.append("CMP AX, ").append("__").append(operando1).append("\n"); // Comparamos
-                                                                                                        // los valores
-                                                                                                        // entre
-                                                                                                        // operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JAE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JB "; // Guardamos la comparacion si llega a ser falso.
-                    } else if (esConstante(operando1) && !esConstante(operando2)) {
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV AX, ").append("__").append(operando2).append("\n");
-                        codigoAssembler.append("CMP AX, ").append(operando1).append("\n"); // Comparamos los valores
-                                                                                           // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JAE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JB "; // Guardamos la comparacion si llega a ser falso.
-                    } else {
-                        codigoAssembler.append("MOV AX, ").append("__").append(operando2).append("\n");
-                        codigoAssembler.append("CMP AX, ").append("__").append(operando1).append("\n"); // Comparamos
-                                                                                                        // los valores
-                                                                                                        // entre
-                                                                                                        // operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JAE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JB "; // Guardamos la comparacion si llega a ser falso.
-                    }
-                }
+                    codigoAssembler.append("MOV EAX, ").append("__").append(OP2).append("\n");
+                    codigoAssembler.append("CMP EAX, ").append("__").append(OP1).append("\n");
+                    auxiliar = generarVariableAuxiliar();
+                    codigoAssembler.append("JAE ").append(auxiliar.substring(1)).append("\n");
+                    codigoAssembler.append("MOV ").append(auxiliar).append(", 00h\n");
+                    codigoAssembler.append(auxiliar.substring(1)).append(":\n");
+                    comparacionFalsa = "JB ";
                 break;
 
             case "<=": // JBE, JA
-                if (tipoOperando2.equals(TablaTipos.LONG_TYPE) && tipoOperando1.equals(TablaTipos.LONG_TYPE)) {
-                    if (esConstante(operando1) && esConstante(operando2)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV EAX, ").append(operando2).append("\n");
-                        codigoAssembler.append("CMP EAX, ").append(operando1).append("\n"); // Comparamos los valores
-                                                                                            // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JBE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JA "; // Guardamos la comparacion si llega a ser falso.
-                    } else if (!esConstante(operando1) && esConstante(operando2)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV EAX, ").append(operando2).append("\n");
-                        codigoAssembler.append("CMP EAX, ").append("__").append(operando1).append("\n"); // Comparamos
-                                                                                                         // los valores
-                                                                                                         // entre
-                                                                                                         // operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JBE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JA "; // Guardamos la comparacion si llega a ser falso.
-                    } else if (esConstante(operando1) && !esConstante(operando2)) {
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV EAX, ").append("__").append(operando2).append("\n");
-                        codigoAssembler.append("CMP EAX, ").append(operando1).append("\n"); // Comparamos los valores
-                                                                                            // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JBE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JA "; // Guardamos la comparacion si llega a ser falso.
-                    } else {
-                        codigoAssembler.append("MOV EAX, ").append("__").append(operando2).append("\n");
-                        codigoAssembler.append("CMP EAX, ").append("__").append(operando1).append("\n"); // Comparamos
-                                                                                                         // los valores
-                                                                                                         // entre
-                                                                                                         // operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JBE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JA "; // Guardamos la comparacion si llega a ser falso.
-                    }
-                } else {
-                    if (esConstante(operando1) && esConstante(operando2)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV AX, ").append(operando2).append("\n");
-                        codigoAssembler.append("CMP AX, ").append(operando1).append("\n"); // Comparamos los valores
-                                                                                           // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JBE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JA "; // Guardamos la comparacion si llega a ser falso.
-                    } else if (!esConstante(operando1) && esConstante(operando2)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV AX, ").append(operando2).append("\n");
-                        codigoAssembler.append("CMP AX, ").append("__").append(operando1).append("\n"); // Comparamos
-                                                                                                        // los valores
-                                                                                                        // entre
-                                                                                                        // operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JBE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JA "; // Guardamos la comparacion si llega a ser falso.
-                    } else if (esConstante(operando1) && !esConstante(operando2)) {
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV AX, ").append("__").append(operando2).append("\n");
-                        codigoAssembler.append("CMP AX, ").append(operando1).append("\n"); // Comparamos los valores
-                                                                                           // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JBE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JA "; // Guardamos la comparacion si llega a ser falso.
-                    } else {
-                        codigoAssembler.append("MOV AX, ").append("__").append(operando2).append("\n");
-                        codigoAssembler.append("CMP AX, ").append("__").append(operando1).append("\n"); // Comparamos
-                                                                                                        // los valores
-                                                                                                        // entre
-                                                                                                        // operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JBE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JA "; // Guardamos la comparacion si llega a ser falso.
-                    }
-                }
+                    codigoAssembler.append("MOV EAX, ").append("__").append(OP2).append("\n");
+                    codigoAssembler.append("CMP EAX, ").append("__").append(OP1).append("\n");
+                    auxiliar = generarVariableAuxiliar();
+                    // codigoAssembler.append("MOV ").append(auxiliar).append(", 0FFh\n");
+                    codigoAssembler.append("JBE ").append(auxiliar.substring(1)).append("\n");
+                    codigoAssembler.append("MOV ").append(auxiliar).append(", 00h\n");
+                    codigoAssembler.append(auxiliar.substring(1)).append(":\n");
+                    comparacionFalsa = "JA ";
                 break;
-
             case ">": // JG, JBE
-                if (tipoOperando2.equals(TablaTipos.LONG_TYPE) && tipoOperando1.equals(TablaTipos.LONG_TYPE)) {
-                    if (esConstante(operando1) && esConstante(operando2)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV EAX, ").append(operando2).append("\n");
-                        codigoAssembler.append("CMP EAX, ").append(operando1).append("\n"); // Comparamos los valores
-                                                                                            // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JG ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                          // ser
-                                                                                                          // verdadera
-                                                                                                          // la
-                                                                                                          // comparación,
-                                                                                                          // saltamos a
-                                                                                                          // la etiqueta
-                                                                                                          // que hacemos
-                                                                                                          // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JBE "; // Guardamos la comparacion si llega a ser falso.
-                    } else if (!esConstante(operando1) && esConstante(operando2)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV EAX, ").append(operando2).append("\n");
-                        codigoAssembler.append("CMP EAX, ").append("__").append(operando1).append("\n"); // Comparamos
-                                                                                                         // los valores
-                                                                                                         // entre
-                                                                                                         // operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JG ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                          // ser
-                                                                                                          // verdadera
-                                                                                                          // la
-                                                                                                          // comparación,
-                                                                                                          // saltamos a
-                                                                                                          // la etiqueta
-                                                                                                          // que hacemos
-                                                                                                          // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JBE "; // Guardamos la comparacion si llega a ser falso.
-                    } else if (esConstante(operando1) && !esConstante(operando2)) {
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV EAX, ").append("__").append(operando2).append("\n");
-                        codigoAssembler.append("CMP EAX, ").append(operando1).append("\n"); // Comparamos los valores
-                                                                                            // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JG ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                          // ser
-                                                                                                          // verdadera
-                                                                                                          // la
-                                                                                                          // comparación,
-                                                                                                          // saltamos a
-                                                                                                          // la etiqueta
-                                                                                                          // que hacemos
-                                                                                                          // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JBE "; // Guardamos la comparacion si llega a ser falso.
-                    } else {
-                        codigoAssembler.append("MOV EAX, ").append("__").append(operando2).append("\n");
-                        codigoAssembler.append("CMP EAX, ").append("__").append(operando1).append("\n"); // Comparamos
-                                                                                                         // los valores
-                                                                                                         // entre
-                                                                                                         // operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JG ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                          // ser
-                                                                                                          // verdadera
-                                                                                                          // la
-                                                                                                          // comparación,
-                                                                                                          // saltamos a
-                                                                                                          // la etiqueta
-                                                                                                          // que hacemos
-                                                                                                          // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JBE "; // Guardamos la comparacion si llega a ser falso.
-                    }
-                } else {
-                    if (esConstante(operando1) && esConstante(operando2)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV AX, ").append(operando2).append("\n");
-                        codigoAssembler.append("CMP AX, ").append(operando1).append("\n"); // Comparamos los valores
-                                                                                           // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JG ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                          // ser
-                                                                                                          // verdadera
-                                                                                                          // la
-                                                                                                          // comparación,
-                                                                                                          // saltamos a
-                                                                                                          // la etiqueta
-                                                                                                          // que hacemos
-                                                                                                          // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JBE "; // Guardamos la comparacion si llega a ser falso.
-                    } else if (!esConstante(operando1) && esConstante(operando2)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV AX, ").append(operando2).append("\n");
-                        codigoAssembler.append("CMP AX, ").append("__").append(operando1).append("\n"); // Comparamos
-                                                                                                        // los valores
-                                                                                                        // entre
-                                                                                                        // operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JG ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                          // ser
-                                                                                                          // verdadera
-                                                                                                          // la
-                                                                                                          // comparación,
-                                                                                                          // saltamos a
-                                                                                                          // la etiqueta
-                                                                                                          // que hacemos
-                                                                                                          // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JBE "; // Guardamos la comparacion si llega a ser falso.
-                    } else if (esConstante(operando1) && !esConstante(operando2)) {
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV AX, ").append("__").append(operando2).append("\n");
-                        codigoAssembler.append("CMP AX, ").append(operando1).append("\n"); // Comparamos los valores
-                                                                                           // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JG ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                          // ser
-                                                                                                          // verdadera
-                                                                                                          // la
-                                                                                                          // comparación,
-                                                                                                          // saltamos a
-                                                                                                          // la etiqueta
-                                                                                                          // que hacemos
-                                                                                                          // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JBE "; // Guardamos la comparacion si llega a ser falso.
-                    } else {
-                        codigoAssembler.append("MOV AX, ").append("__").append(operando2).append("\n");
-                        codigoAssembler.append("CMP AX, ").append("__").append(operando1).append("\n"); // Comparamos
-                                                                                                        // los valores
-                                                                                                        // entre
-                                                                                                        // operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JG ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                          // ser
-                                                                                                          // verdadera
-                                                                                                          // la
-                                                                                                          // comparación,
-                                                                                                          // saltamos a
-                                                                                                          // la etiqueta
-                                                                                                          // que hacemos
-                                                                                                          // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JBE "; // Guardamos la comparacion si llega a ser falso.
-                    }
-                }
+                    codigoAssembler.append("MOV EAX, ").append("__").append(OP2).append("\n");
+                    codigoAssembler.append("CMP EAX, ").append("__").append(OP1).append("\n");
+                    auxiliar = generarVariableAuxiliar();
+                    // codigoAssembler.append("MOV ").append(auxiliar).append(", 0FFh\n");
+                    codigoAssembler.append("JG ").append(auxiliar.substring(1)).append("\n");
+                    codigoAssembler.append("MOV ").append(auxiliar).append(", 00h\n");
+                    codigoAssembler.append(auxiliar.substring(1)).append(":\n");
+                    comparacionFalsa = "JBE ";
                 break;
 
             case "<":// JMP, JAE
-                if (tipoOperando2.equals(TablaTipos.LONG_TYPE) && tipoOperando1.equals(TablaTipos.LONG_TYPE)) {
-                    if (esConstante(operando1) && esConstante(operando2)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV EAX, ").append(operando2).append("\n");
-                        codigoAssembler.append("CMP EAX, ").append(operando1).append("\n"); // Comparamos los valores
-                                                                                            // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JMP ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JAE "; // Guardamos la comparacion si llega a ser falso.
-                    } else if (!esConstante(operando1) && esConstante(operando2)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV EAX, ").append(operando2).append("\n");
-                        codigoAssembler.append("CMP EAX, ").append("__").append(operando1).append("\n"); // Comparamos
-                                                                                                         // los valores
-                                                                                                         // entre
-                                                                                                         // operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JMP ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JAE "; // Guardamos la comparacion si llega a ser falso.
-                    } else if (esConstante(operando1) && !esConstante(operando2)) {
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV EAX, ").append("__").append(operando2).append("\n");
-                        codigoAssembler.append("CMP EAX, ").append(operando1).append("\n"); // Comparamos los valores
-                                                                                            // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JMP ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JAE "; // Guardamos la comparacion si llega a ser falso.
-                    } else {
-                        codigoAssembler.append("MOV EAX, ").append("__").append(operando2).append("\n");
-                        codigoAssembler.append("CMP EAX, ").append("__").append(operando1).append("\n"); // Comparamos
-                                                                                                         // los valores
-                                                                                                         // entre
-                                                                                                         // operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JMP ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JAE "; // Guardamos la comparacion si llega a ser falso.
-                    }
-                } else {
-                    if (esConstante(operando1) && esConstante(operando2)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV AX, ").append(operando2).append("\n");
-                        codigoAssembler.append("CMP AX, ").append(operando1).append("\n"); // Comparamos los valores
-                                                                                           // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JMP ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JAE "; // Guardamos la comparacion si llega a ser falso.
-                    } else if (!esConstante(operando1) && esConstante(operando2)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV AX, ").append(operando2).append("\n");
-                        codigoAssembler.append("CMP AX, ").append("__").append(operando1).append("\n"); // Comparamos
-                                                                                                        // los valores
-                                                                                                        // entre
-                                                                                                        // operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JMP ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JAE "; // Guardamos la comparacion si llega a ser falso.
-                    } else if (esConstante(operando1) && !esConstante(operando2)) {
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV AX, ").append("__").append(operando2).append("\n");
-                        codigoAssembler.append("CMP AX, ").append(operando1).append("\n"); // Comparamos los valores
-                                                                                           // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JMP ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JAE "; // Guardamos la comparacion si llega a ser falso.
-                    } else {
-                        codigoAssembler.append("MOV AX, ").append("__").append(operando2).append("\n");
-                        codigoAssembler.append("CMP AX, ").append("__").append(operando1).append("\n"); // Comparamos
-                                                                                                        // los valores
-                                                                                                        // entre
-                                                                                                        // operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JMP ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JAE "; // Guardamos la comparacion si llega a ser falso.
-                    }
-                }
+                    codigoAssembler.append("MOV EAX, ").append("__").append(OP2).append("\n");
+                    codigoAssembler.append("CMP EAX, ").append("__").append(OP1).append("\n");
+                    auxiliar = generarVariableAuxiliar(); 
+                    // codigoAssembler.append("MOV ").append(auxiliar).append(", 0FFh\n");
+                    codigoAssembler.append("JMP ").append(auxiliar.substring(1)).append("\n");
+                    codigoAssembler.append("MOV ").append(auxiliar).append(", 00h\n");
+                    codigoAssembler.append(auxiliar.substring(1)).append(":\n");
+                    comparacionFalsa = "JAE ";
                 break;
-
             case "!!":
-                if (tipoOperando2.equals(TablaTipos.LONG_TYPE) && tipoOperando1.equals(TablaTipos.LONG_TYPE)) {
-                    if (esConstante(operando1) && esConstante(operando2)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV EAX, ").append(operando2).append("\n");
-                        codigoAssembler.append("CMP EAX, ").append(operando1).append("\n"); // Comparamos los valores
-                                                                                            // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JNE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JE "; // Guardamos la comparacion si llega a ser falso.
-                    } else if (!esConstante(operando1) && esConstante(operando2)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV EAX, ").append(operando2).append("\n");
-                        codigoAssembler.append("CMP EAX, ").append("__").append(operando1).append("\n"); // Comparamos
-                                                                                                         // los valores
-                                                                                                         // entre
-                                                                                                         // operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JNE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JE "; // Guardamos la comparacion si llega a ser falso.
-                    } else if (esConstante(operando1) && !esConstante(operando2)) {
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV EAX, ").append("__").append(operando2).append("\n");
-                        codigoAssembler.append("CMP EAX, ").append(operando1).append("\n"); // Comparamos los valores
-                                                                                            // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JNE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JE "; // Guardamos la comparacion si llega a ser falso.
-                    } else {
-                        codigoAssembler.append("MOV EAX, ").append("__").append(operando2).append("\n");
-                        codigoAssembler.append("CMP EAX, ").append("__").append(operando1).append("\n"); // Comparamos
-                                                                                                         // los valores
-                                                                                                         // entre
-                                                                                                         // operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JNE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JE "; // Guardamos la comparacion si llega a ser falso.
-                    }
-                } else {
-                    if (esConstante(operando1) && esConstante(operando2)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV AX, ").append(operando2).append("\n");
-                        codigoAssembler.append("CMP AX, ").append(operando1).append("\n"); // Comparamos los valores
-                                                                                           // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JNE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JE "; // Guardamos la comparacion si llega a ser falso.
-                    } else if (!esConstante(operando1) && esConstante(operando2)) {
-                        if (operando2.length() > 1) {
-                            operando2 = operando2.substring(0, operando2.length() - 1);
-                        } else {
-                            operando2 = operando2.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV AX, ").append(operando2).append("\n");
-                        codigoAssembler.append("CMP AX, ").append("__").append(operando1).append("\n"); // Comparamos
-                                                                                                        // los valores
-                                                                                                        // entre
-                                                                                                        // operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JNE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JE "; // Guardamos la comparacion si llega a ser falso.
-                    } else if (esConstante(operando1) && !esConstante(operando2)) {
-                        if (operando1.length() > 1) {
-                            operando1 = operando1.substring(0, operando1.length() - 1);
-                        } else {
-                            operando1 = operando1.substring(0, 1);
-                        }
-                        codigoAssembler.append("MOV AX, ").append("__").append(operando2).append("\n");
-                        codigoAssembler.append("CMP AX, ").append(operando1).append("\n"); // Comparamos los valores
-                                                                                           // entre operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JNE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JE "; // Guardamos la comparacion si llega a ser falso.
-                    } else {
-                        codigoAssembler.append("MOV AX, ").append("__").append(operando2).append("\n");
-                        codigoAssembler.append("CMP AX, ").append("__").append(operando1).append("\n"); // Comparamos
-                                                                                                        // los valores
-                                                                                                        // entre
-                                                                                                        // operandos
-                        variableAuxiliar = generarVariableAuxiliar(); // Guardamos el
-                                                                                                         // valor de la
-                                                                                                         // comparación.
-                        // codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 0FFh\n");
-                        // // Movemos el valor para true.
-                        codigoAssembler.append("JNE ").append(variableAuxiliar.substring(1)).append("\n"); // En caso de
-                                                                                                           // ser
-                                                                                                           // verdadera
-                                                                                                           // la
-                                                                                                           // comparación,
-                                                                                                           // saltamos a
-                                                                                                           // la
-                                                                                                           // etiqueta
-                                                                                                           // que
-                                                                                                           // hacemos
-                                                                                                           // después.
-                        codigoAssembler.append("MOV ").append(variableAuxiliar).append(", 00h\n"); // Movemos el valor
-                                                                                                   // para falso.
-                        codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta a saltar en
-                                                                                             // caso de verdadero.
-                        comparacionFalsa = "JE "; // Guardamos la comparacion si llega a ser falso.
-                    }
-                }
+                    codigoAssembler.append("MOV EAX, ").append("__").append(OP2).append("\n");
+                    codigoAssembler.append("CMP EAX, ").append("__").append(OP1).append("\n");
+                    auxiliar = generarVariableAuxiliar(); 
+                    // codigoAssembler.append("MOV ").append(auxiliar).append(", 0FFh\n");
+                    codigoAssembler.append("JNE ").append(auxiliar.substring(1)).append("\n");
+                    codigoAssembler.append("MOV ").append(auxiliar).append(", 00h\n"); 
+                    codigoAssembler.append(auxiliar.substring(1)).append(":\n"); 
+                    comparacionFalsa = "JE "; 
                 break;
 
             default:
@@ -2204,241 +327,217 @@ public class GeneradorAssembler {
         }
     }
 
-    public static void generarCodigoOperacionesDouble(String operador, String operando1, String operando2,
+    public static void generarCodigoOperacionesEnterosSinSigno() { 
+        switch (OP) {
+            case "+":
+                    codigoAssembler.append("MOV AX, ").append(OP1).append("\n");
+                    codigoAssembler.append("ADD AX, ").append(OP2).append("\n");
+                    auxiliar = generarVariableAuxiliar();
+                    codigoAssembler.append("MOV ").append(auxiliar).append(", AX\n");
+                break;
+            case "-":
+                    codigoAssembler.append("MOV AX, ").append(OP1).append("\n");
+                    codigoAssembler.append("SUB AX, ").append(OP2).append("\n");
+                    auxiliar = generarVariableAuxiliar();
+                    codigoAssembler.append("MOV ").append(auxiliar).append(", AX\n");
+            case "*":
+                    codigoAssembler.append("MOV AX, ").append(OP1).append("\n");
+                    codigoAssembler.append("MUL AX, ").append(OP2).append("\n");
+                    auxiliar = generarVariableAuxiliar();
+                    codigoAssembler.append("MOV ").append(auxiliar).append(", AX\n");
+            case "=":
+                    codigoAssembler.append("MOV AX, ").append(OP2).append("\n");
+                    codigoAssembler.append("MOV ").append(OP1).append(", AX\n"); 
+                break;
+            case "/":
+                    auxiliar = generarVariableAuxiliar();
+                    codigoAssembler.append("MOV AX, ").append("__").append(OP1).append("\n");
+                    codigoAssembler.append("DIV AX, ").append("__").append(OP2);
+                    codigoAssembler.append("MOV ").append(auxiliar).append(", AX");
+                break;
+            case "==":
+                    codigoAssembler.append("MOV AX, ").append(OP2).append("\n");
+                    codigoAssembler.append("CMP AX, ").append(OP1).append("\n");
+                    auxiliar = generarVariableAuxiliar(); 
+                    // codigoAssembler.append("MOV ").append(auxiliar).append(", 0FFh\n");
+                    codigoAssembler.append("JE ").append(auxiliar.substring(1)).append("\n");
+                    codigoAssembler.append("MOV ").append(auxiliar).append(", 00h\n"); 
+                    codigoAssembler.append(auxiliar.substring(1)).append(":\n"); 
+                    comparacionFalsa = "JNE "; 
+                break;
+
+            case ">=": // JAE, JB
+                    codigoAssembler.append("MOV AX, ").append("__").append(OP2).append("\n");
+                    codigoAssembler.append("CMP AX, ").append("__").append(OP1).append("\n");
+                    auxiliar = generarVariableAuxiliar();
+                    codigoAssembler.append("JAE ").append(auxiliar.substring(1)).append("\n");
+                    codigoAssembler.append("MOV ").append(auxiliar).append(", 00h\n");
+                    codigoAssembler.append(auxiliar.substring(1)).append(":\n");
+                    comparacionFalsa = "JB ";
+                break;
+
+            case "<=": // JBE, JA
+                    codigoAssembler.append("MOV AX, ").append("__").append(OP2).append("\n");
+                    codigoAssembler.append("CMP AX, ").append("__").append(OP1).append("\n");
+                    auxiliar = generarVariableAuxiliar();
+                    // codigoAssembler.append("MOV ").append(auxiliar).append(", 0FFh\n");
+                    codigoAssembler.append("JBE ").append(auxiliar.substring(1)).append("\n");
+                    codigoAssembler.append("MOV ").append(auxiliar).append(", 00h\n");
+                    codigoAssembler.append(auxiliar.substring(1)).append(":\n");
+                    comparacionFalsa = "JA ";
+                break;
+            case ">": // JG, JBE
+                    codigoAssembler.append("MOV AX, ").append("__").append(OP2).append("\n");
+                    codigoAssembler.append("CMP AX, ").append("__").append(OP1).append("\n");
+                    auxiliar = generarVariableAuxiliar();
+                    // codigoAssembler.append("MOV ").append(auxiliar).append(", 0FFh\n");
+                    codigoAssembler.append("JG ").append(auxiliar.substring(1)).append("\n");
+                    codigoAssembler.append("MOV ").append(auxiliar).append(", 00h\n");
+                    codigoAssembler.append(auxiliar.substring(1)).append(":\n");
+                    comparacionFalsa = "JBE ";
+                break;
+
+            case "<":// JMP, JAE
+                    codigoAssembler.append("MOV AX, ").append("__").append(OP2).append("\n");
+                    codigoAssembler.append("CMP AX, ").append("__").append(OP1).append("\n");
+                    auxiliar = generarVariableAuxiliar(); 
+                    // codigoAssembler.append("MOV ").append(auxiliar).append(", 0FFh\n");
+                    codigoAssembler.append("JMP ").append(auxiliar.substring(1)).append("\n");
+                    codigoAssembler.append("MOV ").append(auxiliar).append(", 00h\n");
+                    codigoAssembler.append(auxiliar.substring(1)).append(":\n");
+                    comparacionFalsa = "JAE ";
+                break;
+            case "!!":
+                    codigoAssembler.append("MOV AX, ").append(OP2).append("\n");
+                    codigoAssembler.append("CMP AX, ").append(OP1).append("\n");
+                    auxiliar = generarVariableAuxiliar(); 
+                    // codigoAssembler.append("MOV ").append(auxiliar).append(", 0FFh\n");
+                    codigoAssembler.append("JNE ").append(auxiliar.substring(1)).append("\n");
+                    codigoAssembler.append("MOV ").append(auxiliar).append(", 00h\n"); 
+                    codigoAssembler.append(auxiliar.substring(1)).append(":\n"); 
+                    comparacionFalsa = "JE "; 
+                break;
+
+            default:
+                codigoAssembler.append("invoke MessageBoxA, NULL, ADDR _ERROR_POR_PANTALLA, ADDR title, MB_OK \n");
+                codigoAssembler.append("invoke ExitProcess, 0\n");
+                codigoAssembler.append("end START");
+                break;
+        }
+    }
+
+    public static void generarCodigoOperacionesDouble(String operador, String OP1, String OP2,
             int numeroTerceto) {
-        String variableAuxiliar;
         String auxiliar = "@auxDouble";
         switch (operador) {
             case "+":
-
-                if (esConstante(operando2) && esConstante(operando1)) {
-                    codigoAssembler.append("FLD ").append(operando2).append("\n"); // Cargamos en la pila del
-                                                                                   // coprocesador los valores de punto
-                                                                                   // flotante.
-                    codigoAssembler.append("FLD ").append(operando1).append("\n");
-                    codigoAssembler.append("FADD "); // Hacemos la suma de los operandos recién cargados en la pila.
-                    variableAuxiliar = generarVariableAuxiliar();
-                    codigoAssembler.append("FSTP ").append(variableAuxiliar).append("\n"); // Almacenamos el resultado y
-                                                                                           // desapilamos.
-                    generarAssemblerOverflowFlotantes(variableAuxiliar);
-                } else if (esConstante(operando2) && !esConstante(operando1)) {
-                    codigoAssembler.append("FLD ").append(operando2).append("\n"); // Cargamos en la pila del
-                                                                                   // coprocesador los valores de punto
-                                                                                   // flotante.
-                    codigoAssembler.append("FLD ").append("__").append(operando1).append("\n");
-                    codigoAssembler.append("FADD "); // Hacemos la suma de los operandos recién cargados en la pila.
-                    variableAuxiliar = generarVariableAuxiliar();
-                    codigoAssembler.append("FSTP ").append(variableAuxiliar).append("\n"); // Almacenamos el resultado y
-                                                                                           // desapilamos.
-                    generarAssemblerOverflowFlotantes(variableAuxiliar);
-                } else {
-                    codigoAssembler.append("FLD ").append("__").append(operando2).append("\n"); // Cargamos en la pila
-                                                                                                // del coprocesador los
-                                                                                                // valores de punto
-                                                                                                // flotante.
-                    codigoAssembler.append("FLD ").append("__").append(operando1).append("\n");
-                    codigoAssembler.append("FADD "); // Hacemos la suma de los operandos recién cargados en la pila.
-                    variableAuxiliar = generarVariableAuxiliar();
-                    codigoAssembler.append("FSTP ").append(variableAuxiliar).append("\n"); // Almacenamos el resultado y
-                                                                                           // desapilamos.
-                    generarAssemblerOverflowFlotantes(variableAuxiliar);
-                }
+                codigoAssembler.append("FLD ").append(OP2).append("\n");
+                codigoAssembler.append("FLD ").append(OP1).append("\n");
+                codigoAssembler.append("FADD "); 
+                auxiliar = generarVariableAuxiliar();
+                codigoAssembler.append("FSTP ").append(auxiliar).append("\n");
+                generarAssemblerOverflowFlotantes(auxiliar);
                 break;
-
             case "-":
-                if (esConstante(operando2) && esConstante(operando1)) {
-                    codigoAssembler.append("FLD ").append(operando2).append("\n"); // Cargamos en la pila del
-                                                                                   // coprocesador los valores de punto
-                                                                                   // flotante.
-                    codigoAssembler.append("FLD ").append(operando1).append("\n");
-                    codigoAssembler.append("FSUB "); // Hacemos la resta de los operandos recién cargados en la pila.
-                    variableAuxiliar = generarVariableAuxiliar();
-                    codigoAssembler.append("FSTP ").append(variableAuxiliar).append("\n"); // Almacenamos el resultado y
-                                                                                           // desapilamos.
-                } else if (esConstante(operando2) && !esConstante(operando1)) {
-                    codigoAssembler.append("FLD ").append(operando2).append("\n"); // Cargamos en la pila del
-                                                                                   // coprocesador los valores de punto
-                                                                                   // flotante.
-                    codigoAssembler.append("FLD ").append("__").append(operando1).append("\n");
-                    codigoAssembler.append("FSUB "); // Hacemos la resta de los operandos recién cargados en la pila.
-                    variableAuxiliar = generarVariableAuxiliar();
-                    codigoAssembler.append("FSTP ").append(variableAuxiliar).append("\n"); // Almacenamos el resultado y
-                                                                                           // desapilamos.
-                } else {
-                    codigoAssembler.append("FLD ").append("__").append(operando2).append("\n"); // Cargamos en la pila
-                                                                                                // del coprocesador los
-                                                                                                // valores de punto
-                                                                                                // flotante.
-                    codigoAssembler.append("FLD ").append("__").append(operando1).append("\n");
-                    codigoAssembler.append("FSUB "); // Hacemos la resta de los operandos recién cargados en la pila.
-                    variableAuxiliar = generarVariableAuxiliar();
-                    codigoAssembler.append("FSTP ").append(variableAuxiliar).append("\n"); // Almacenamos el resultado y
-                                                                                           // desapilamos.
-                }
+                codigoAssembler.append("FLD ").append(OP2).append("\n");
+                codigoAssembler.append("FLD ").append(OP1).append("\n");
+                codigoAssembler.append("FSUB "); 
+                auxiliar = generarVariableAuxiliar();
+                codigoAssembler.append("FSTP ").append(auxiliar).append("\n");
+                generarAssemblerOverflowFlotantes(auxiliar);
                 break;
 
             case "*":
-                if (esConstante(operando2) && esConstante(operando1)) {
-                    codigoAssembler.append("FLD ").append(operando2).append("\n"); // Cargamos en la pila del
-                                                                                   // coprocesador los valores de punto
-                                                                                   // flotante.
-                    codigoAssembler.append("FLD ").append(operando1).append("\n");
-                    codigoAssembler.append("FMUL "); // Hacemos la multiplicación de los operandos recién cargados en la
-                                                     // pila.
-                    variableAuxiliar = generarVariableAuxiliar();
-                    codigoAssembler.append("FSTP ").append(variableAuxiliar).append("\n"); // Almacenamos el resultado y
-                                                                                           // desapilamos.
-                } else if (esConstante(operando2) && !esConstante(operando1)) {
-                    codigoAssembler.append("FLD ").append(operando2).append("\n"); // Cargamos en la pila del
-                                                                                   // coprocesador los valores de punto
-                                                                                   // flotante.
-                    codigoAssembler.append("FLD ").append("__").append(operando1).append("\n");
-                    codigoAssembler.append("FMUL "); // Hacemos la multiplicación de los operandos recién cargados en la
-                                                     // pila.
-                    variableAuxiliar = generarVariableAuxiliar();
-                    codigoAssembler.append("FSTP ").append(variableAuxiliar).append("\n"); // Almacenamos el resultado y
-                                                                                           // desapilamos.
-                } else {
-                    codigoAssembler.append("FLD ").append("__").append(operando2).append("\n"); // Cargamos en la pila
-                                                                                                // del coprocesador los
-                                                                                                // valores de punto
-                                                                                                // flotante.
-                    codigoAssembler.append("FLD ").append("__").append(operando1).append("\n");
-                    codigoAssembler.append("FMUL "); // Hacemos la multiplicación de los operandos recién cargados en la
-                                                     // pila.
-                    variableAuxiliar = generarVariableAuxiliar();
-                    codigoAssembler.append("FSTP ").append(variableAuxiliar).append("\n"); // Almacenamos el resultado y
-                                                                                           // desapilamos.
-                }
+                codigoAssembler.append("FLD ").append(OP2).append("\n");
+                codigoAssembler.append("FLD ").append(OP1).append("\n");
+                codigoAssembler.append("FMUL "); 
+                auxiliar = generarVariableAuxiliar();
+                codigoAssembler.append("FSTP ").append(auxiliar).append("\n");
+                generarAssemblerOverflowFlotantes(auxiliar);
                 break;
 
             case "/":
-                if (esConstante(operando2) && esConstante(operando1)) {
-                    codigoAssembler.append("FLD ").append(operando2).append("\n"); // Cargamos en la pila del
-                                                                                   // coprocesador los valores de punto
-                                                                                   // flotante.
-                    codigoAssembler.append("FLD ").append(operando1).append("\n");
-                    codigoAssembler.append("FDIV "); // Hacemos la división de los operandos recién cargados en la pila.
-                    variableAuxiliar = generarVariableAuxiliar();
-                    codigoAssembler.append("FSTP ").append(variableAuxiliar).append("\n"); // Almacenamos el resultado y
-                                                                                           // desapilamos.
-                } else if (esConstante(operando2) && !esConstante(operando1)) {
-                    codigoAssembler.append("FLD ").append(operando2).append("\n"); // Cargamos en la pila del
-                                                                                   // coprocesador los valores de punto
-                                                                                   // flotante.
-                    codigoAssembler.append("FLD ").append("__").append(operando1).append("\n");
-                    codigoAssembler.append("FDIV "); // Hacemos la división de los operandos recién cargados en la pila.
-                    variableAuxiliar = generarVariableAuxiliar();
-                    codigoAssembler.append("FSTP ").append(variableAuxiliar).append("\n"); // Almacenamos el resultado y
-                                                                                           // desapilamos.
-                } else {
-                    codigoAssembler.append("FLD ").append("__").append(operando2).append("\n"); // Cargamos en la pila
-                                                                                                // del coprocesador los
-                                                                                                // valores de punto
-                                                                                                // flotante.
-                    codigoAssembler.append("FLD ").append("__").append(operando1).append("\n");
-                    codigoAssembler.append("FDIV "); // Hacemos la división de los operandos recién cargados en la pila.
-                    variableAuxiliar = generarVariableAuxiliar();
-                    codigoAssembler.append("FSTP ").append(variableAuxiliar).append("\n"); // Almacenamos el resultado y
-                                                                                           // desapilamos.
-                }
+                codigoAssembler.append("FLD ").append(OP2).append("\n");
+                codigoAssembler.append("FLD ").append(OP1).append("\n");
+                codigoAssembler.append("FDIV "); 
+                auxiliar = generarVariableAuxiliar();
+                codigoAssembler.append("FSTP ").append(auxiliar).append("\n");
                 break;
             case "=":
-                codigoAssembler.append("FLD ").append(operando2).append("\n");
-                codigoAssembler.append("FSTP ").append(operando1).append("\n");
+                codigoAssembler.append("FLD ").append(OP2).append("\n");
+                codigoAssembler.append("FSTP ").append(OP1).append("\n");
                 break;
             case ">=":
-                codigoAssembler.append("FLD ").append("__").append(operando2).append("\n");
-                codigoAssembler.append("FCOM ").append("__").append(operando1).append("\n"); // Comparamos los
-                                                                                             // operandos.
-                codigoAssembler.append("FSTSW ").append(auxiliar).append("\n"); // Guardamos en memoria el estado de la
-                                                                                // comparación.
-                codigoAssembler.append("MOV AX ").append(auxiliar).append("\n"); // Lo movemos a AX.
-                codigoAssembler.append("SAHF ").append("\n"); // Guardamos los bits menos significativos.
-                variableAuxiliar = generarVariableAuxiliar();
-
-                codigoAssembler.append("MOV ").append(variableAuxiliar).append(" OFFh\n");
-                codigoAssembler.append("JAE ").append(variableAuxiliar.substring(1)).append("\n"); // Saltamos a la
-                                                                                                   // etiqueta por
-                                                                                                   // verdadero.
-                codigoAssembler.append("MOV ").append(variableAuxiliar).append(" 00h\n"); // Cargamos en la variable
-                                                                                          // auxiliar por falso.
-                codigoAssembler.append(variableAuxiliar.substring(1)).append("\n"); // Etiqueta para saltar por
-                                                                                    // verdadero.
+                codigoAssembler.append("FLD ").append(OP2).append("\n");
+                codigoAssembler.append("FCOM ").append(OP1).append("\n");
+                codigoAssembler.append("FSTSW ").append(auxiliar).append("\n");
+                codigoAssembler.append("MOV AX ").append(auxiliar).append("\n");
+                codigoAssembler.append("SAHF ").append("\n");
+                auxiliar = generarVariableAuxiliar();
+                codigoAssembler.append("MOV ").append(auxiliar).append(" OFFh\n");
+                codigoAssembler.append("JAE ").append(auxiliar.substring(1)).append("\n");
+                codigoAssembler.append("MOV ").append(auxiliar).append(" 00h\n");
+                codigoAssembler.append(auxiliar.substring(1)).append("\n");
                 break;
-
             case "<=":
-
-                codigoAssembler.append("FLD ").append("__").append(operando2).append("\n");
-                codigoAssembler.append("FCOM ").append("__").append(operando1).append("\n");
+                codigoAssembler.append("FLD ").append(OP2).append("\n");
+                codigoAssembler.append("FCOM ").append(OP1).append("\n");
                 codigoAssembler.append("FSTSW ").append(auxiliar).append("\n");
                 codigoAssembler.append("MOV AX ").append(auxiliar).append("\n");
                 codigoAssembler.append("SAHF ").append("\n");
-                variableAuxiliar = generarVariableAuxiliar();
-
-                codigoAssembler.append("MOV ").append(variableAuxiliar).append(" OFFh\n");
-                codigoAssembler.append("JBE ").append(variableAuxiliar.substring(1)).append("\n");
-                codigoAssembler.append("MOV ").append(variableAuxiliar).append(" 00h\n");
-                codigoAssembler.append(variableAuxiliar.substring(1)).append("\n");
+                auxiliar = generarVariableAuxiliar();
+                codigoAssembler.append("MOV ").append(auxiliar).append(" OFFh\n");
+                codigoAssembler.append("JBE ").append(auxiliar.substring(1)).append("\n");
+                codigoAssembler.append("MOV ").append(auxiliar).append(" 00h\n");
+                codigoAssembler.append(auxiliar.substring(1)).append("\n");
                 break;
-
             case ">":
-
-                codigoAssembler.append("FLD ").append("__").append(operando2).append("\n");
-                codigoAssembler.append("FCOM ").append("__").append(operando1).append("\n");
+                codigoAssembler.append("FLD ").append(OP2).append("\n");
+                codigoAssembler.append("FCOM ").append(OP1).append("\n");
                 codigoAssembler.append("FSTSW ").append(auxiliar).append("\n");
                 codigoAssembler.append("MOV AX ").append(auxiliar).append("\n");
                 codigoAssembler.append("SAHF ").append("\n");
-                variableAuxiliar = generarVariableAuxiliar();
-
-                codigoAssembler.append("MOV ").append(variableAuxiliar).append(" OFFh\n");
-                codigoAssembler.append("JA ").append(variableAuxiliar.substring(1)).append("\n");
-                codigoAssembler.append("MOV ").append(variableAuxiliar).append(" 00h\n");
-                codigoAssembler.append(variableAuxiliar.substring(1)).append("\n");
+                auxiliar = generarVariableAuxiliar();
+                codigoAssembler.append("MOV ").append(auxiliar).append(" OFFh\n");
+                codigoAssembler.append("JA ").append(auxiliar.substring(1)).append("\n");
+                codigoAssembler.append("MOV ").append(auxiliar).append(" 00h\n");
+                codigoAssembler.append(auxiliar.substring(1)).append("\n");
                 break;
-
             case "<":
-
-                codigoAssembler.append("FLD ").append("__").append(operando2).append("\n");
-                codigoAssembler.append("FCOM ").append("__").append(operando1).append("\n");
+                codigoAssembler.append("FLD ").append(OP2).append("\n");
+                codigoAssembler.append("FCOM ").append(OP1).append("\n");
                 codigoAssembler.append("FSTSW ").append(auxiliar).append("\n");
                 codigoAssembler.append("MOV AX ").append(auxiliar).append("\n");
                 codigoAssembler.append("SAHF ").append("\n");
-                variableAuxiliar = generarVariableAuxiliar();
-
-                codigoAssembler.append("MOV ").append(variableAuxiliar).append(" OFFh\n");
-                codigoAssembler.append("JB ").append(variableAuxiliar.substring(1)).append("\n");
-                codigoAssembler.append("MOV ").append(variableAuxiliar).append(" 00h\n");
-                codigoAssembler.append(variableAuxiliar.substring(1)).append("\n");
+                auxiliar = generarVariableAuxiliar();
+                codigoAssembler.append("MOV ").append(auxiliar).append(" OFFh\n");
+                codigoAssembler.append("JB ").append(auxiliar.substring(1)).append("\n");
+                codigoAssembler.append("MOV ").append(auxiliar).append(" 00h\n");
+                codigoAssembler.append(auxiliar.substring(1)).append("\n");
                 break;
-
             case "!!":
-                codigoAssembler.append("FLD ").append("__").append(operando2).append("\n");
-                codigoAssembler.append("FCOM ").append("__").append(operando1).append("\n");
+                codigoAssembler.append("FLD ").append(OP2).append("\n");
+                codigoAssembler.append("FCOM ").append(OP1).append("\n");
                 codigoAssembler.append("FSTSW ").append(auxiliar).append("\n");
                 codigoAssembler.append("MOV AX ").append(auxiliar).append("\n");
                 codigoAssembler.append("SAHF ").append("\n");
-                variableAuxiliar = generarVariableAuxiliar();
-
-                codigoAssembler.append("MOV ").append(variableAuxiliar).append(" OFFh\n");
-                codigoAssembler.append("JNE ").append(variableAuxiliar.substring(1)).append("\n");
-                codigoAssembler.append("MOV ").append(variableAuxiliar).append(" 00h\n");
-                codigoAssembler.append(variableAuxiliar.substring(1)).append("\n");
+                auxiliar = generarVariableAuxiliar();
+                codigoAssembler.append("MOV ").append(auxiliar).append(" OFFh\n");
+                codigoAssembler.append("JNE ").append(auxiliar.substring(1)).append("\n");
+                codigoAssembler.append("MOV ").append(auxiliar).append(" 00h\n");
+                codigoAssembler.append(auxiliar.substring(1)).append("\n");
                 break;
-
             case "==":
-
-                codigoAssembler.append("FLD ").append("__").append(operando2).append("\n");
-                codigoAssembler.append("FCOM ").append("__").append(operando1).append("\n");
+                codigoAssembler.append("FLD ").append(OP2).append("\n");
+                codigoAssembler.append("FCOM ").append(OP1).append("\n");
                 codigoAssembler.append("FSTSW ").append(auxiliar).append("\n");
                 codigoAssembler.append("MOV AX ").append(auxiliar).append("\n");
                 codigoAssembler.append("SAHF ").append("\n");
-                variableAuxiliar = generarVariableAuxiliar();
-
-                codigoAssembler.append("MOV ").append(variableAuxiliar).append(" OFFh\n");
-                codigoAssembler.append("JE ").append(variableAuxiliar.substring(1)).append("\n");
-                codigoAssembler.append("MOV ").append(variableAuxiliar).append(" 00h\n");
-                codigoAssembler.append(variableAuxiliar.substring(1)).append("\n");
+                auxiliar = generarVariableAuxiliar();
+                codigoAssembler.append("MOV ").append(auxiliar).append(" OFFh\n");
+                codigoAssembler.append("JE ").append(auxiliar.substring(1)).append("\n");
+                codigoAssembler.append("MOV ").append(auxiliar).append(" 00h\n");
+                codigoAssembler.append(auxiliar.substring(1)).append("\n");
                 break;
 
             default:
@@ -2505,10 +604,6 @@ public class GeneradorAssembler {
         }
     }
 
-    public static void generarAssemblerErrorFuncionRecursiva(String funcionLlamadora, String funcionLlamada) {
-
-    }
-
     public static void generarAssemblerInvocacion() {
         pilaFunciones.push(tag);
 
@@ -2552,11 +647,11 @@ public class GeneradorAssembler {
         return variableAuxiliar;
     }
 
-    public static String generarVariableAuxiliarString(String cadena, int numeroTerceto) {
-        String variableAuxiliar = AUX + numeroTerceto + " db " + "\"" + cadena + "\"";
+    public static String generarVariableAuxiliarString() {
+        String variableAuxiliar = AUX + number + " db " + "\"" + OP1 + "\"";
         TablaSimbolos.addIdentificador(variableAuxiliar);
         TablaSimbolos.addTipo(TablaTipos.STRING, variableAuxiliar);
-        tercetosAsociados.put(variableAuxiliar, numeroTerceto); // Asociamos la variable auxiliar al número del terceto.
+        tercetosAsociados.put(variableAuxiliar, number); // Asociamos la variable auxiliar al número del terceto.
         return variableAuxiliar;
 
     }

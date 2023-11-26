@@ -1,5 +1,7 @@
 {
-LONG a;b,
-a = 2_l + 3_l,
-b = 2_l,
+UINT a;b;c;d,
+a = 2_ui + 3_ui - 2_ui,
+b = a + 10_ui - 1_ui,
+c = b + a - 5_ui,
+d = c - 1_ui,
 }
