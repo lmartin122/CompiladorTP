@@ -7,7 +7,6 @@ import java.util.Stack;
 
 import Tools.TablaClases;
 import Tools.TablaSimbolos;
-import Tools.Tupla;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,10 +15,6 @@ public class Tercetos implements PropertyChangeListener {
     private HashMap<String, ArrayList<Terceto>> rules;
     private Stack<String> stack; // Apilar los saltos
     private String scope;
-
-    // Constantes
-    public static final String ERROR = "error";
-    public static final String TYPE_TOD = "DOUBLE";
 
     public Tercetos() {
         rules = new HashMap<>();
@@ -61,7 +56,7 @@ public class Tercetos implements PropertyChangeListener {
     }
 
     private int size() {
-        return rules.get(scope).size();
+        return (rules.containsKey(scope)) ? rules.get(scope).size() : 0;
     }
 
     public String add(String st, String nd, String rd) {
@@ -98,15 +93,15 @@ public class Tercetos implements PropertyChangeListener {
     }
 
     public void addUncondBranch(boolean stack) {
-        if (stack) {
+        if (stack)
             addUncondBranch();
-        } else {
+        else
             add("UB", "[-]", "[-]");
-        }
+
     }
 
     public String addLabel() {
-        return add("Label" + size(), "[-]", "[-]");
+        return add(Terceto.LABEL + size(), "[-]", "[-]", Terceto.LABEL.toUpperCase());
     }
 
     public void backPatching(int d) {
@@ -115,7 +110,10 @@ public class Tercetos implements PropertyChangeListener {
             return;
 
         Integer i = Integer.valueOf(stack.pop());
-        get(i).setThird("[" + (size() + d) + "]");
+        Terceto t = get(i);
+        t.setThird("[" + (size() + d) + "]");
+        t.setType(typeTerceto(t.getSecond(), t.getThird()));
+        System.out.println(t.toString() + " aca quiero ver");
     }
 
     public void backPatching() {
@@ -129,7 +127,9 @@ public class Tercetos implements PropertyChangeListener {
 
         ref = ref.replace("+", "");
 
-        get(size() - 1).setThird(ref);
+        Terceto t = get(size() - 1);
+        t.setThird(ref);
+        t.setType(typeTerceto(t.getSecond(), t.getThird()));
 
     }
 
@@ -139,7 +139,9 @@ public class Tercetos implements PropertyChangeListener {
             return;
 
         Integer i = Integer.valueOf(stack.pop());
-        get(i).setThird(r);
+        Terceto t = get(i);
+        t.setThird(r);
+        t.setType(typeTerceto(t.getSecond(), t.getThird()));
     }
 
     public String getComparator(String f) {
@@ -152,7 +154,7 @@ public class Tercetos implements PropertyChangeListener {
 
         String type = typeTerceto(parameter_f, parameter_r);
 
-        if (parameter_f.equals(TablaSimbolos.SIN_PARAMETRO) || type.equals(ERROR))
+        if (parameter_f.equals(TablaSimbolos.SIN_PARAMETRO) || type.equals(Terceto.ERROR))
             return false;
 
         String ref = copyValue(parameter_f, parameter_r, type);
@@ -264,14 +266,14 @@ public class Tercetos implements PropertyChangeListener {
     private void TODbacktracking(Terceto t) {
 
         Stack<Integer> references = new Stack<>();
-        t.setType(TYPE_TOD);
+        t.setType(Terceto.TYPE_TOD);
 
         while (!isLeaf(t) || !references.empty()) {
             for (Integer r : t.getReferences()) {
                 references.push(r);
             }
             t = get(references.pop());
-            t.setType(TYPE_TOD);
+            t.setType(Terceto.TYPE_TOD);
         }
     }
 
@@ -280,7 +282,7 @@ public class Tercetos implements PropertyChangeListener {
 
         ArrayList<Integer> references = tod.getReferences(); // Obtengo la referencia [1]
 
-        tod.setType(TYPE_TOD);
+        tod.setType(Terceto.TYPE_TOD);
 
         if (references.isEmpty()) // El terceto TOD no tiene referencias
             return;
@@ -290,8 +292,8 @@ public class Tercetos implements PropertyChangeListener {
         Terceto t_r = get(ref);
         String typeR = type(t_r); // Le pido el tipo al terceto [1]
 
-        if (typeR.equals(ERROR)) {
-            tod.setType(ERROR);
+        if (typeR.equals(Terceto.ERROR)) {
+            tod.setType(Terceto.ERROR);
         } else { // Si no tengo error, tengo que propagar que sean dobles
             TODbacktracking(t_r);
         }
@@ -306,7 +308,13 @@ public class Tercetos implements PropertyChangeListener {
 
     private String type(String lexema) {
         if (Terceto.hasReferefence(lexema)) {
-            return type(get(Terceto.getRefPos(lexema)));
+            int i = Terceto.getRefPos(lexema);
+
+            if (i == -1)
+                return null;
+
+            Terceto t = get(i);
+            return type(t);
         }
 
         return TablaSimbolos.getTypeLexema(lexema);
@@ -317,14 +325,19 @@ public class Tercetos implements PropertyChangeListener {
         String typeL = type(l);
         String typeR = type(r);
 
-        if (typeL == null) {
-            return ERROR;
-        }
+        // System.out.println(l + ". El tipo de l es " + typeL + " y el de r " + r + ".
+        // " + typeR);
+
+        if (typeR.equals(Terceto.LABEL.toUpperCase()) || typeR.isEmpty())
+            typeR = typeL;
+
+        if (typeL == null && typeR == null)
+            return null;
 
         if (typeL.equals(typeR))
             return typeL;
 
-        return ERROR;
+        return Terceto.ERROR;
     }
 
     private static boolean isLeaf(Terceto t) {

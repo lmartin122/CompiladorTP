@@ -1,29 +1,22 @@
 {
+    UINT a,
 
-    INTERFACE j {
-        VOID z(LONG c),
-    }
+    a = 3_ui,
 
-    CLASS l IMPLEMENT j {
-        UINT a,
-        VOID xxl (UINT a){
-            RETURN,
+    IF ((3_ui * a + 10_ui) >= 20_ui * 1_ui + 10_ui){
+        PRINT,
+        PRINT,
+
+    } ELSE {
+        FOR a IN RANGE (0_ui; 10_ui; 1_ui){
+            PRINT,
+            PRINT,
         }
-        VOID z(LONG a){
-            RETURN,
-        }
-        VOID y(),
+    } END_IF,
 
-    }
+    DOUBLE c,
 
-    IMPL FOR l : {
-        VOID z(LONG a) {
-            RETURN,
-        }
-    }
-
-
-    l a,
+    c = TOD(10_ui + 1_ui * 3_ui),
 
 
 }
