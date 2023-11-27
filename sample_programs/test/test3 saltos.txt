@@ -1,9 +1,7 @@
 {
-UINT a,
-a = 3_ui,
 IF (2_ui > 1_ui) {
-a = 2_ui,
+PRINT %Soy gay%,
 } ELSE {
-a = 3_ui,
+PRINT %Soy hetero%,
 } END_IF,
 }

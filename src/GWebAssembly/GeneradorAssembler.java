@@ -35,18 +35,20 @@ public class GeneradorAssembler {
     private static String OP2 = null;
     private static String type = null;
     private static int number = 0;
-    private static String comparacionFalsa = "";
+    private static String salto = "";
+    private static String label = "";
 
     private static String getOperando(String r) {
         if (r.contains("["))
         {
-            r = r.replaceAll("\\D", "");
+            r = r.substring(1, r.length()-1);
             if (r.equals(Terceto.UNDEFINED))
                 return r;
             
-            if (Integer.valueOf(r) > number)
-                return Terceto.LABEL + r;
 
+            if (Integer.valueOf(r) > number)
+                return tag + "_" + Terceto.LABEL + r + ":";
+                        
             return AUX + r + tag;
         }else{
             if(OP.equals("PRINT")){
@@ -67,12 +69,19 @@ public class GeneradorAssembler {
         for (Map.Entry<String, ArrayList<Terceto>> func : tercetosGenerados.getTercetos().entrySet()) {
             tag = func.getKey();
 
+            codigoAssembler.append(tag + ":").append('\n');
             for (Terceto terceto : func.getValue()) {
                 number = terceto.getNumber();
                 type = terceto.getType();
                 OP = terceto.getFirst();
                 OP1 = getOperando(terceto.getSecond());
                 OP2 = getOperando(terceto.getThird());
+                
+                if (type != null && type.equals(Terceto.ERROR)) {
+                    codigoAssembler.append("invoke MessageBoxA, NULL, ADDR _ERROR_POR_PANTALLA, ADDR title, MB_OK \n");
+                    codigoAssembler.append("invoke ExitProcess, 0\n");
+                    codigoAssembler.append("end " + tag);
+                } else    
                 switch (OP) {
                     case "*":
                     case "+":
@@ -93,18 +102,16 @@ public class GeneradorAssembler {
                                 generarCodigoOperacionesEnterosConSigno();
                                 break;
                             case TablaTipos.DOUBLE_TYPE:
-                                generarCodigoOperacionesDouble(OP, OP1, OP2, number);
+                                generarCodigoOperacionesDouble();
                                 break;
                             default:
-                                codigoAssembler
-                                        .append("invoke MessageBoxA, NULL, ADDR _ERROR_POR_PANTALLA, ADDR title, MB_OK \n");
                                 break;
                         }
 
                         break;
                     case "UB":
                         // Nos fijamos a dónde tenemos que saltar en el segundo operando.
-                        generarAssemblerSaltoIncondicional(OP2);
+                        generarAssemblerSaltoIncondicional();
                         break;
 
                     case "CB":
@@ -128,9 +135,10 @@ public class GeneradorAssembler {
                     case "PRINT":
                         generarAssemblerPrint();
                         break;
+
                     default:
                         if (OP.contains(Terceto.LABEL)) {
-                            // Generar una etiqueta con OP
+                            codigoAssembler.append(tag + "_" + OP + ":").append("\n");
                         } else {
                             codigoAssembler
                                     .append("invoke MessageBoxA, NULL, ADDR _ERROR_POR_PANTALLA, ADDR title, MB_OK \n");
@@ -144,7 +152,7 @@ public class GeneradorAssembler {
         }
 
         codigoAssembler.append("invoke ExitProcess, 0\n")
-                .append("end START");
+                .append("end " + tag);
         generarCodigoLibrerias();
     }
 
@@ -191,6 +199,7 @@ public class GeneradorAssembler {
                     librerias.append(func).append(", 0").append("\n");
                 }
             }
+            System.out.println("EL TIPO DE " + func + " ES " + tipo);
             switch (tipo) {
                 case TablaTipos.UINT_TYPE:
                     if (!func.matches(".*\\d.*")) { // Si no es una constante, la declaramos como variable con su
@@ -207,6 +216,10 @@ public class GeneradorAssembler {
                     if (!func.matches(".*\\d.*")) {
                         librerias.append("__").append(func).append(" dd ? \n");
                     }
+                    break;
+                default:
+                    //TENGO QUE VER LAS FUNCIONES, VER CODIGO DE EJEMPLO
+                    //SE DECLARAN EN .CODE TODO SU CODIGO.
                     break;
             }
 
@@ -252,71 +265,77 @@ public class GeneradorAssembler {
                 break;
             case "/":
                     auxiliar = generarVariableAuxiliar();
-                    codigoAssembler.append("MOV EAX, ").append("__").append(OP1).append("\n");
-                    codigoAssembler.append("DIV EAX, ").append("__").append(OP2);
+                    codigoAssembler.append("MOV EAX, ").append(OP1).append("\n");
+                    codigoAssembler.append("DIV EAX, ").append(OP2);
                     codigoAssembler.append("MOV ").append(auxiliar).append(", EAX");
                 break;
             case "==":
                     codigoAssembler.append("MOV EAX, ").append(OP2).append("\n");
                     codigoAssembler.append("CMP EAX, ").append(OP1).append("\n");
-                    auxiliar = generarVariableAuxiliar(); 
-                    // codigoAssembler.append("MOV ").append(auxiliar).append(", 0FFh\n");
-                    codigoAssembler.append("JE ").append(auxiliar.substring(1)).append("\n");
-                    codigoAssembler.append("MOV ").append(auxiliar).append(", 00h\n"); 
-                    codigoAssembler.append(auxiliar.substring(1)).append(":\n"); 
-                    comparacionFalsa = "JNE "; 
+                    salto = "JE";
                 break;
 
             case ">=": // JAE, JB
-                    codigoAssembler.append("MOV EAX, ").append("__").append(OP2).append("\n");
-                    codigoAssembler.append("CMP EAX, ").append("__").append(OP1).append("\n");
-                    auxiliar = generarVariableAuxiliar();
-                    codigoAssembler.append("JAE ").append(auxiliar.substring(1)).append("\n");
-                    codigoAssembler.append("MOV ").append(auxiliar).append(", 00h\n");
-                    codigoAssembler.append(auxiliar.substring(1)).append(":\n");
-                    comparacionFalsa = "JB ";
-                break;
+                    codigoAssembler.append("MOV EAX, ").append(OP2).append("\n");
+                    codigoAssembler.append("CMP EAX, ").append(OP1).append("\n");
+                    salto = "JLE ";
+                    /*
+                    .data
 
+                    x dw 10
+                    y dw 5
+
+                    .code
+
+                    start:
+
+                    ; Comparamos los dos números
+                    cmp x, y
+
+                    ; Si los números son iguales, saltamos a la etiqueta `equal`
+                    je equal
+
+                    ; Los números no son iguales, por lo que salimos del IF
+                    jmp exit
+
+                    equal:
+
+                    ; Los números son iguales, por lo que imprimimos un mensaje
+                    mov eax, 1
+                    call writedec
+
+                    ; Continuamos con la ejecución del programa
+                    jmp exit
+
+                    exit:
+
+                    ; Salimos del programa
+                    invoke ExitProcess, 0
+
+
+                    */
+                break;
             case "<=": // JBE, JA
-                    codigoAssembler.append("MOV EAX, ").append("__").append(OP2).append("\n");
-                    codigoAssembler.append("CMP EAX, ").append("__").append(OP1).append("\n");
-                    auxiliar = generarVariableAuxiliar();
-                    // codigoAssembler.append("MOV ").append(auxiliar).append(", 0FFh\n");
-                    codigoAssembler.append("JBE ").append(auxiliar.substring(1)).append("\n");
-                    codigoAssembler.append("MOV ").append(auxiliar).append(", 00h\n");
-                    codigoAssembler.append(auxiliar.substring(1)).append(":\n");
-                    comparacionFalsa = "JA ";
+                    codigoAssembler.append("MOV EAX, ").append(OP2).append("\n");
+                    codigoAssembler.append("CMP EAX, ").append(OP1).append("\n");
+                    salto = "JLE ";
                 break;
             case ">": // JG, JBE
-                    codigoAssembler.append("MOV EAX, ").append("__").append(OP2).append("\n");
-                    codigoAssembler.append("CMP EAX, ").append("__").append(OP1).append("\n");
-                    auxiliar = generarVariableAuxiliar();
-                    // codigoAssembler.append("MOV ").append(auxiliar).append(", 0FFh\n");
-                    codigoAssembler.append("JG ").append(auxiliar.substring(1)).append("\n");
-                    codigoAssembler.append("MOV ").append(auxiliar).append(", 00h\n");
-                    codigoAssembler.append(auxiliar.substring(1)).append(":\n");
-                    comparacionFalsa = "JBE ";
+                    codigoAssembler.append("MOV EAX, ").append(OP2).append("\n");
+                    codigoAssembler.append("CMP EAX, ").append(OP1).append("\n");
+                    salto = "JG ";
+                    System.out.println("esto en mayor.");
                 break;
 
             case "<":// JMP, JAE
-                    codigoAssembler.append("MOV EAX, ").append("__").append(OP2).append("\n");
-                    codigoAssembler.append("CMP EAX, ").append("__").append(OP1).append("\n");
-                    auxiliar = generarVariableAuxiliar(); 
-                    // codigoAssembler.append("MOV ").append(auxiliar).append(", 0FFh\n");
-                    codigoAssembler.append("JMP ").append(auxiliar.substring(1)).append("\n");
-                    codigoAssembler.append("MOV ").append(auxiliar).append(", 00h\n");
-                    codigoAssembler.append(auxiliar.substring(1)).append(":\n");
-                    comparacionFalsa = "JAE ";
+                    codigoAssembler.append("MOV EAX, ").append(OP2).append("\n");
+                    codigoAssembler.append("CMP EAX, ").append(OP1).append("\n");
+                    salto = "JL ";
                 break;
             case "!!":
-                    codigoAssembler.append("MOV EAX, ").append("__").append(OP2).append("\n");
-                    codigoAssembler.append("CMP EAX, ").append("__").append(OP1).append("\n");
-                    auxiliar = generarVariableAuxiliar(); 
-                    // codigoAssembler.append("MOV ").append(auxiliar).append(", 0FFh\n");
-                    codigoAssembler.append("JNE ").append(auxiliar.substring(1)).append("\n");
-                    codigoAssembler.append("MOV ").append(auxiliar).append(", 00h\n"); 
-                    codigoAssembler.append(auxiliar.substring(1)).append(":\n"); 
-                    comparacionFalsa = "JE "; 
+                    codigoAssembler.append("MOV EAX, ").append(OP2).append("\n");
+                    codigoAssembler.append("CMP EAX, ").append(OP1).append("\n");
+                    salto = "JNE ";
                 break;
 
             default:
@@ -326,6 +345,7 @@ public class GeneradorAssembler {
                 break;
         }
     }
+
 
     public static void generarCodigoOperacionesEnterosSinSigno() { 
         switch (OP) {
@@ -351,71 +371,42 @@ public class GeneradorAssembler {
                 break;
             case "/":
                     auxiliar = generarVariableAuxiliar();
-                    codigoAssembler.append("MOV AX, ").append("__").append(OP1).append("\n");
-                    codigoAssembler.append("DIV AX, ").append("__").append(OP2);
+                    codigoAssembler.append("MOV AX, ").append(OP1).append("\n");
+                    codigoAssembler.append("DIV AX, ").append(OP2);
                     codigoAssembler.append("MOV ").append(auxiliar).append(", AX");
                 break;
             case "==":
                     codigoAssembler.append("MOV AX, ").append(OP2).append("\n");
                     codigoAssembler.append("CMP AX, ").append(OP1).append("\n");
-                    auxiliar = generarVariableAuxiliar(); 
-                    // codigoAssembler.append("MOV ").append(auxiliar).append(", 0FFh\n");
-                    codigoAssembler.append("JE ").append(auxiliar.substring(1)).append("\n");
-                    codigoAssembler.append("MOV ").append(auxiliar).append(", 00h\n"); 
-                    codigoAssembler.append(auxiliar.substring(1)).append(":\n"); 
-                    comparacionFalsa = "JNE "; 
+                    salto = "JE ";
                 break;
 
-            case ">=": // JAE, JB
-                    codigoAssembler.append("MOV AX, ").append("__").append(OP2).append("\n");
-                    codigoAssembler.append("CMP AX, ").append("__").append(OP1).append("\n");
-                    auxiliar = generarVariableAuxiliar();
-                    codigoAssembler.append("JAE ").append(auxiliar.substring(1)).append("\n");
-                    codigoAssembler.append("MOV ").append(auxiliar).append(", 00h\n");
-                    codigoAssembler.append(auxiliar.substring(1)).append(":\n");
-                    comparacionFalsa = "JB ";
+            case ">=": 
+                    codigoAssembler.append("MOV AX, ").append(OP2).append("\n");
+                    codigoAssembler.append("CMP AX, ").append(OP1).append("\n");
+                    salto = "JGE ";
                 break;
 
-            case "<=": // JBE, JA
-                    codigoAssembler.append("MOV AX, ").append("__").append(OP2).append("\n");
-                    codigoAssembler.append("CMP AX, ").append("__").append(OP1).append("\n");
-                    auxiliar = generarVariableAuxiliar();
-                    // codigoAssembler.append("MOV ").append(auxiliar).append(", 0FFh\n");
-                    codigoAssembler.append("JBE ").append(auxiliar.substring(1)).append("\n");
-                    codigoAssembler.append("MOV ").append(auxiliar).append(", 00h\n");
-                    codigoAssembler.append(auxiliar.substring(1)).append(":\n");
-                    comparacionFalsa = "JA ";
+            case "<=": 
+                    codigoAssembler.append("MOV AX, ").append(OP2).append("\n");
+                    codigoAssembler.append("CMP AX, ").append(OP1).append("\n");
+                    salto = "JLE ";
                 break;
-            case ">": // JG, JBE
-                    codigoAssembler.append("MOV AX, ").append("__").append(OP2).append("\n");
-                    codigoAssembler.append("CMP AX, ").append("__").append(OP1).append("\n");
-                    auxiliar = generarVariableAuxiliar();
-                    // codigoAssembler.append("MOV ").append(auxiliar).append(", 0FFh\n");
-                    codigoAssembler.append("JG ").append(auxiliar.substring(1)).append("\n");
-                    codigoAssembler.append("MOV ").append(auxiliar).append(", 00h\n");
-                    codigoAssembler.append(auxiliar.substring(1)).append(":\n");
-                    comparacionFalsa = "JBE ";
+            case ">":
+                    codigoAssembler.append("MOV AX, ").append(OP2).append("\n");
+                    codigoAssembler.append("CMP AX, ").append(OP1).append("\n");
+                    salto = "JG ";
                 break;
 
-            case "<":// JMP, JAE
-                    codigoAssembler.append("MOV AX, ").append("__").append(OP2).append("\n");
-                    codigoAssembler.append("CMP AX, ").append("__").append(OP1).append("\n");
-                    auxiliar = generarVariableAuxiliar(); 
-                    // codigoAssembler.append("MOV ").append(auxiliar).append(", 0FFh\n");
-                    codigoAssembler.append("JMP ").append(auxiliar.substring(1)).append("\n");
-                    codigoAssembler.append("MOV ").append(auxiliar).append(", 00h\n");
-                    codigoAssembler.append(auxiliar.substring(1)).append(":\n");
-                    comparacionFalsa = "JAE ";
+            case "<":
+                    codigoAssembler.append("MOV AX, ").append(OP2).append("\n");
+                    codigoAssembler.append("CMP AX, ").append(OP1).append("\n");
+                    salto = "JL ";
                 break;
             case "!!":
                     codigoAssembler.append("MOV AX, ").append(OP2).append("\n");
                     codigoAssembler.append("CMP AX, ").append(OP1).append("\n");
-                    auxiliar = generarVariableAuxiliar(); 
-                    // codigoAssembler.append("MOV ").append(auxiliar).append(", 0FFh\n");
-                    codigoAssembler.append("JNE ").append(auxiliar.substring(1)).append("\n");
-                    codigoAssembler.append("MOV ").append(auxiliar).append(", 00h\n"); 
-                    codigoAssembler.append(auxiliar.substring(1)).append(":\n"); 
-                    comparacionFalsa = "JE "; 
+                    salto = "JNE ";
                 break;
 
             default:
@@ -426,10 +417,9 @@ public class GeneradorAssembler {
         }
     }
 
-    public static void generarCodigoOperacionesDouble(String operador, String OP1, String OP2,
-            int numeroTerceto) {
+    public static void generarCodigoOperacionesDouble() {
         String auxiliar = "@auxDouble";
-        switch (operador) {
+        switch (OP) {
             case "+":
                 codigoAssembler.append("FLD ").append(OP2).append("\n");
                 codigoAssembler.append("FLD ").append(OP1).append("\n");
@@ -593,24 +583,52 @@ public class GeneradorAssembler {
         codigoAssembler.append(variableAuxiliar.substring(1)).append(":\n"); // Etiqueta del salto si no hay overflow.
     }
 
-    public static void generarAssemblerSaltoIncondicional(String op) {
-        codigoAssembler.append("JMP ").append(op).append("\n");
+    // @main 
+    // ..
+    // f(), -> CALL, f@main, [-]
+    // Label@fmain
+    // ..
+    
+    // RETURN Label@main
+    //UB, [-], [30] 
+    public static void generarAssemblerSaltoIncondicional() {
+        codigoAssembler.append("JMP ").append(OP2).append("\n");
     }
 
     public static void generarAssemblerSaltoCondicional() {
-        codigoAssembler.append("JLE ").append(OP2).append("\n");
-        switch (OP1) {
-            //fijarse con qué operación saltar
+        System.out.println("SATLO " + salto); //no llega els alto
+        switch (salto) {
+            case "JE ": //Equal
+                codigoAssembler.append("JNE ").append(OP2).append("\n");
+                break;
+            case "JNE ": //Non equal
+                codigoAssembler.append("JE ").append(OP2).append("\n");
+                break;
+            case "JLE ": //Less Equal
+                codigoAssembler.append("JBE ").append(OP2).append("\n");
+                break;
+            case "JGE ": //Greater Equal
+                codigoAssembler.append("JG ").append(OP2).append("\n");
+                break;
+            case "JL ": //Less
+                codigoAssembler.append("JMP ").append(OP2).append("\n");
+                break;
+            case "JG ": //Greater
+                codigoAssembler.append("JMP ").append(OP2).append("\n");
+                break;
+            default:
+                System.out.println("hola estoy en defualts");
+                break;
         }
     }
 
     public static void generarAssemblerInvocacion() {
-        pilaFunciones.push(tag);
 
         if (tag.equals(OP1)) {
             System.out.println("hay recursividad viejo, pero revisalo");
             return;
         }
+
 
         if (OP2.contains(Terceto.UNDEFINED)) // Nos fijamos si tiene parámetros.
             codigoAssembler.append("CALL ").append(OP1).append("\n");
@@ -622,8 +640,7 @@ public class GeneradorAssembler {
     }
 
     public static void generarAssemblerReturn() {
-        String jump = pilaFunciones.pop();
-        generarAssemblerSaltoIncondicional(jump);
+        codigoAssembler.append("RET ").append("\n");    
     }
 
     public static void generarAssemblerTOD() {

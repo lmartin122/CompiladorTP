@@ -236,7 +236,7 @@ public class TablaSimbolos {
 
     public static void purge() {
         tablaSimbolos.entrySet()
-                .removeIf(entry -> (entry.getValue().size() == 1 && entry.getValue().get(USO).equals(ID)));
+                .removeIf(entry -> (entry.getValue().size() == 1 && entry.getValue().containsKey(USO)));
     }
 
     public static void purge(String ref) {
