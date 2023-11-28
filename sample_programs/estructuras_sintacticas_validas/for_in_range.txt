@@ -1,0 +1,10 @@
+{
+    LONG a;b,
+    b = 0_l,
+
+
+    FOR a IN RANGE (0_l; 10_l; 1_l){
+        b = b + 1_l,
+    }
+
+}

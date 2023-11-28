@@ -1,0 +1,7 @@
+{
+    INTERFACE filtro{
+        VOID filtro(DOUBLE d),
+
+    }
+
+}

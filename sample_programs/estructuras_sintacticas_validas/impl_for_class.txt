@@ -1,0 +1,18 @@
+{
+    CLASS persona {
+        UINT peso,
+        DOUBLE altura,
+        VOID setaltura(DOUBLE d),
+
+    }
+
+    IMPL FOR persona: {
+        VOID setaltura(DOUBLE d){
+            altura = d,
+            RETURN,
+        }
+
+    }
+
+
+}
