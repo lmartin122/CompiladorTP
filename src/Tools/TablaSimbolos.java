@@ -236,11 +236,7 @@ public class TablaSimbolos {
 
     public static void purge() {
         tablaSimbolos.entrySet()
-                .removeIf(entry -> (entry.getValue().size() == 1 && entry.getValue().get(USO).equals(ID)));
-    }
-
-    public static void purge(String ref) {
-
+                .removeIf(entry -> Scope.outMain(entry.getKey()) && entry.getValue().containsKey(USO));
     }
 
     private static boolean hasAttribute(String k, String a) {
@@ -250,6 +246,10 @@ public class TablaSimbolos {
         }
 
         return false;
+    }
+
+    public static boolean isConstant(String k) {
+        return getUse(k) == null;
     }
 
     public static boolean isID(String k) {
@@ -316,13 +316,16 @@ public class TablaSimbolos {
         tablaSimbolos.get(r).put(IMPLEMENTADO, "True");
     }
 
-    public static void addUsedVariables(String v) {
+    public static void addUsedVariables(String variable) {
 
-        String[] variables = v.split(";");
+        int i = variable.indexOf(Scope.SEPARATOR);
+        String ambito = variable.substring(i);
+        variable = variable.substring(0, i);
+        String[] variables = variable.split(";");
 
         for (String var : variables) {
             // System.out.println("la variable " + var);
-            addUsedVariable(var);
+            addUsedVariable(var + ambito);
         }
     }
 

@@ -1,26 +1,16 @@
 {
-    UINT a; b; c,
+    CLASS z {
+        UINT x,
+    }
 
-    CLASS my_clase {
-        UINT z,
-        VOID x(){
-            UINT k,
-            k = c + z * a,
+
+    CLASS a {
+        VOID f(UINT p){
             RETURN,
         }
-        VOID y(),
     }
 
+    UINT c,
 
-    my_clase j,
-
-
-
-    INTERFACE g {
-        VOID x(),
-    }
-
-    g d,
-
-
+    LONG a; b; c,
 }

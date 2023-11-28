@@ -145,8 +145,19 @@ field_declaration : type variable_declarators ',' {
 ;
 
 variable_declarators : variable_declarator 
-                     | variable_declarators ';' variable_declarator { $$ = new ParserVal($1.sval.substring(0, $1.sval.indexOf(Scope.SEPARATOR)) + ";" + $3.sval);}
+                     | variable_declarators ';' variable_declarator {
+                        if (!($1.sval.isEmpty() || $3.sval.isEmpty()))
+                          $$ = new ParserVal($1.sval.substring(0, $1.sval.indexOf(Scope.SEPARATOR)) + ";" + $3.sval);
+                        else {
+                          if ($1.sval.isEmpty())
+                            $$ = new ParserVal($3.sval);
+                          else 
+                            $$ = new ParserVal($1.sval);
+                        }
+                     }
 ;
+
+// ;
 
 variable_declarator : variable_declarator_id
                     | variable_declarator_id '=' variable_initializer {Logger.logError(aLexico.getProgramPosition(), "No esta permitida la inicialización en la declaracion de variables.");}
@@ -274,7 +285,7 @@ method_body : block
 
 formal_parameter : type variable_declarator_id {
                       if (TablaSimbolos.isClass($1.sval + Scope.getScopeMain())) 
-                        Logger.logError(aLexico.getProgramPosition(), "No se permite que un parametro real sea del tipo de una clase.");
+                        Logger.logError(aLexico.getProgramPosition(), "No se permite que un parametro formal sea del tipo de una clase.");
                       
                       if (!$2.sval.isEmpty()) {
                           $$ = new ParserVal($2.sval);

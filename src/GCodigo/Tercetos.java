@@ -328,10 +328,13 @@ public class Tercetos implements PropertyChangeListener {
         // System.out.println(l + ". El tipo de l es " + typeL + " y el de r " + r + ".
         // " + typeR);
 
+        if (typeR == null)
+            return Terceto.ERROR;
+
         if (typeR.equals(Terceto.LABEL.toUpperCase()) || typeR.isEmpty())
             typeR = typeL;
 
-        if (typeL == null && typeR == null)
+        if (typeL == null)
             return null;
 
         if (typeL.equals(typeR))
@@ -379,19 +382,22 @@ public class Tercetos implements PropertyChangeListener {
     // >>> Metodos declarar los tipos referenciados como usados
     // ###############################################################
 
+    private void declaredUsed(String e) {
+        if (!TablaSimbolos.isConstant(e)) {
+            TablaSimbolos.setUsed(e);
+        }
+    }
+
     private void declaredUsed(ArrayList<String> elements) {
         for (String factor : elements) {
-            if (!Terceto.isNumeric(factor)) {
-                TablaSimbolos.setUsed(factor);
-            }
+            declaredUsed(factor);
         }
     }
 
     public void declaredFactorsUsed(String ref) {
 
         if (!Terceto.hasReferefence(ref)) {
-            if (!Terceto.isNumeric(ref))
-                TablaSimbolos.setUsed(ref);
+            declaredUsed(ref);
             return;
         }
 
