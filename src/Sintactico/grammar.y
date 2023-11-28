@@ -10,6 +10,8 @@ import Lexico.AnalizadorLexico;
 import GCodigo.Tercetos;
 import GCodigo.Scope;
 
+import GWebAssembly.GeneradorAssembler;
+
 import Tools.Logger;
 import Tools.Tupla;
 import Tools.TablaSimbolos;
@@ -923,13 +925,13 @@ method_body_without_prototype : block
                               | ',' {$$ = new ParserVal(""); Logger.logError(aLexico.getProgramPosition(), "Es necesario definir el cuerpo de la funcion.");}
 ;
 
-print_statement : PRINT CADENA ',' {tercetos.add("PRINT", $2.sval, "-");}
+print_statement : PRINT CADENA ',' {tercetos.add("PRINT", $2.sval, "[-]");}
                 | PRINT CADENA error {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' en el final de la sentencia.");}
                 | PRINT CADENA ';' {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' en el final de la sentencia.");}
                 | PRINT factor ',' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite imprimir variables del tipo CADENA.");}
                 | PRINT primary ',' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite imprimir variables del tipo CADENA.");}
                 | PRINT invocation ',' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite imprimir variables del tipo CADENA.");}
-                | PRINT ',' {tercetos.add("PRINT", "", "-");}
+                | PRINT ',' {tercetos.add("PRINT", "", "[-]");}
                 | PRINT '\0' {Logger.logError(aLexico.getProgramPosition(), "Se esperaba un % que cierre la cadena.");}
 ;
 %%
@@ -1077,6 +1079,8 @@ public static void main (String [] args) throws IOException {
     if (!Logger.errorsOcurred()){
       System.out.println("No se produjeron errores.\n"); //Para la parte 4, generacion de codigo maquina
       tercetos.printRules();
+      GeneradorAssembler.generarCodigoAssembler(tercetos);
+      System.out.println("ASSEMBLER \n" + GeneradorAssembler.codigoAssembler);
     } else 
       System.out.println("Se produjeron errores.\n");
     

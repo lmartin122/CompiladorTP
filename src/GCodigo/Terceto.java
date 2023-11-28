@@ -8,7 +8,7 @@ public class Terceto {
     public int i;
 
     public static final String UNDEFINED = "-";
-    public static final String LABEL = "Label";
+    public static final String LABEL = "label";
     public static final String ERROR = "ERROR";
     public static final String TYPE_TOD = "DOUBLE";
 

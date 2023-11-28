@@ -239,6 +239,10 @@ public class TablaSimbolos {
                 .removeIf(entry -> Scope.outMain(entry.getKey()) && entry.getValue().containsKey(USO));
     }
 
+    public static void purge(String ref) {
+
+    }
+
     private static boolean hasAttribute(String k, String a) {
         if (containsKey(k)) {
             String uso = tablaSimbolos.get(k).get(USO);
