@@ -1,3 +1,17 @@
 {
-PRINT % hola %,
+VOID f(){
+    PRINT%estoy en f.%,
+    UINT a,
+    a = 3_ui,
+    VOID g(){
+    PRINT%estoy en g.%,
+    RETURN,
+    }
+    IF(a == 3_ui){
+    PRINT%A ES 3%,
+    g(),
+    } END_IF,
+    RETURN,
+} 
+f(),
 }

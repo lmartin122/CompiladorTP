@@ -5,15 +5,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
+import GCodigo.Scope;
 import GCodigo.Terceto;
 import GCodigo.Tercetos;
 import Tools.TablaSimbolos;
 import Tools.TablaTipos;
-import Tools.Tupla;
 
 public class GeneradorAssembler {
 
@@ -22,16 +20,16 @@ public class GeneradorAssembler {
     
     private static String auxiliar2bytes = "@variable2bytes";
 
-    private static final String AUX = "@aux";
+    private static final String AUX = Scope.SEPARATOR + "aux";
     private static String auxiliar = "";
+    private static final String TAG_RECURSIVIDAD = Scope.SEPARATOR + "recursividad";
     private static final String OVERFLOW_SUMA_PFLOTANTE = "Error: se excedió el límite permitido (overflow)";
     private static final String OVERFLOW_PRODUCTO_ENTERO_SIN_SIGNO = "Error: se excedió el límite permitido (overflow)";
     private static final String OVERFLOW_PRODUCTO_ENTERO_CON_SIGNO = "Error: se excedió el límite permitido (overflow)";
     private static final String INVOCACION_RECURSIVA = "Error: no se permiten declaraciones recursivas.";
     private static final String ERROR_MSJ_POR_PANTALLA = "Error: se terminará el programa.";
+    private static final String _RECURSIVIDAD = "Error: no se permiten llamadas recursivas.";
 
-    private static final Stack<String> pilaStrings = new Stack<>();
-    private static final Stack<String> pilaAuxilairesString = new Stack<>();
     private static String tag = null; //Ambito
     private static String OP = null;
     private static String OP1 = null;
@@ -39,10 +37,7 @@ public class GeneradorAssembler {
     private static String type = null;
     private static int number = 0;
     private static String salto = "";
-    private static String cadena = "";
     private static StringBuilder codigoFunciones = new StringBuilder();
-    private static List<String> pilaInversa = new ArrayList<>();
-    private static List<String> pilaInversaAux = new ArrayList<>();
     private static HashMap<String,String> cadenas = new HashMap<>();
 
 
@@ -55,22 +50,16 @@ public class GeneradorAssembler {
             
 
             if (Integer.valueOf(r) > number)
-                return tag + "_" + Terceto.LABEL + r + ":";
+                return tag + "_" + Terceto.LABEL + r;
                         
-            return AUX + r + tag;
+            return AUX + Scope.SEPARATOR + r + tag;
         }else{
-            if(OP.equals("PRINT")){
+            if(OP.equals("PRINT") || OP.equals("CALL"))
                 return r;
-            }
+            
             if (esConstante(r)){
-                if(!TablaSimbolos.getTypeLexema(r).equals(TablaTipos.DOUBLE_TYPE)){
+                if(!TablaSimbolos.getTypeLexema(r).equals(TablaTipos.DOUBLE_TYPE))
                     r = r.replaceAll("\\D", "");
-                    return r;
-                } else {
-                    return r;
-                } 
-            }
-            if(r.startsWith("@")){
                 return r;
             }
             return "__" + r;
@@ -78,14 +67,11 @@ public class GeneradorAssembler {
     }
 
     public static void generarCodigoAssembler(Tercetos tercetosGenerados) {
+        generarAssemblerRecursividad();
+        
         for (Map.Entry<String, ArrayList<Terceto>> func : tercetosGenerados.getTercetos().entrySet()) {
             tag = func.getKey();
-            if(!tag.equals("@main")){
-                codigoAssembler.append(tag + ":").append('\n');                
-                generarCodigoFunciones(tercetosGenerados);
-                
-            } else{
-                System.out.println("ENTRO ACA CUANTAS VECES");
+
                 codigoAssembler.append(tag + ":").append('\n');
                 for (Terceto terceto : func.getValue()) {
                 number = terceto.getNumber();
@@ -95,7 +81,7 @@ public class GeneradorAssembler {
                 OP2 = getOperando(terceto.getThird());
                 
                 if (type != null && type.equals(Terceto.ERROR)) {
-                    codigoAssembler.append("invoke MessageBoxA, NULL, ADDR _ERROR_POR_PANTALLA, ADDR title, MB_OK \n");
+                    codigoAssembler.append("invoke MessageBoxA, NULL, ADDR _ERROR_POR_PANTALLA, ADDR _ERROR_POR_PANTALLA, MB_OK \n");
                     codigoAssembler.append("invoke ExitProcess, 0\n");
                     codigoAssembler.append("end " + tag);
                 } else    
@@ -157,17 +143,16 @@ public class GeneradorAssembler {
                             codigoAssembler.append(tag + "_" + OP + ":").append("\n");
                         } else {
                             codigoAssembler
-                                    .append("invoke MessageBoxA, NULL, ADDR _ERROR_POR_PANTALLA, ADDR title, MB_OK \n");
+                                    .append("invoke MessageBoxA, NULL, ADDR _ERROR_POR_PANTALLA, ADDR _ERROR_POR_PANTALLA, MB_OK \n");
                             codigoAssembler.append("invoke ExitProcess, 0\n");
                             codigoAssembler.append("end START");
                         }
                         break;
                 }
             }
-            }
             
         }
-
+        
         codigoAssembler.append("invoke ExitProcess, 0\n")
                 .append("end " + tag);
         generarCodigoLibrerias();
@@ -182,18 +167,23 @@ public class GeneradorAssembler {
                 .append("include \\masm32\\include\\kernel32.inc\n")
                 .append("include \\masm32\\include\\masm32.inc\n")
                 .append("includelib \\masm32\\lib\\kernel32.lib\n")
+                .append("include \\masm32\\include\\user32.inc\n")
                 .append("includelib \\masm32\\lib\\masm32.lib\n")
-                .append(".DATA\n") // Empieza la declaración de variables. Primero agregamos las constantes para
-                                   // los errores.
+                .append("includelib \\masm32\\lib\\user32.lib\n")
+                .append(".DATA\n") // Empieza la declaración de variables. Primero agregamos las constantes para los errores.
                 .append(auxiliar2bytes).append(" dw ? \n")
-                .append("_OVERFLOW_PRODUCTO_ENTERO db \"" + OVERFLOW_PRODUCTO_ENTERO_CON_SIGNO + "\", 0\n")
-                .append("_OVERFLOW_PRODUCTO_ENTERO db \"" + OVERFLOW_PRODUCTO_ENTERO_SIN_SIGNO + "\", 0\n")
+                .append("_OVERFLOW_PRODUCTO_ENTERO_CON_SIGNO db \"" + OVERFLOW_PRODUCTO_ENTERO_CON_SIGNO + "\", 0\n")
+                .append("_OVERFLOW_PRODUCTO_ENTERO_SIN_SIGNO db \"" + OVERFLOW_PRODUCTO_ENTERO_SIN_SIGNO + "\", 0\n")
                 .append("_OVERFLOW_SUMA_PFLOTANTE db \"" + OVERFLOW_SUMA_PFLOTANTE + "\", 0\n")
                 .append("_INVOCACION_RECURSIVA db \"" + INVOCACION_RECURSIVA + "\", 0\n")
-                .append("_ERROR_POR_PANTALLA db \"" + ERROR_MSJ_POR_PANTALLA + "\", 0\n");
+                .append("_ERROR_POR_PANTALLA db \"" + ERROR_MSJ_POR_PANTALLA + "\", 0\n")
+                .append("_RECURSIVIDAD db \"" + _RECURSIVIDAD + "\", 0\n")
+                .append("_flagRecursividad DWORD 0\n");
+
 
         generarCodigoVariables(header);
         codigoAssembler.append("\n");
+        
         header.append(".CODE\n");
         header.append(codigoFunciones);
         header.append(codigoAssembler);
@@ -201,10 +191,12 @@ public class GeneradorAssembler {
 
     }
 
-    public static void generarCodigoVariables(StringBuilder librerias) { // Generamos el código para las variables
-                                                                         // declaradas.
+    public static void generarCodigoVariables(StringBuilder librerias) { // Generamos el código para las variables declaradas.
         for (String func : TablaSimbolos.getTablaSimbolos()) {
+            //System.out.println("FUNC " + func);
+            type = TablaSimbolos.getTypeLexema(func);
             if (type != null){
+            System.out.println("FUNC " + func);
             if (func.startsWith("@")) {
                 if (type.equals(TablaTipos.LONG_TYPE)) {
                     librerias.append(func).append(" dd ? \n");
@@ -213,10 +205,16 @@ public class GeneradorAssembler {
                 else if (type.equals(TablaTipos.LONG_TYPE)) {
                     librerias.append(func).append(" dq ? \n");
                 } else if (type.equals(TablaTipos.STRING)) {
-                    librerias.append(func).append(", 0").append("\n");
+                    func = "cadena_" + func;
+                    if(func.contains("@aux")){
+                        for(Map.Entry<String,String> entrada: cadenas.entrySet()){
+                            if(entrada.getKey().equals(func)){
+                                librerias.append(entrada.getKey()).append(" db \"" + entrada.getValue() +"\", 0\n");
+                            }
+                        }
+                    }
                 }
             }
-            
                 switch (type) {
                 case TablaTipos.UINT_TYPE:
                     if (!func.matches(".*\\d.*")) { // Si no es una constante, la declaramos como variable con su
@@ -236,15 +234,10 @@ public class GeneradorAssembler {
                     break;                    
             }
             } else {
-                //System.out.println("QUE SERIA FUNC " + func);
-                //System.out.println("QUE SERIA OP1 " + OP1);
-                if(func.startsWith("@aux")){
-                    for(Map.Entry<String,String> entrada: cadenas.entrySet()){
-                        if(entrada.getKey() == func){
-                            librerias.append("__").append(entrada.getKey()).append(" db \"" + entrada.getValue() +"\", 0\n");
-                        }
-                        }
-                    } 
+                if(TablaSimbolos.isFunction(func)){
+                    librerias.append("__").append(func).append(" DWORD 0 \n");
+                }
+                 
                 }
                 
             }
@@ -265,7 +258,7 @@ public class GeneradorAssembler {
                 OP2 = getOperando(terceto.getThird());
                 
                 if (type != null && type.equals(Terceto.ERROR)) {
-                    codigoAssembler.append("invoke MessageBoxA, NULL, ADDR _ERROR_POR_PANTALLA, ADDR title, MB_OK \n");
+                    codigoAssembler.append("invoke MessageBoxA, NULL, ADDR _ERROR_POR_PANTALLA, ADDR _ERROR_POR_PANTALLA, MB_OK \n");
                     codigoAssembler.append("invoke ExitProcess, 0\n");
                     codigoAssembler.append("end " + tag);
                 } else    
@@ -327,7 +320,7 @@ public class GeneradorAssembler {
                             codigoAssembler.append(tag + "_" + OP + ":").append("\n");
                         } else {
                             codigoAssembler
-                                    .append("invoke MessageBoxA, NULL, ADDR _ERROR_POR_PANTALLA, ADDR title, MB_OK \n");
+                                    .append("invoke MessageBoxA, NULL, ADDR _ERROR_POR_PANTALLA, ADDR _ERROR_POR_PANTALLA, MB_OK \n");
                             codigoAssembler.append("invoke ExitProcess, 0\n");
                             codigoAssembler.append("end START");
                         }
@@ -344,10 +337,10 @@ public class GeneradorAssembler {
     }
 
     public static void generarAssemblerPrint(){
-        auxiliar = generarVariableAuxiliar();
+        auxiliar = "cadena_" + generarVariableAuxiliar();
         System.out.println("ESTOY ASOCIANDO " + auxiliar + " CON " + OP1);
         cadenas.put(auxiliar, OP1);
-        codigoAssembler.append("invoke MessageBoxA, NULL, ADDR " + auxiliar + " , ADDR title, MB_OK \n");
+        codigoAssembler.append("invoke MessageBoxA, NULL, ADDR " + auxiliar + " , ADDR "+ auxiliar + ", MB_OK \n");
     }
 
     public static void generarCodigoOperacionesEnterosConSigno() { 
@@ -414,7 +407,7 @@ public class GeneradorAssembler {
                 break;
 
             default:
-                codigoAssembler.append("invoke MessageBoxA, NULL, ADDR _ERROR_POR_PANTALLA, ADDR title, MB_OK \n");
+                codigoAssembler.append("invoke MessageBoxA, NULL, ADDR _ERROR_POR_PANTALLA, ADDR _ERROR_POR_PANTALLA, MB_OK \n");
                 codigoAssembler.append("invoke ExitProcess, 0\n");
                 codigoAssembler.append("end START");
                 break;
@@ -486,7 +479,7 @@ public class GeneradorAssembler {
                 break;
 
             default:
-                codigoAssembler.append("invoke MessageBoxA, NULL, ADDR _ERROR_POR_PANTALLA, ADDR title, MB_OK \n");
+                codigoAssembler.append("invoke MessageBoxA, NULL, ADDR _ERROR_POR_PANTALLA, ADDR _ERROR_POR_PANTALLA, MB_OK \n");
                 codigoAssembler.append("invoke ExitProcess, 0\n");
                 codigoAssembler.append("end START");
                 break;
@@ -607,7 +600,7 @@ public class GeneradorAssembler {
                 break;
 
             default:
-                codigoAssembler.append("invoke MessageBoxA, NULL, ADDR _ERROR_POR_PANTALLA, ADDR title, MB_OK \n");
+                codigoAssembler.append("invoke MessageBoxA, NULL, ADDR _ERROR_POR_PANTALLA, ADDR _ERROR_POR_PANTALLA, MB_OK \n");
                 codigoAssembler.append("invoke ExitProcess, 0\n");
                 codigoAssembler.append("end START");
                 break;
@@ -679,19 +672,23 @@ public class GeneradorAssembler {
         }
     }
 
+    public static void generarAssemblerRecursividad(){
+        codigoAssembler.append(TAG_RECURSIVIDAD).append(":").append("\n");
+        codigoAssembler.append("invoke MessageBoxA, NULL, ADDR _RECURSIVIDAD, ADDR _RECURSIVIDAD, MB_OK \n");
+        codigoAssembler.append("invoke ExitProcess, 0\n");
+        codigoAssembler.append('\n');
+    }
+
     public static void generarAssemblerInvocacion() {
-
-        if (tag.equals(OP1)) {
-            System.out.println("hay recursividad viejo, pero revisalo");
-            return;
-        }
-
-
-        if (OP2.contains(Terceto.UNDEFINED)) // Nos fijamos si tiene parámetros.
+        if(!tag.equals(Scope.getScopeMain())){
+            String var = "__" + tag;
+            codigoAssembler.append("CMP " + var + ", " + 0).append("\n"); //Controlamos recursividad
+            codigoAssembler.append("JNE " + TAG_RECURSIVIDAD).append("\n");
+            codigoAssembler.append("INC " + var).append("\n");
             codigoAssembler.append("CALL ").append(OP1).append("\n");
-        else {
-            codigoAssembler.append("CALL ").append(OP1).append(OP2).append("\n"); // si es una referencia, ya se
-                                                                                  // transformo
+            codigoAssembler.append("DEC " + var).append("\n");
+        } else {
+            codigoAssembler.append("CALL ").append(OP1).append("\n");
         }
 
     }

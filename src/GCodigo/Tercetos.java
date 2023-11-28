@@ -3,21 +3,22 @@ package GCodigo;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Stack;
+import java.util.TreeMap;
 
 import Tools.TablaClases;
 import Tools.TablaSimbolos;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class Tercetos implements PropertyChangeListener {
-    private HashMap<String, ArrayList<Terceto>> rules;
+    private Map<String, ArrayList<Terceto>> rules;
     private Stack<String> stack; // Apilar los saltos
     private String scope;
 
     public Tercetos() {
-        rules = new HashMap<>();
+        rules = new TreeMap<>(Collections.reverseOrder());
         stack = new Stack<>();
     }
 
@@ -415,6 +416,12 @@ public class Tercetos implements PropertyChangeListener {
 
     public void setScope(String scope) {
         this.scope = scope;
+        int i = scope.lastIndexOf(Scope.SEPARATOR);
+        if (i > 1){
+            String func = scope.substring(i + 1);
+            scope = scope.substring(0, i);
+            this.scope = func + scope;
+        }
     }
 
     public String getScope() {
@@ -468,7 +475,7 @@ public class Tercetos implements PropertyChangeListener {
 
     }
 
-    public HashMap<String, ArrayList<Terceto>> getTercetos() {
+    public Map<String, ArrayList<Terceto>> getTercetos() {
         return rules;
     }
 
