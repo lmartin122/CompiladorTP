@@ -1,4 +1,4 @@
-package GWebAssembly;
+package GAssembler;
 
 import java.io.BufferedWriter;
 import java.io.File;
