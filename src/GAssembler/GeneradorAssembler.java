@@ -70,15 +70,12 @@ public class GeneradorAssembler {
                     r = "_cte_" + r.replaceAll("\\.","");
                 if (TablaSimbolos.getTypeLexema(r).equals(TablaTipos.LONG_TYPE)){
                     //System.out.println(" hola soy " + r);
-                    if(OP.equals("TOD")){
-                        r = "_cte_" + r + "_TOD";
-                    }
-                    r = r.substring(0, r.indexOf("L"));
+                    r = "_cte_" + r;
                 }
 
                 if (TablaSimbolos.getTypeLexema(r).equals(TablaTipos.UINT_TYPE)){
                     if(OP.equals("TOD")){
-                        r = "_cte_" + r + "_TOD";
+                        r = "_cte_" + r;
                     }
                 }
                     
@@ -239,8 +236,7 @@ public class GeneradorAssembler {
                     if (!esConstante(func)) { // Si no es una constante, la declaramos como variable lexema.
                         librerias.append(getPrefix(func)).append(func).append(" dw ? \n");
                     } else {
-                        if(OP.equals("TOD"))
-                            librerias.append("_cte_" + func.replaceAll("\\.", "")).append(" dw " + func + "\n");
+                        librerias.append("_cte_" + func).append(" dw " + func + "\n");
                     }
                     break;
                 case TablaTipos.DOUBLE_TYPE:
@@ -254,11 +250,10 @@ public class GeneradorAssembler {
                     if (!esConstante(func)) {
                         librerias.append(getPrefix(func)).append(func).append(" dd ? \n");
                     } else {
-                        if(OP.equals("TOD"))
-                            librerias.append("_cte_" + func.replaceAll("\\.", "")).append(" dd " + func + "\n");
+                        librerias.append("_cte_" + func).append(" dd " + func.substring(0, func.indexOf("L")) + "\n");
                     }
                     break;
-                case TablaTipos.STRING: //__Hola db "Hola", 0
+                case TablaTipos.STRING:
                         librerias.append(getPrefix(func)).append(func).append(" db ").append("\"" + func + "\"").append(", 0 \n");
                     break;
                 default:
