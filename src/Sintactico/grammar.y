@@ -1083,17 +1083,21 @@ public static void main (String [] args) throws IOException {
     //Borrado de los identificadores que quedan sin ambito
     TablaSimbolos.purge();
 
-    //aSintactico.dump_stacks(yylval_recognition);
-    System.out.println(Logger.dumpLog());
+    
 
     if (!Logger.errorsOcurred()){
-      System.out.println("No se produjeron errores.\n"); //Para la parte 4, generacion de codigo maquina
+      System.out.println("Se generó el Assembler.\n"); //Para la parte 4, generacion de codigo maquina
       tercetos.printRules();
       GeneradorAssembler.generarCodigoAssembler(tercetos);
+      Logger.dumpASM();
       System.out.println("ASSEMBLER \n" + GeneradorAssembler.codigoAssembler);
     } else 
       System.out.println("Se produjeron errores.\n");
-    
+      
+    //aSintactico.dump_stacks(yylval_recognition);
+    System.out.println(Logger.dumpLog());
+
+
 
     System.out.println(aLexico.getProgram());
 }

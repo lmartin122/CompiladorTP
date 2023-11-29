@@ -1,47 +1,34 @@
+
 >>>    LOG 
-Se encontro un TOKEN en la linea [2] : [123, {]
-Se encontro un TOKEN en la linea [2] : [261, IF]
-Se encontro un TOKEN en la linea [2] : [40, (]
+Se encontro un WARNING en la linea [3] : El DOUBLE se excedio de rango MAXIMO , el mismo fue truncado al valor 1.7976931348623155E308
+Se encontro un WARNING en la linea [4] : El DOUBLE se excedio de rango MAXIMO , el mismo fue truncado al valor 1.7976931348623155E308
+Se encontro un TOKEN en la linea [1] : [123, {]
+Se encontro un TOKEN en la linea [2] : [278, DOUBLE]
 Se encontro un TOKEN en la linea [2] : [280, a]
-Se encontro un TOKEN en la linea [2] : [45, -]
+Se encontro un TOKEN en la linea [2] : [59, ;]
 Se encontro un TOKEN en la linea [2] : [280, b]
-Se encontro un TOKEN en la linea [2] : [62, >]
+Se encontro un TOKEN en la linea [2] : [59, ;]
 Se encontro un TOKEN en la linea [2] : [280, c]
-Se encontro un TOKEN en la linea [2] : [43, +]
-Se encontro un TOKEN en la linea [2] : [282, 1]
-Se encontro un TOKEN en la linea [2] : [41, )]
-Se encontro un TOKEN en la linea [3] : [123, {]
+Se encontro un TOKEN en la linea [2] : [44, ,]
 Se encontro un TOKEN en la linea [3] : [280, a]
 Se encontro un TOKEN en la linea [3] : [61, =]
-Se encontro un TOKEN en la linea [3] : [280, b]
-Se encontro un TOKEN en la linea [3] : [43, +]
-Se encontro un TOKEN en la linea [3] : [280, c]
+Se encontro un TOKEN en la linea [3] : [281, 1.7976931348623155E308]
+Se encontro un TOKEN en la linea [3] : [44, ,]
+Se encontro un TOKEN en la linea [4] : [280, b]
+Se encontro un TOKEN en la linea [4] : [61, =]
+Se encontro un TOKEN en la linea [4] : [281, 1.7976931348623155E308]
 Se encontro un TOKEN en la linea [4] : [44, ,]
-Se encontro un TOKEN en la linea [4] : [125, }]
-Se encontro un TOKEN en la linea [4] : [262, ELSE]
-Se encontro un TOKEN en la linea [5] : [123, {]
 Se encontro un TOKEN en la linea [5] : [280, c]
 Se encontro un TOKEN en la linea [5] : [61, =]
-Se encontro un TOKEN en la linea [5] : [280, t]
-Se encontro un TOKEN en la linea [5] : [43, +]
 Se encontro un TOKEN en la linea [5] : [280, a]
-Se encontro un TOKEN en la linea [6] : [44, ,]
+Se encontro un TOKEN en la linea [5] : [43, +]
+Se encontro un TOKEN en la linea [5] : [280, b]
+Se encontro un TOKEN en la linea [5] : [44, ,]
 Se encontro un TOKEN en la linea [7] : [125, }]
-Se encontro un TOKEN en la linea [7] : [263, END_IF]
-Se encontro un TOKEN en la linea [8] : [44, ,]
-Se encontro un TOKEN en la linea [9] : [125, }]
-Se encontro un RULE en la linea [2] : Se reconocio una operacion aritmetica.
-Se encontro un RULE en la linea [2] : Se reconocio una operacion aritmetica.
-Se encontro un RULE en la linea [2] : Se reconocio una operacion logica.
-Se encontro un RULE en la linea [3] : Se reconocio una operacion aritmetica.
-Se encontro un RULE en la linea [4] : Se reconocio una asignacion.
-Se encontro un RULE en la linea [5] : Se reconocio una operacion aritmetica.
-Se encontro un RULE en la linea [6] : Se reconocio una asignacion.
-Se encontro un RULE en la linea [8] : Se reconocio una sentencia IF ELSE.
-Se encontro un RULE en la linea [9] : Se reconocio el programa.
+
 >>>    TABLA DE SIMBOLOS
-Clave 1: (tipo: UINT) 
-Clave a: (uso: identificador) 
-Clave b: (uso: identificador) 
-Clave c: (uso: identificador) 
-Clave t: (uso: identificador) 
+Clave 1.7976931348623155E308: (contador: 2) (tipo: DOUBLE) 
+Clave @aux2@main: (tipo: DOUBLE) (usada_r: True) (uso: ID) 
+Clave a@main: (tipo: DOUBLE) (usada_r: True) (uso: ID) 
+Clave b@main: (tipo: DOUBLE) (usada_r: True) (uso: ID) 
+Clave c@main: (tipo: DOUBLE) (usada_r: False) (uso: ID) 

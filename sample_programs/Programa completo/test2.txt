@@ -49,7 +49,7 @@
                 RETURN,
             } END_IF,
 
-            PRINT % no cumple :( %,
+            PRINT % no cumple %,
             RETURN,
         }
   
@@ -57,7 +57,7 @@
     }
 
      CLASS filtro_and IMPLEMENT filtro {
-        *{ No puedo hacer polimorfismo :( }*
+        *{ No puedo hacer polimorfismo }*
         filtro_igualdad f1,
         filtro_distinto f2,
 

@@ -4,9 +4,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import GAssembler.GeneradorAssembler;
+
 public final class Logger {
 
     private static final String LOG_FILE = "/output/log.txt";
+    private static final String ASM_FILE = "/output/assembly.asm";
     private static final ArrayList<String> warnings = new ArrayList<>();
     private static final ArrayList<String> errors = new ArrayList<>();
     private static final ArrayList<String> tokens = new ArrayList<>();
@@ -54,6 +57,19 @@ public final class Logger {
         }
 
         return log;
+    }
+
+    public static void dumpASM() throws IOException {
+        String path = System.getProperty("user.dir");
+
+        String log = GeneradorAssembler.codigoAssembler.toString();
+
+        try (FileWriter fileWriter = new FileWriter(path + ASM_FILE)) {
+            fileWriter.write(log);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private static String generateLog() {

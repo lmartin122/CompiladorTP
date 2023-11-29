@@ -1,0 +1,63 @@
+{
+
+    CLASS persona{
+        LONG dni,
+        LONG altura,
+        DOUBLE peso,
+
+        VOID quesoy(){
+            PRINT %Soy una persona %,
+            RETURN,
+        }
+
+        VOID quenosoy(LONG l),
+    }
+
+    CLASS alumno {
+        VOID quesoy(){
+            PRINT % SOY UN ALUMNO %,
+            RETURN,
+        }
+        LONG legajo,
+        persona,
+    }
+
+    IMPL FOR persona : {
+        VOID quenosoy(LONG l){
+            IF (l !! 5_l){
+                PRINT % NO SOY UN PERRO %,
+            } ELSE {
+                PRINT % NO SOY UN GATO %,
+            }
+            END_IF,
+            RETURN,
+        }
+    }
+
+    alumno fernando_cotti,
+
+    fernando_cotti.persona.dni = 43566798_l,
+    fernando_cotti.persona.altura = 180_l,
+    fernando_cotti.persona.peso = 70.0,
+    fernando_cotti.legajo = 254430_l,
+    fernando_cotti.quesoy(),
+    fernando_cotti.persona.quenosoy(3_l),
+
+    VOID funcion(){
+        UINT a,
+
+        FOR a IN RANGE (0_ui; 10_ui; 1_ui){
+            IF(a <= 5_ui){
+                PRINT %numero menor a 6%,
+            } ELSE {
+                PRINT %numero mayor igual a 6%,
+            }
+            END_IF,
+        }
+        RETURN,
+    }
+
+
+    funcion(),
+
+}

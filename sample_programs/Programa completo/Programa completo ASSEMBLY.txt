@@ -1,0 +1,160 @@
+.386
+.model flat, stdcall
+option casemap :none
+include \masm32\include\windows.inc
+include \masm32\include\kernel32.inc
+include \masm32\include\masm32.inc
+includelib \masm32\lib\kernel32.lib
+include \masm32\include\user32.inc
+includelib \masm32\lib\masm32.lib
+includelib \masm32\lib\user32.lib
+.DATA
+@variable2bytes dw ?
+_OVERFLOW_PRODUCTO_ENTERO_CON_SIGNO db "Error: se excedió el límite permitido (overflow)", 0
+_OVERFLOW_PRODUCTO_ENTERO_SIN_SIGNO db "Error: se excedió el límite permitido (overflow)", 0
+_OVERFLOW_SUMA_PFLOTANTE db "Error: se excedió el límite permitido (overflow)", 0
+_INVOCACION_RECURSIVA db "Error: no se permiten declaraciones recursivas.", 0
+_ERROR_POR_PANTALLA db "Error: se terminará el programa.", 0
+_RECURSIVIDAD db "Error: no se permiten llamadas recursivas.", 0        
+_flagRecursividad DWORD 0
+_cte_0 dw 0
+_cte_1 dw 1
+_cte_10 dw 10
+_cte_180L dd 180
+_cte_254430L dd 254430
+_cte_3L dd 3
+_cte_43566798L dd 43566798
+_cte_5 dw 5
+_cte_5L dd 5
+_cte_700 dq 70.0
+@aux11funcion@main dw ?
+_cte_NO_SOY_UN_GATO db "NO SOY UN GATO", 0
+_cte_NO_SOY_UN_PERRO db "NO SOY UN PERRO", 0
+_cte_SOY_UN_ALUMNO db "SOY UN ALUMNO", 0
+_cte_Soy_una_persona db "Soy una persona", 0
+__a@main@funcion dw ?
+__altura@main@persona dd ?
+__dni@main@persona dd ?
+__fernando_cotti_legajo@main dd ?
+__fernando_cotti_persona_altura@main dd ?
+__fernando_cotti_persona_dni@main dd ?
+__fernando_cotti_persona_peso@main dq ?
+__funcion@main DWORD 0
+__l@main@persona@quenosoy dd ?
+__legajo@main@alumno dd ?
+_cte_numero_mayor_igual_a_6 db "numero mayor igual a 6", 0
+_cte_numero_menor_a_6 db "numero menor a 6", 0
+__peso@main@persona dq ?
+__quenosoy@main@persona DWORD 0
+__quesoy@main@alumno DWORD 0
+__quesoy@main@persona DWORD 0
+.CODE
+recursividad:
+invoke MessageBoxA, NULL, ADDR _RECURSIVIDAD, ADDR _RECURSIVIDAD, MB_OK 
+invoke ExitProcess, 0
+
+overflow_UINT:
+invoke MessageBoxA, NULL, ADDR _OVERFLOW_PRODUCTO_ENTERO_SIN_SIGNO, ADDR _OVERFLOW_PRODUCTO_ENTERO_SIN_SIGNO, MB_OK
+invoke ExitProcess, 0
+
+overflow_LONG:
+invoke MessageBoxA, NULL, ADDR _OVERFLOW_PRODUCTO_ENTERO_CON_SIGNO, ADDR _OVERFLOW_PRODUCTO_ENTERO_CON_SIGNO, MB_OK
+invoke ExitProcess, 0
+
+overflow_DOUBLE:
+invoke MessageBoxA, NULL, ADDR _OVERFLOW_SUMA_PFLOTANTE, ADDR _OVERFLOW_SUMA_PFLOTANTE, MB_OK
+invoke ExitProcess, 0
+
+quesoy@main@persona:
+invoke MessageBoxA, NULL, ADDR _cte_Soy_una_persona, ADDR _cte_Soy_una_persona, MB_OK
+RET
+
+quesoy@main@alumno:
+invoke MessageBoxA, NULL, ADDR _cte_SOY_UN_ALUMNO, ADDR _cte_SOY_UN_ALUMNO, MB_OK
+RET
+
+quenosoy@main@persona:
+MOV EAX, _cte_5L
+CMP EAX, __l@main@persona@quenosoy
+JNE quenosoy@main@persona_label4
+invoke MessageBoxA, NULL, ADDR _cte_NO_SOY_UN_PERRO, ADDR _cte_NO_SOY_UN_PERRO, MB_OK
+JMP quenosoy@main@persona_label6
+quenosoy@main@persona_label4:
+invoke MessageBoxA, NULL, ADDR _cte_NO_SOY_UN_GATO, ADDR _cte_NO_SOY_UN_GATO, MB_OK
+quenosoy@main@persona_label6:
+RET
+
+funcion@main:
+MOV AX, _cte_0
+MOV __a@main@funcion, AX
+funcion@main_label1:
+MOV AX, __a@main@funcion
+CMP AX, _cte_10
+JGE funcion@main_label14
+MOV AX, _cte_5
+CMP AX, __a@main@funcion
+JLE funcion@main_label8
+invoke MessageBoxA, NULL, ADDR _cte_numero_menor_a_6, ADDR _cte_numero_menor_a_6, MB_OK
+JMP funcion@main_label10
+funcion@main_label8:
+invoke MessageBoxA, NULL, ADDR _cte_numero_mayor_igual_a_6, ADDR _cte_numero_mayor_igual_a_6, MB_OK
+funcion@main_label10:
+MOV AX, __a@main@funcion
+ADD AX, _cte_1
+MOV @aux11funcion@main, AX
+MOV AX, @aux11funcion@main
+MOV __a@main@funcion, AX
+JMP funcion@main_label1
+funcion@main_label14:
+RET
+
+@main:
+MOV EAX, _cte_43566798L
+MOV __fernando_cotti_persona_dni@main, EAX
+MOV EAX, _cte_180L
+MOV __fernando_cotti_persona_altura@main, EAX
+FLD _cte_700
+FST __fernando_cotti_persona_peso@main
+MOV EAX, _cte_254430L
+MOV __fernando_cotti_legajo@main, EAX
+MOV EAX, __fernando_cotti_persona_dni@main
+MOV __dni@main@persona, EAX
+MOV EAX, __fernando_cotti_persona_altura@main
+MOV __altura@main@persona, EAX
+FLD __fernando_cotti_persona_peso@main
+FST __peso@main@persona
+MOV EAX, __fernando_cotti_legajo@main
+MOV __legajo@main@alumno, EAX
+CALL quesoy@main@alumno
+MOV EAX, __dni@main@persona
+MOV __fernando_cotti_persona_dni@main, EAX
+MOV EAX, __altura@main@persona
+MOV __fernando_cotti_persona_altura@main, EAX
+FLD __peso@main@persona
+FST __fernando_cotti_persona_peso@main
+MOV EAX, __legajo@main@alumno
+MOV __fernando_cotti_legajo@main, EAX
+MOV EAX, __fernando_cotti_persona_dni@main
+MOV __dni@main@persona, EAX
+MOV EAX, __fernando_cotti_persona_altura@main
+MOV __altura@main@persona, EAX
+FLD __fernando_cotti_persona_peso@main
+FST __peso@main@persona
+MOV EAX, __fernando_cotti_legajo@main
+MOV __legajo@main@alumno, EAX
+MOV EAX, _cte_3L
+MOV __l@main@persona@quenosoy, EAX
+CALL quenosoy@main@persona
+MOV EAX, __l@main@persona@quenosoy
+MOV _cte_3L, EAX
+MOV EAX, __dni@main@persona
+MOV __fernando_cotti_persona_dni@main, EAX
+MOV EAX, __altura@main@persona
+MOV __fernando_cotti_persona_altura@main, EAX
+FLD __peso@main@persona
+FST __fernando_cotti_persona_peso@main
+MOV EAX, __legajo@main@alumno
+MOV __fernando_cotti_legajo@main, EAX
+CALL funcion@main
+invoke ExitProcess, 0
+end @main

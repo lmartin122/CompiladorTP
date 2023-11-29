@@ -2,11 +2,6 @@
     UINT a,
 
     FOR a IN RANGE (0_ui; 10_ui; 1_ui){
-        IF(a <= 5_ui){
-            PRINT %numero menor a 6%,
-        } ELSE {
-            PRINT %numero mayor igual a 6%,
-        }
-        END_IF,
+        PRINT %numero%,
     }
 }
