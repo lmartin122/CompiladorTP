@@ -1,0 +1,10 @@
+{
+    DOUBLE precio; flete,
+    LONG envio,
+    UINT costo,
+    precio = flete + TOD(10_ui),
+    envio = 3_l + 7_l,
+    precio = TOD (envio),
+    costo = 1_ui + 3_ui * 3_ui,
+    costo = (1_ui + 3_ui + (3_ui)),
+}

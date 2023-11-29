@@ -1,6 +1,0 @@
-{
-UINT a = 10_ui,
-PRINT %aaaaaaaaaaaaaa,
-UINT b = 3_ui,
-*{ cadena sin cerrar }*
-}

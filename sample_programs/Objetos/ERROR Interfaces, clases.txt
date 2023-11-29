@@ -1,0 +1,25 @@
+{
+    *{ERROR AL INTENTAR SOBREESCRIBIR UN ATRIBUTO DE LA CLASE PADRE}*
+    *{MAL REFERENCIADO LA VARIABLE Y DEL PADRE. DEBERIA SER fer.padre.y}*
+
+    CLASS padre{
+        UINT x;y,
+
+    }
+
+    CLASS hijo {
+        UINT x,
+        VOID run(){
+            PRINT % run %,
+            RETURN,
+        }
+
+        padre,
+    }
+
+
+    hijo fer,
+    fer.x = 55_ui,
+    fer.y = 3_ui,
+
+}

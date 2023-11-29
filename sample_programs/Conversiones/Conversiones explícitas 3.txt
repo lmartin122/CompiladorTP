@@ -1,0 +1,9 @@
+{
+    *{SIN ERROR, se hace la conversion explicita}*
+    UINT a,
+    DOUBLE b,
+    a = 5_ui,
+    b = TOD(a),
+    b = TOD(2_ui),
+    a = 2.0 + 1.0,
+}

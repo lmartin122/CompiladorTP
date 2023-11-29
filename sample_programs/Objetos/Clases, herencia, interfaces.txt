@@ -1,0 +1,38 @@
+{
+    INTERFACE interfaz1 {
+        VOID run(),
+
+    }
+
+    CLASS padre{
+        VOID padrerun(UINT c){
+            PRINT %PADRE RUN%,
+            RETURN,
+        }
+
+    }
+
+    CLASS hijo IMPLEMENT interfaz1 {
+        VOID run(){
+            PRINT % run %,
+            RETURN,
+        }
+        VOID printhello(),
+        padre,
+    }
+
+
+    IMPL FOR hijo : {
+        VOID printhello(){
+            PRINT % Hello World %,
+            RETURN,
+        }
+
+    }
+
+    hijo fer,
+    fer.run(),
+    fer.printhello(),
+    fer.padre.padrerun(6_ui),
+
+}

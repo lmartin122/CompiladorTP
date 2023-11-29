@@ -1,0 +1,12 @@
+{
+    VOID f(){
+        PRINT % Estoy en f %,
+        VOID g(){
+        PRINT % Estoy en g %,
+        RETURN,
+        }
+        f(),
+        RETURN,
+    }
+f(),
+}

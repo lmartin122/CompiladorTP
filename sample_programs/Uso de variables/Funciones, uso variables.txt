@@ -1,0 +1,13 @@
+{
+    UINT a,
+    a = 4_ui,
+    
+    VOID funcion(){
+        DOUBLE b,
+        b = TOD(a),
+        RETURN,
+    }
+
+
+
+}

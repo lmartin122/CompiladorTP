@@ -1,8 +1,0 @@
-{
-CTE_UINT bglhotkgfegqwssfaiu = 65536_ui, 
-DOUBLE f = .,
-DOUBLE f2 = .1d,
-DOUBLE f3 = 6.D+2,
-CTE_LONG abcdefghijklmnopqfpgotlrksosqsa = -2147483648_l, 
-UINT _abcd#mnop,
-}

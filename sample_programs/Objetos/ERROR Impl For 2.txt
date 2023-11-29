@@ -1,0 +1,21 @@
+{
+    *{ERROR, IMPL FOR de un metodo implementado}*
+    
+
+    CLASS hijo {
+        VOID run(){
+            PRINT % run %,
+            RETURN,
+        }
+        VOID run2(),
+        
+    }
+
+    IMPL FOR hijo : {
+        VOID run(){
+            RETURN,
+        }
+    }
+
+
+}

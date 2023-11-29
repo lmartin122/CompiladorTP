@@ -58,6 +58,11 @@ public class GeneradorAssembler {
 
             return AUX + r + tag;
         }else{
+            
+            if (esConstante(r)){
+                r = "_cte_" + r.replaceAll("\\.","");
+                return r;
+            }
             r = r.replaceAll("\\.","\\_");
             if(OP.equals("CALL"))
                 return r;
@@ -65,15 +70,7 @@ public class GeneradorAssembler {
             if(OP.equals("PRINT"))
                 return "__" + r;
             
-            
-
-            if (esConstante(r)){
-                    
-                r = "_cte_" + r;
-                return r;
-                
-            }
-
+                            
             return "__" + r;
         }
     }
@@ -97,7 +94,7 @@ public class GeneradorAssembler {
                 if (type != null && type.equals(Terceto.ERROR)) {
                     codigoAssembler.append("invoke MessageBoxA, NULL, ADDR _ERROR_POR_PANTALLA, ADDR _ERROR_POR_PANTALLA, MB_OK \n");
                     codigoAssembler.append("invoke ExitProcess, 0\n");
-                    codigoAssembler.append("end " + tag);
+                    codigoAssembler.append("end " + tag + "\n");
                 } else { 
                     switch (OP) {
                     
@@ -159,7 +156,7 @@ public class GeneradorAssembler {
                             codigoAssembler
                                     .append("invoke MessageBoxA, NULL, ADDR _ERROR_POR_PANTALLA, ADDR _ERROR_POR_PANTALLA, MB_OK \n");
                             codigoAssembler.append("invoke ExitProcess, 0\n");
-                            codigoAssembler.append("end START");
+                            codigoAssembler.append("end START\n");
                         }
                         break;
                 }
@@ -171,7 +168,7 @@ public class GeneradorAssembler {
         }
         
         codigoAssembler.append("invoke ExitProcess, 0\n")
-                .append("end " + tag);
+                .append("end " + tag + "\n");
         generarCodigoLibrerias();
     }
 
@@ -224,7 +221,7 @@ public class GeneradorAssembler {
                     switch (type) { //Si no, declaramos la constante o variable para cada símbolo correspondiente.
                     case TablaTipos.UINT_TYPE:
                         if (!esConstante(func)) {
-                            librerias.append(getPrefix(func)).append(func.replaceAll("\\.","\\_")).append(" dw ? \n");
+                            librerias.append(getPrefix(func)).append(func.replaceAll("[.-]","\\_")).append(" dw ? \n");
                         } else {
                             librerias.append("_cte_" + func).append(" dw " + func + "\n");
                         }
@@ -233,31 +230,31 @@ public class GeneradorAssembler {
                         if (!esConstante(func)) {
                                 librerias.append(getPrefix(func)).append(func.replaceAll("\\.","\\_")).append(" dq ? \n");
                         } else {
-                            librerias.append("_cte_" + func.replaceAll("\\.", "")).append(" dq " + func + "\n");
+                            librerias.append("_cte_" + func.replaceAll("[.-]", "")).append(" dq " + func + "\n");
                         }
                         break;
                     case TablaTipos.LONG_TYPE:
                         if (!esConstante(func)) {
-                            librerias.append(getPrefix(func)).append(func.replaceAll("\\.","\\_")).append(" dd ? \n");
+                            librerias.append(getPrefix(func)).append(func.replaceAll("[.-]","\\_")).append(" dd ? \n");
                         } else {
                             librerias.append("_cte_" + func).append(" dd " + func.substring(0, func.indexOf("L")) + "\n");
                         }
                         break;
                     case TablaTipos.STRING:
-                            librerias.append(getPrefix(func)).append(func.replaceAll("\\s","\\_")).append(" db ").append("\"" + func + "\"").append(", 0 \n");
+                            librerias.append("_cte_" + func.replaceAll("\\s","\\_")).append(" db ").append("\"" + func + "\"").append(", 0 \n");
                         break;
                     default:
                         break;
                 }
                 } else{
-                    System.out.println("Estoy en una clase.");
+                    System.out.println("");
                 }
                 
             }
         }
     }
 
-    public static void generarConversionExplicita() {
+    public static void generarConversionExplicita(String auxiliarString) {
         codigoAssembler.append("FILD ").append(OP1).append("\n");
     }
 
@@ -337,7 +334,7 @@ public class GeneradorAssembler {
             default:
                 codigoAssembler.append("invoke MessageBoxA, NULL, ADDR _ERROR_POR_PANTALLA, ADDR _ERROR_POR_PANTALLA, MB_OK \n");
                 codigoAssembler.append("invoke ExitProcess, 0\n");
-                codigoAssembler.append("end START");
+                codigoAssembler.append("end START\n");
                 break;
         }
     }
@@ -414,7 +411,7 @@ public class GeneradorAssembler {
             default:
                 codigoAssembler.append("invoke MessageBoxA, NULL, ADDR _ERROR_POR_PANTALLA, ADDR _ERROR_POR_PANTALLA, MB_OK \n");
                 codigoAssembler.append("invoke ExitProcess, 0\n");
-                codigoAssembler.append("end START");
+                codigoAssembler.append("end START\n");
                 break;
         }
     }
@@ -529,7 +526,7 @@ public class GeneradorAssembler {
             default:
                 codigoAssembler.append("invoke MessageBoxA, NULL, ADDR _ERROR_POR_PANTALLA, ADDR _ERROR_POR_PANTALLA, MB_OK \n");
                 codigoAssembler.append("invoke ExitProcess, 0\n");
-                codigoAssembler.append("end START");
+                codigoAssembler.append("end START\n");
                 break;
         }
     }
@@ -626,7 +623,7 @@ public class GeneradorAssembler {
         if (type.equals(Terceto.ERROR))
             return;
 
-        generarConversionExplicita();
+        generarConversionExplicita(generarVariableAuxiliar());
     }
 
     public static String generarVariableAuxiliar() { // Generamos la variable auxiliar que
@@ -636,11 +633,13 @@ public class GeneradorAssembler {
         auxiliar = AUX + number + tag;
         TablaSimbolos.addIdentificador(auxiliar);
         TablaSimbolos.addTipo(type, auxiliar);
+        TablaSimbolos.setUsed(auxiliar);
         return auxiliar;
     }
 
     private static boolean esConstante(String s) { // Nos fijamos el uso para ver si es una constante o identificador.
-        if (TablaSimbolos.getUse(s) == null) {
+        
+        if (TablaSimbolos.getUse(s) == "" || TablaSimbolos.getUse(s) == null) {
             return true;
         }
         return false;

@@ -1,0 +1,25 @@
+{
+    *{SIN ERROR, SE ACCEDE A UNA VARIABLE DEL PADRE COMO TAMBIEN A UNA VARIABLE DE LA PROPIA CLASE}*
+
+
+    CLASS padre{
+        UINT x;y,
+
+    }
+
+    CLASS hijo {
+        UINT b,
+        VOID run(){
+            PRINT % run %,
+            RETURN,
+        }
+
+        padre,
+    }
+
+
+    hijo fer,
+    fer.b = 55_ui,
+    fer.padre.y = 3_ui,
+
+}

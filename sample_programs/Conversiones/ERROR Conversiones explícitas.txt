@@ -1,0 +1,7 @@
+{
+    LONG a;b,
+    DOUBLE c,
+    c = TOD(10_ui + 3_l - 1_l),
+    a = 10_l + 5_ui,
+    c = TOD(a),
+}

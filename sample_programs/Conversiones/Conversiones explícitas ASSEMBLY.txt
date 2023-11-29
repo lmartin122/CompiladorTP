@@ -1,0 +1,89 @@
+.386
+.model flat, stdcall
+option casemap :none
+include \masm32\include\windows.inc
+include \masm32\include\kernel32.inc
+include \masm32\include\masm32.inc
+includelib \masm32\lib\kernel32.lib
+include \masm32\include\user32.inc
+includelib \masm32\lib\masm32.lib
+includelib \masm32\lib\user32.lib
+.DATA
+@variable2bytes dw ?
+_OVERFLOW_PRODUCTO_ENTERO_CON_SIGNO db "Error: se excedió el límite permitido (overflow)", 0
+_OVERFLOW_PRODUCTO_ENTERO_SIN_SIGNO db "Error: se excedió el límite permitido (overflow)", 0
+_OVERFLOW_SUMA_PFLOTANTE db "Error: se excedió el límite permitido (overflow)", 0
+_INVOCACION_RECURSIVA db "Error: no se permiten declaraciones recursivas.", 0
+_ERROR_POR_PANTALLA db "Error: se terminará el programa.", 0
+_RECURSIVIDAD db "Error: no se permiten llamadas recursivas.", 0        
+_flagRecursividad DWORD 0
+_cte_1 dw 1
+_cte_10 dw 10
+_cte_3 dw 3
+_cte_3L dd 3
+_cte_7L dd 7
+@aux0@main dq ?
+@aux10@main dw ?
+@aux11@main dw ?
+@aux1@main dq ?
+@aux3@main dd ?
+@aux5@main dq ?
+@aux7@main dw ?
+@aux8@main dw ?
+__costo@main dw ?
+__envio@main dd ?
+__flete@main dq ?
+__precio@main dq ?
+.CODE
+recursividad:
+invoke MessageBoxA, NULL, ADDR _RECURSIVIDAD, ADDR _RECURSIVIDAD, MB_OK 
+invoke ExitProcess, 0
+
+overflow_UINT:
+invoke MessageBoxA, NULL, ADDR _OVERFLOW_PRODUCTO_ENTERO_SIN_SIGNO, ADDR _OVERFLOW_PRODUCTO_ENTERO_SIN_SIGNO, MB_OK
+invoke ExitProcess, 0
+
+overflow_LONG:
+invoke MessageBoxA, NULL, ADDR _OVERFLOW_PRODUCTO_ENTERO_CON_SIGNO, ADDR _OVERFLOW_PRODUCTO_ENTERO_CON_SIGNO, MB_OK
+invoke ExitProcess, 0
+
+overflow_DOUBLE:
+invoke MessageBoxA, NULL, ADDR _OVERFLOW_SUMA_PFLOTANTE, ADDR _OVERFLOW_SUMA_PFLOTANTE, MB_OK
+invoke ExitProcess, 0
+
+@main:
+FILD _cte_10
+FLD @aux0@main
+FADD __flete@main
+FST @aux1@main
+JC overflow_DOUBLE
+FLD @aux1@main
+FST __precio@main
+MOV EAX, _cte_3L
+ADD EAX, _cte_7L
+MOV @aux3@main, EAX
+MOV EAX, @aux3@main
+MOV __envio@main, EAX
+FILD __envio@main
+FLD @aux5@main
+FST __precio@main
+MOV AX, _cte_3
+MOV BX, _cte_3
+MUL BX
+JO overflow_UINT
+MOV @aux7@main, AX
+MOV AX, _cte_1
+ADD AX, @aux7@main
+MOV @aux8@main, AX
+MOV AX, @aux8@main
+MOV __costo@main, AX
+MOV AX, _cte_1
+ADD AX, _cte_3
+MOV @aux10@main, AX
+MOV AX, @aux10@main
+ADD AX, _cte_3
+MOV @aux11@main, AX
+MOV AX, @aux11@main
+MOV __costo@main, AX
+invoke ExitProcess, 0
+end @main

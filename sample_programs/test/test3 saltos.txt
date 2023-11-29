@@ -1,7 +1,0 @@
-{
-IF (2_ui > 1_ui) {
-PRINT %Soy gay%,
-} ELSE {
-PRINT %Soy hetero%,
-} END_IF,
-}

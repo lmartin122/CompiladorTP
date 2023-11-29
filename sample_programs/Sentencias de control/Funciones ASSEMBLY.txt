@@ -1,0 +1,67 @@
+.386
+.model flat, stdcall
+option casemap :none
+include \masm32\include\windows.inc
+include \masm32\include\kernel32.inc
+include \masm32\include\masm32.inc
+includelib \masm32\lib\kernel32.lib
+include \masm32\include\user32.inc
+includelib \masm32\lib\masm32.lib
+includelib \masm32\lib\user32.lib
+.DATA
+@variable2bytes dw ?
+_OVERFLOW_PRODUCTO_ENTERO_CON_SIGNO db "Error: se excedió el límite permitido (overflow)", 0
+_OVERFLOW_PRODUCTO_ENTERO_SIN_SIGNO db "Error: se excedió el límite permitido (overflow)", 0
+_OVERFLOW_SUMA_PFLOTANTE db "Error: se excedió el límite permitido (overflow)", 0
+_INVOCACION_RECURSIVA db "Error: no se permiten declaraciones recursivas.", 0
+_ERROR_POR_PANTALLA db "Error: se terminará el programa.", 0
+_RECURSIVIDAD db "Error: no se permiten llamadas recursivas.", 0        
+_flagRecursividad DWORD 0
+_cte_3 dw 3
+_cte_A_ES_3 db "A ES 3", 0
+__a@main@f dw ?
+_cte_estoy_en_f. db "estoy en f.", 0
+_cte_estoy_en_g. db "estoy en g.", 0
+__f@main DWORD 0
+__g@main@f DWORD 0
+.CODE
+recursividad:
+invoke MessageBoxA, NULL, ADDR _RECURSIVIDAD, ADDR _RECURSIVIDAD, MB_OK 
+invoke ExitProcess, 0
+
+overflow_UINT:
+invoke MessageBoxA, NULL, ADDR _OVERFLOW_PRODUCTO_ENTERO_SIN_SIGNO, ADDR _OVERFLOW_PRODUCTO_ENTERO_SIN_SIGNO, MB_OK
+invoke ExitProcess, 0
+
+overflow_LONG:
+invoke MessageBoxA, NULL, ADDR _OVERFLOW_PRODUCTO_ENTERO_CON_SIGNO, ADDR _OVERFLOW_PRODUCTO_ENTERO_CON_SIGNO, MB_OK
+invoke ExitProcess, 0
+
+overflow_DOUBLE:
+invoke MessageBoxA, NULL, ADDR _OVERFLOW_SUMA_PFLOTANTE, ADDR _OVERFLOW_SUMA_PFLOTANTE, MB_OK
+invoke ExitProcess, 0
+
+g@main@f:
+invoke MessageBoxA, NULL, ADDR _cte_estoy_en_g, ADDR _cte_estoy_en_g, MB_OK
+RET
+
+f@main:
+invoke MessageBoxA, NULL, ADDR _cte_estoy_en_f, ADDR _cte_estoy_en_f, MB_OK
+MOV AX, _cte_3
+MOV __a@main@f, AX
+MOV AX, _cte_3
+CMP AX, __a@main@f
+JE f@main_label6
+invoke MessageBoxA, NULL, ADDR _cte_A_ES_3, ADDR _cte_A_ES_3, MB_OK     
+CMP __f@main, 0
+JNE recursividad
+INC __f@main
+CALL g@main@f
+DEC __f@main
+f@main_label6:
+RET
+
+@main:
+CALL f@main
+invoke ExitProcess, 0
+end @main

@@ -1,5 +1,0 @@
-{
-PRINT %estoy en el main%,
-PRINT %sigo en el main%,
-PRINT %no vas a salir del main flaco dea%,
-}

@@ -1,0 +1,19 @@
+{
+    *{ERROR, IMPL FOR de una clase inexistente}*
+    
+
+    CLASS hijo {
+        VOID run(){
+            PRINT % run %,
+            RETURN,
+        }
+        VOID run2(),
+        
+    }
+
+    IMPL FOR hijo2 : {
+
+    }
+
+
+}

@@ -1,0 +1,38 @@
+{
+    *{PROGRAMA PARA VER QUE DETECTA CUANDO SE IMTENTA EJECUTAR UN METODO NO IMPLEMENTADO}*
+    INTERFACE interfaz1 {
+        VOID run(),
+
+    }
+
+    CLASS padre{
+        VOID padrerun(UINT c){
+            PRINT %PADRE RUN%,
+            RETURN,
+        }
+
+    }
+
+    CLASS hijo IMPLEMENT interfaz1 {
+        VOID run(){
+            PRINT % run %,
+            RETURN,
+        }
+        VOID printhello(),
+        padre,
+    }
+
+    hijo fer,
+    fer.run(),
+    fer.printhello(),
+
+
+    IMPL FOR hijo : {
+        VOID printhello(){
+            PRINT % Hello World %,
+            RETURN,
+        }
+
+    }
+
+}

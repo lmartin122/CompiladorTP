@@ -1,0 +1,17 @@
+{
+    *{SIN ERROR, las variables a,b de la clase son usadas del lado derecho como tambien ins.c}*
+    CLASS test{
+        UINT a;b;c,
+
+        VOID metodo(){
+            a = 4_ui,
+            b = a,
+            c = b,
+            RETURN,
+        }
+    }
+
+    test ins,
+    ins.c = 11_ui,
+    ins.a = ins.c,
+}

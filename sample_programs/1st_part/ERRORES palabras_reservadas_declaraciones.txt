@@ -1,7 +1,0 @@
-{
-if ( 10 == 10 ) {
-    print % hola %,
-} else { 
-   print % chau
-}
-}
