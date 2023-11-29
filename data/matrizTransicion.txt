@@ -172,8 +172,8 @@
 5;21;21;ASChequeoOperador
 5;22;21;ASChequeoOperador
 5;23;21;ASChequeoOperador
-5;24;21;ASFloatError
-5;25;21;ASFloatError
+5;24;21;ASChequeoOperador
+5;25;21;ASChequeoOperador
 5;26;21;ASChequeoOperador
 5;27;21;ASChequeoOperador
 5;28;21;ASChequeoOperador

@@ -103,7 +103,7 @@ class_name : ID {
             }
 ;
 
-class_body : '{' class_body_declarations inheritance_declaration '}'
+class_body : '{' class_body_declarations '}'
            | '{' '}'
            | '(' class_body_declarations ')' {Logger.logError(aLexico.getProgramPosition(), "La declaracion de una clase debe estar delimitado por llaves \"{...}\".");}
            | '(' ')' {Logger.logError(aLexico.getProgramPosition(), "La declaracion de una clase debe estar delimitado por llaves \"{...}\".");}
@@ -761,7 +761,6 @@ executable_block_statements : executable_statement
                             | executable_block_statements executable_statement
 ;
 
-
 block_statement : local_variable_declaration
                 | statement
 ;
@@ -772,10 +771,11 @@ executable_statement : if_then_declaration
                      | print_statement
                      | expression_statement
                      | empty_statement
+                     | class_declaration {Logger.logError(aLexico.getProgramPosition(), "No se permite declarar una clase en un bloque ejecutable.");}
+                     | interface_declaration {Logger.logError(aLexico.getProgramPosition(), "No se permite declarar una interface en un bloque ejecutable.");}
+                     | implement_for_declaration {Logger.logError(aLexico.getProgramPosition(), "No se permite declarar un impl for en un bloque ejecutable.");}
+                     | local_variable_declaration {Logger.logError(aLexico.getProgramPosition(), "No se permiten sentencias declarativas en un bloque ejecutable.");}
 ;
-
-
-
 
 local_variable_declaration : type variable_declarators ',' {
                               if (!($1.sval.isEmpty() || $2.sval.isEmpty())) {
@@ -837,7 +837,6 @@ if_then_cond : '(' equality_expression ')' {tercetos.addCondBranch($2.sval);}
 
 if_then_body : executable_statement 
              | executable_block
-             | local_variable_declaration {Logger.logError(aLexico.getProgramPosition(), "No se permiten sentencias declarativas en una sentencia IF.");}
 ;
 
 if_then_else_declaration : IF if_then_cond if_then_else_body END_IF ',' {
@@ -854,12 +853,10 @@ if_then_else_declaration : IF if_then_cond if_then_else_body END_IF ',' {
 
 if_else_then_body : executable_statement {tercetos.backPatching(1); tercetos.addUncondBranch(); tercetos.addLabel();}
                   | executable_block {tercetos.backPatching(1); tercetos.addUncondBranch(); tercetos.addLabel();}
-                  | local_variable_declaration {Logger.logError(aLexico.getProgramPosition(), "No se permiten sentencias declarativas en una sentencia IF.");}
 ;
 
 if_else_body : executable_statement
              | executable_block
-             | local_variable_declaration {Logger.logError(aLexico.getProgramPosition(), "No se permiten sentencias declarativas en una sentencia IF ELSE.");}
 ;
 
 if_then_else_body : if_else_then_body ELSE if_else_body
