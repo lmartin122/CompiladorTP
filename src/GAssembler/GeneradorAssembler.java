@@ -52,8 +52,9 @@ public class GeneradorAssembler {
             if (r.equals(Terceto.UNDEFINED))
                 return r;
             
-            if (Integer.valueOf(r) > number)
+            if(OP.equals("UB") || OP.equals("CB")){
                 return tag + "_" + Terceto.LABEL + r;
+            }
 
             return AUX + r + tag;
         }else{
@@ -260,7 +261,7 @@ public class GeneradorAssembler {
         }
     }
 
-    public static void generarConversionExplicita(String auxiliar) {
+    public static void generarConversionExplicita() {
         codigoAssembler.append("FILD ").append(OP1).append("\n");
     }
 
@@ -537,9 +538,7 @@ public class GeneradorAssembler {
         }
     }
 
-    public static void generarAssemblerOverflowFlotantes() {
-        // Comprueba el bit de overflow en el registro de flags. JA para mayor.
-        
+    public static void generarAssemblerOverflowFlotantes() {        
         codigoAssembler.append("FLD ").append(auxiliar).append("\n");
         codigoAssembler.append("FCOM").append("\n");
         codigoAssembler.append("FSTSW AX\n"); // Nos fijamos si hay overflow (estado del coprocesador)
@@ -547,14 +546,6 @@ public class GeneradorAssembler {
         codigoAssembler.append("JC ").append("overflow_DOUBLE").append("\n"); // Salta a la etiqueta si no hay overflow.
     }
 
-    // @main 
-    // ..
-    // f(), -> CALL, f@main, [-]
-    // Label@fmain
-    // ..
-    
-    // RETURN Label@main
-    //UB, [-], [30] 
     public static void generarAssemblerSaltoIncondicional() {
         codigoAssembler.append("JMP ").append(OP2).append("\n");
     }
@@ -637,9 +628,9 @@ public class GeneradorAssembler {
     public static void generarAssemblerTOD() {
 
         if (type.equals(Terceto.ERROR))
-            return; // A chequear
+            return;
 
-        generarConversionExplicita(generarVariableAuxiliar());
+        generarConversionExplicita();
     }
 
     public static String generarVariableAuxiliar() { // Generamos la variable auxiliar que
