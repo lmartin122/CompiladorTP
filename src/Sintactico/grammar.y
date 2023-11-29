@@ -306,8 +306,11 @@ inheritance_declaration : class_type ',' {
                                 ArrayList<String> ambitos = scope.getAmbitos();
                                 String _parentClass = $1.sval; 
                                 String _class = ambitos.get(1);
-
-                                TablaClases.addHerencia(_class, _parentClass);
+                                if (!TablaClases.tieneHerencia(_class)){
+                                    TablaClases.addHerencia(_class, _parentClass);
+                                } else {
+                                    Logger.logError(aLexico.getProgramPosition(), "No se permite herencia multiple");
+                                }
                                 Logger.logRule(aLexico.getProgramPosition(), "La clase " + _class + " hereda de " + _parentClass + ".");
                             } else {
                                 Logger.logError(aLexico.getProgramPosition(), "La clase a la cual se quiere heredar no existe");

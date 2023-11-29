@@ -324,6 +324,11 @@ public class TablaClases {
         return getAllAttribute(_class, (x, y) -> getAllAtributos(x, true), (e) -> getAtributos(e), true);
     }
 
+    public static boolean tieneHerencia(String _class){
+        return classes.get(_class).containsKey(HERENCIA);
+
+    }
+
     public static void addHerencia(String _class, String _inheritance) {
         addAttribute(_inheritance, _class, HERENCIA);
     };
