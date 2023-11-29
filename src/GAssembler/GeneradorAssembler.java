@@ -40,6 +40,7 @@ public class GeneradorAssembler {
     private static String OP1 = null;
     private static String OP2 = null;
     private static String type = null;
+    private static String uso = null;
     private static int number = 0;
     private static String salto = "";
 
@@ -66,21 +67,14 @@ public class GeneradorAssembler {
 
             if (esConstante(r)){
                 
-                if (TablaSimbolos.getTypeLexema(r).equals(TablaTipos.DOUBLE_TYPE))
+                if (TablaSimbolos.getTypeLexema(r).equals(TablaTipos.DOUBLE_TYPE)){
                     r = "_cte_" + r.replaceAll("\\.","");
-                if (TablaSimbolos.getTypeLexema(r).equals(TablaTipos.LONG_TYPE)){
-                    //System.out.println(" hola soy " + r);
-                    r = "_cte_" + r;
-                }
-
-                if (TablaSimbolos.getTypeLexema(r).equals(TablaTipos.UINT_TYPE)){
-                    if(OP.equals("TOD")){
-                        r = "_cte_" + r;
-                    }
+                    return r;
                 }
                     
-                
+                r = "_cte_" + r;
                 return r;
+                
             }
 
             return "__" + r;
@@ -141,29 +135,27 @@ public class GeneradorAssembler {
                         generarAssemblerSaltoIncondicional();
                         break;
 
-                    case "CB":
-                        // Nos fijamos a dónde tenemos que saltar en el segundo operando.
-                        // Mirar label de donde saltar, en generarOperando, en teoria lo tendria
+                    case "CB": //Salto condicional
                         generarAssemblerSaltoCondicional();
                         break;
 
-                    case "CALL":
+                    case "CALL": //Llamada a función
                         generarAssemblerInvocacion();
                         break;
 
-                    case "RETURN":
+                    case "RETURN": //Cierre de función
                         generarAssemblerReturn();
                         break;
 
-                    case "TOD":
+                    case "TOD": //Conversión explícita
                         generarAssemblerTOD();
                         break;
 
-                    case "PRINT":
+                    case "PRINT": //Invocación de una cadena de texto
                         generarAssemblerPrint();
                         break;
 
-                    default:
+                    default: //Terceto con una etiqueta para saltar. 
                         if (OP.contains(Terceto.LABEL)) {
                             codigoAssembler.append(tag + "_" + OP + ":").append("\n");
                         } else {
@@ -226,50 +218,54 @@ public class GeneradorAssembler {
     public static void generarCodigoVariables(StringBuilder librerias) { // Generamos el código para las variables declaradas.
         for (String func : TablaSimbolos.getTablaSimbolos()) {
             type = TablaSimbolos.getTypeLexema(func);
-            
+            uso = TablaSimbolos.getUse(func);
         
-            if(TablaSimbolos.isFunction(func)){
+            if(TablaSimbolos.isFunction(func)){ //Si es una función, declaramos la constante para controlar la recursividad.
                 librerias.append("__").append(func).append(" DWORD 0 \n");
             } else {
-                switch (type) {
-                case TablaTipos.UINT_TYPE:
-                    if (!esConstante(func)) { // Si no es una constante, la declaramos como variable lexema.
-                        librerias.append(getPrefix(func)).append(func).append(" dw ? \n");
-                    } else {
-                        librerias.append("_cte_" + func).append(" dw " + func + "\n");
-                    }
-                    break;
-                case TablaTipos.DOUBLE_TYPE:
-                    if (!esConstante(func)) {
-                            librerias.append(getPrefix(func)).append(func).append(" dq ? \n");
-                    } else {
-                        librerias.append("_cte_" + func.replaceAll("\\.", "")).append(" dq " + func + "\n");
-                    }
-                    break;
-                case TablaTipos.LONG_TYPE:
-                    if (!esConstante(func)) {
-                        librerias.append(getPrefix(func)).append(func).append(" dd ? \n");
-                    } else {
-                        librerias.append("_cte_" + func).append(" dd " + func.substring(0, func.indexOf("L")) + "\n");
-                    }
-                    break;
-                case TablaTipos.STRING:
-                        librerias.append(getPrefix(func)).append(func).append(" db ").append("\"" + func + "\"").append(", 0 \n");
-                    break;
-                default:
-                    break;
+                if (type != null){
+                    switch (type) { //Si no, declaramos la constante o variable para cada símbolo correspondiente.
+                    case TablaTipos.UINT_TYPE:
+                        if (!esConstante(func)) {
+                            librerias.append(getPrefix(func)).append(func).append(" dw ? \n");
+                        } else {
+                            librerias.append("_cte_" + func).append(" dw " + func + "\n");
+                        }
+                        break;
+                    case TablaTipos.DOUBLE_TYPE:
+                        if (!esConstante(func)) {
+                                librerias.append(getPrefix(func)).append(func).append(" dq ? \n");
+                        } else {
+                            librerias.append("_cte_" + func.replaceAll("\\.", "")).append(" dq " + func + "\n");
+                        }
+                        break;
+                    case TablaTipos.LONG_TYPE:
+                        if (!esConstante(func)) {
+                            librerias.append(getPrefix(func)).append(func).append(" dd ? \n");
+                        } else {
+                            librerias.append("_cte_" + func).append(" dd " + func.substring(0, func.indexOf("L")) + "\n");
+                        }
+                        break;
+                    case TablaTipos.STRING:
+                            librerias.append(getPrefix(func)).append(func.replaceAll("\\s","\\_")).append(" db ").append("\"" + func + "\"").append(", 0 \n");
+                        break;
+                    default:
+                        break;
                 }
+                } else{
+                    return;
+                }
+                
             }
         }
     }
 
     public static void generarConversionExplicita(String auxiliar) {
-        // Ver conversión
         codigoAssembler.append("FILD ").append(OP1).append("\n");
     }
 
     public static void generarAssemblerPrint(){
-        codigoAssembler.append("invoke MessageBoxA, NULL, ADDR " + OP1 + ", ADDR "+ OP1 + ", MB_OK \n");
+        codigoAssembler.append("invoke MessageBoxA, NULL, ADDR " + OP1.replaceAll("\\s","\\_") + ", ADDR "+ OP1.replaceAll("\\s","\\_") + ", MB_OK \n");
     }
 
     public static void generarCodigoOperacionesEnterosConSigno() { 
@@ -567,25 +563,26 @@ public class GeneradorAssembler {
         
         switch (salto) {
             case "JE ": //Equal
-                codigoAssembler.append("JNE ").append(OP2).append("\n");
-                break;
-            case "JNE ": //Non equal
                 codigoAssembler.append("JE ").append(OP2).append("\n");
                 break;
+            case "JNE ": //Non equal
+                codigoAssembler.append("JNE ").append(OP2).append("\n");
+                break;
             case "JLE ": //Less Equal
-                codigoAssembler.append("JG ").append(OP2).append("\n");
-                break;
-            case "JGE ": //Greater Equal
-                codigoAssembler.append("JL ").append(OP2).append("\n");
-                break;
-            case "JL ": //Less
-                codigoAssembler.append("JGE ").append(OP2).append("\n");
-                break;
-            case "JG ": //Greater
                 codigoAssembler.append("JLE ").append(OP2).append("\n");
                 break;
+            case "JGE ": //Greater Equal
+                codigoAssembler.append("JGE ").append(OP2).append("\n");
+                break;
+            case "JL ": //Less
+                codigoAssembler.append("JL ").append(OP2).append("\n");
+                break;
+            case "JG ": //Greater
+                codigoAssembler.append("JG ").append(OP2).append("\n");
+                break;
             default:
-                System.out.println("hola estoy en defualts");
+                codigoAssembler.append("invoke MessageBoxA, NULL, ADDR _ERROR_POR_PANTALLA, ADDR _ERROR_POR_PANTALLA, MB_OK \n");
+                codigoAssembler.append("invoke ExitProcess, 0\n");
                 break;
         }
     }
