@@ -58,6 +58,7 @@ public class GeneradorAssembler {
 
             return AUX + r + tag;
         }else{
+            r = r.replaceAll("\\.","\\_");
             if(OP.equals("CALL"))
                 return r;
             
@@ -67,11 +68,6 @@ public class GeneradorAssembler {
             
 
             if (esConstante(r)){
-                
-                if (TablaSimbolos.getTypeLexema(r).equals(TablaTipos.DOUBLE_TYPE)){
-                    r = "_cte_" + r.replaceAll("\\.","");
-                    return r;
-                }
                     
                 r = "_cte_" + r;
                 return r;
@@ -220,7 +216,7 @@ public class GeneradorAssembler {
         for (String func : TablaSimbolos.getTablaSimbolos()) {
             type = TablaSimbolos.getTypeLexema(func);
             uso = TablaSimbolos.getUse(func);
-        
+            
             if(TablaSimbolos.isFunction(func)){ //Si es una función, declaramos la constante para controlar la recursividad.
                 librerias.append("__").append(func).append(" DWORD 0 \n");
             } else {
@@ -228,21 +224,21 @@ public class GeneradorAssembler {
                     switch (type) { //Si no, declaramos la constante o variable para cada símbolo correspondiente.
                     case TablaTipos.UINT_TYPE:
                         if (!esConstante(func)) {
-                            librerias.append(getPrefix(func)).append(func).append(" dw ? \n");
+                            librerias.append(getPrefix(func)).append(func.replaceAll("\\.","\\_")).append(" dw ? \n");
                         } else {
                             librerias.append("_cte_" + func).append(" dw " + func + "\n");
                         }
                         break;
                     case TablaTipos.DOUBLE_TYPE:
                         if (!esConstante(func)) {
-                                librerias.append(getPrefix(func)).append(func).append(" dq ? \n");
+                                librerias.append(getPrefix(func)).append(func.replaceAll("\\.","\\_")).append(" dq ? \n");
                         } else {
                             librerias.append("_cte_" + func.replaceAll("\\.", "")).append(" dq " + func + "\n");
                         }
                         break;
                     case TablaTipos.LONG_TYPE:
                         if (!esConstante(func)) {
-                            librerias.append(getPrefix(func)).append(func).append(" dd ? \n");
+                            librerias.append(getPrefix(func)).append(func.replaceAll("\\.","\\_")).append(" dd ? \n");
                         } else {
                             librerias.append("_cte_" + func).append(" dd " + func.substring(0, func.indexOf("L")) + "\n");
                         }
@@ -254,7 +250,7 @@ public class GeneradorAssembler {
                         break;
                 }
                 } else{
-                    return;
+                    System.out.println("Estoy en una clase.");
                 }
                 
             }
