@@ -10,7 +10,7 @@ import Lexico.AnalizadorLexico;
 import GCodigo.Tercetos;
 import GCodigo.Scope;
 
-import GWebAssembly.GeneradorAssembler;
+import GAssembler.GeneradorAssembler;
 
 import Tools.Logger;
 import Tools.Tupla;
@@ -103,8 +103,10 @@ class_name : ID {
             }
 ;
 
-class_body : '{' class_body_declarations '}' 
+class_body : '{' class_body_declarations inheritance_declaration '}'
+           | '{' '}'
            | '(' class_body_declarations ')' {Logger.logError(aLexico.getProgramPosition(), "La declaracion de una clase debe estar delimitado por llaves \"{...}\".");}
+           | '(' ')' {Logger.logError(aLexico.getProgramPosition(), "La declaracion de una clase debe estar delimitado por llaves \"{...}\".");}
 ;
 
 class_body_declarations : class_body_declaration
@@ -392,8 +394,8 @@ implement_for_declaration : IMPL FOR reference_class ':' implement_for_body
 ;
 
 implement_for_body : '{' implement_for_body_declarations '}' 
-                   | '(' implement_for_body_declarations ')' {Logger.logError(aLexico.getProgramPosition(), "El cuerpo de la interface debe estar delimitado por llaves \"{...}\".");}
                    | '{' '}'
+                   | '(' implement_for_body_declarations ')' {Logger.logError(aLexico.getProgramPosition(), "El cuerpo de la interface debe estar delimitado por llaves \"{...}\".");}
                    | '(' ')' {Logger.logError(aLexico.getProgramPosition(), "El cuerpo de la interface debe estar delimitado por llaves \"{...}\".");}
 ;
 
@@ -543,11 +545,12 @@ conversion_expression : TOD '(' arithmetic_operation ')' {
                           $$ = new ParserVal(tercetos.add("TOD", $3.sval, "-"));
                           tercetos.TODtracking($$.sval);
                           Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una conversion explicita.");
-                       }
+                      }
                       | TOD '(' error ')' {Logger.logError(aLexico.getProgramPosition(), "No se puede convertir la expresion declarada.");}
                       | TOD '{' error '}' {Logger.logError(aLexico.getProgramPosition(), "El metodo TOD debe estar delimitado por parentesis \"(...)\".");}
                       | TOD '{' '}' {Logger.logError(aLexico.getProgramPosition(), "El metodo TOD debe estar delimitado por parentesis \"(...)\".");}
                       | TOD '(' ')' {Logger.logError(aLexico.getProgramPosition(), "Es necesario pasar una expresion aritmetica.");}
+                      | TOD {Logger.logError(aLexico.getProgramPosition(), "TOD es un operador unario, es necesario pasarle una expresion entre parentesis.");}
 ;
 
 factor : CTE_DOUBLE {$$ = new ParserVal($1.sval); } 
@@ -561,7 +564,7 @@ factor : CTE_DOUBLE {$$ = new ParserVal($1.sval); }
               } else{
                   $$ = new ParserVal(TablaTipos.negarLong($2.sval));
               }
-        }
+       }
        | '-'CTE_UINT {Logger.logError(aLexico.getProgramPosition() ,"Los tipos UINT deben ser sin signo."); $$ = new ParserVal($2.sval);}
 ;
 
@@ -613,8 +616,8 @@ invocation : reference_function '(' real_parameter ')' {
                     Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a una funcion, con pj de parametro.");
                 } 
             }
-            | reference_method '{' error '}'
-            | reference_function '{' error '}'
+            | reference_method '{' error '}' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
+            | reference_function '{' error '}' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
             | reference_function '(' real_parameter error ')' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
             | reference_method '(' real_parameter error ')' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
 ;
@@ -863,16 +866,19 @@ if_then_else_body : if_else_then_body ELSE if_else_body
 ;
 
 for_in_range_statement : FOR for_in_range_initializer IN RANGE for_in_range_cond for_in_range_body {
-                          Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia FOR IN RANGE.");
-                          tercetos.add("+", $2.sval, "-");
-                          tercetos.backPatching();
-                          tercetos.stack();
-                          tercetos.add("=", $2.sval, $$.sval);
-                          tercetos.backPatching();
-                          tercetos.addUncondBranch(false);
-                          tercetos.backPatching(0); //Agrego el salto del CB
-                          tercetos.backPatching(); //Agrego el salgo del UB
-                          tercetos.addLabel();
+                          if (!($2.sval.isEmpty() || $4.sval.isEmpty())){
+                            tercetos.add("+", $2.sval, "-");
+                            tercetos.backPatching();
+                            tercetos.stack();
+                            tercetos.add("=", $2.sval, $$.sval);
+                            tercetos.backPatching();
+                            tercetos.addUncondBranch(false);
+                            tercetos.backPatching(0); //Agrego el salto del CB
+                            tercetos.backPatching(); //Agrego el salgo del UB
+                            tercetos.addLabel();
+                          } else
+                            $$ = new ParserVal("");
+
                          }
 ;
 
@@ -887,11 +893,14 @@ for_in_range_initializer : reference_type {
                          | error IN {Logger.logError(aLexico.getProgramPosition(), "Error en la signatura del FOR IN RANGE.");}
 ;
 
+// No usamos directamente los token CTE dado que tendriamos que volver a chequear el rango y si tiene signo, lo mejor
+// hubiese sido hacer un solo token de CTE, aca estamos volviendo a preguntar por el tipo
 for_in_range_cond : '(' for_init ';' for_end ';' for_update ')' {
                       String msj = TablaTipos.checkTypeCondition($2.sval, $4.sval, $6.sval);
 
                       if (!msj.isEmpty()) {
                         Logger.logError(aLexico.getProgramPosition(), msj);
+                        $$ = new ParserVal("");
                       } else {
                         tercetos.backPatching($2.sval);
                         String ref = tercetos.addLabel();
@@ -902,7 +911,8 @@ for_in_range_cond : '(' for_init ';' for_end ';' for_update ')' {
                         tercetos.stack("+" + $6.sval);
                       }
                   }
-                  | '(' for_init ',' for_end ',' for_update ')' {Logger.logError(aLexico.getProgramPosition(), "Las constantes de actualizacion deben estar separadas por ';'.");}
+                  | '(' for_init ',' for_end ',' for_update ')' {$$ = new ParserVal(""); Logger.logError(aLexico.getProgramPosition(), "Las constantes de actualizacion deben estar separadas por ';'.");}
+                  | '{' for_init error '}' {$$ = new ParserVal(""); Logger.logError(aLexico.getProgramPosition(), "La condicion del FOR IN RANGE debe estar delimitada por parentesis '(...)'.");}
 ;
 
 for_in_range_body : executable_block

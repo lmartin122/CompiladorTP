@@ -126,7 +126,7 @@ public class Terceto {
     }
 
     public static boolean isNumeric(String ref) {
-        return ref.matches("[0-9]+");
+        return Character.isDigit(ref.charAt(0));
     }
 
     public int getNumber() {
