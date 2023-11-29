@@ -17,6 +17,7 @@ import Tools.TablaTipos;
 public class GeneradorAssembler {
 
     public static StringBuilder codigoAssembler = new StringBuilder();
+    private static StringBuilder codigoFunciones = new StringBuilder();
     public static HashMap<String, Integer> tercetosAsociados = new HashMap<>();
     
     private static String auxiliar2bytes = "@variable2bytes";
@@ -41,9 +42,6 @@ public class GeneradorAssembler {
     private static String type = null;
     private static int number = 0;
     private static String salto = "";
-    private static StringBuilder codigoFunciones = new StringBuilder();
-    private static HashMap<String,String> cadenas = new HashMap<>();
-    private static HashMap<String,String> doubles = new HashMap<>();
 
 
     private static String getOperando(String r) {
@@ -58,14 +56,36 @@ public class GeneradorAssembler {
 
             return AUX + r + tag;
         }else{
-            if(OP.equals("PRINT") || OP.equals("CALL"))
+            if(OP.equals("CALL"))
                 return r;
             
+            if(OP.equals("PRINT"))
+                return "__" + r;
+            
+            
+
             if (esConstante(r)){
-                if(!TablaSimbolos.getTypeLexema(r).equals(TablaTipos.DOUBLE_TYPE))
-                    r = r.replaceAll("\\D", "");
+                
+                if (TablaSimbolos.getTypeLexema(r).equals(TablaTipos.DOUBLE_TYPE))
+                    r = "_cte_" + r.replaceAll("\\.","");
+                if (TablaSimbolos.getTypeLexema(r).equals(TablaTipos.LONG_TYPE)){
+                    //System.out.println(" hola soy " + r);
+                    if(OP.equals("TOD")){
+                        r = "_cte_" + r + "_TOD";
+                    }
+                    r = r.substring(0, r.indexOf("L"));
+                }
+
+                if (TablaSimbolos.getTypeLexema(r).equals(TablaTipos.UINT_TYPE)){
+                    if(OP.equals("TOD")){
+                        r = "_cte_" + r + "_TOD";
+                    }
+                }
+                    
+                
                 return r;
             }
+
             return "__" + r;
         }
     }
@@ -202,159 +222,59 @@ public class GeneradorAssembler {
 
     }
 
+    private static String getPrefix(String ref){
+        return (ref.startsWith(Scope.SEPARATOR))? "" : "__";
+    }
+
     public static void generarCodigoVariables(StringBuilder librerias) { // Generamos el código para las variables declaradas.
         for (String func : TablaSimbolos.getTablaSimbolos()) {
-            //System.out.println("FUNC " + func);
             type = TablaSimbolos.getTypeLexema(func);
             
-            if (type != null){
-            if (func.startsWith("@")) {
-                if (type.equals(TablaTipos.LONG_TYPE)) {
-                    librerias.append(func).append(" dd ? \n");
-                } else if (type.equals(TablaTipos.UINT_TYPE))
-                    librerias.append(func).append(" dw ? \n");
-                else if (type.equals(TablaTipos.DOUBLE_TYPE)) {
-                    librerias.append(func).append(" dq ? \n");
-                } else if (type.equals(TablaTipos.STRING)) {
-                    func = "cadena_" + func;
-                    if(func.contains("@aux")){
-                        for(Map.Entry<String,String> entrada: cadenas.entrySet()){
-                            if(entrada.getKey().equals(func)){
-                                librerias.append(entrada.getKey()).append(" db \"" + entrada.getValue() +"\", 0\n");
-                            }
-                        }
-                    }
-                }
-            }   
-                
+        
+            if(TablaSimbolos.isFunction(func)){
+                librerias.append("__").append(func).append(" DWORD 0 \n");
+            } else {
                 switch (type) {
                 case TablaTipos.UINT_TYPE:
-                    if (!esConstante(func) && !func.startsWith("@")) { // Si no es una constante, la declaramos como variable con su
-                                                    // lexema.
-                        librerias.append("__").append(func).append(" dw ? \n");
+                    if (!esConstante(func)) { // Si no es una constante, la declaramos como variable lexema.
+                        librerias.append(getPrefix(func)).append(func).append(" dw ? \n");
+                    } else {
+                        if(OP.equals("TOD"))
+                            librerias.append("_cte_" + func.replaceAll("\\.", "")).append(" dw " + func + "\n");
                     }
                     break;
                 case TablaTipos.DOUBLE_TYPE:
-                    System.out.println("EL FUNC ES " + func);
-                    if (!esConstante(func) && !func.startsWith("@")) {
-                        System.out.println("NO SOY UN AXULIAR " + func);
-                        librerias.append("__").append(func).append(" dq ? \n");
+                    if (!esConstante(func)) {
+                            librerias.append(getPrefix(func)).append(func).append(" dq ? \n");
+                    } else {
+                        librerias.append("_cte_" + func.replaceAll("\\.", "")).append(" dq " + func + "\n");
                     }
                     break;
                 case TablaTipos.LONG_TYPE:
-                    if (!esConstante(func) && !func.startsWith("@")) {
-                        librerias.append("__").append(func).append(" dd ? \n");
+                    if (!esConstante(func)) {
+                        librerias.append(getPrefix(func)).append(func).append(" dd ? \n");
+                    } else {
+                        if(OP.equals("TOD"))
+                            librerias.append("_cte_" + func.replaceAll("\\.", "")).append(" dd " + func + "\n");
                     }
-                    break;                    
-            }
-            } else {
-                if(TablaSimbolos.isFunction(func)){
-                    librerias.append("__").append(func).append(" DWORD 0 \n");
+                    break;
+                case TablaTipos.STRING: //__Hola db "Hola", 0
+                        librerias.append(getPrefix(func)).append(func).append(" db ").append("\"" + func + "\"").append(", 0 \n");
+                    break;
+                default:
+                    break;
                 }
-                 
-                }
-                
             }
-            
-
+        }
     }
 
-    /*public static void generarCodigoFunciones(Tercetos tercetosGenerados){
-        
-        //codigoFunciones.append("HOLA ESTOY VIENDO DONDE ESTARIA ESTO EN EL CODIGO\n");
-        //codigoFunciones.append(AUX);
-        for (Map.Entry<String, ArrayList<Terceto>> func : tercetosGenerados.getTercetos().entrySet()) {
-        for (Terceto terceto : func.getValue()) {
-                number = terceto.getNumber();
-                type = terceto.getType();
-                OP = terceto.getFirst();
-                OP1 = getOperando(terceto.getSecond());
-                OP2 = getOperando(terceto.getThird());
-                
-                if (type != null && type.equals(Terceto.ERROR)) {
-                    codigoAssembler.append("invoke MessageBoxA, NULL, ADDR _ERROR_POR_PANTALLA, ADDR _ERROR_POR_PANTALLA, MB_OK \n");
-                    codigoAssembler.append("invoke ExitProcess, 0\n");
-                    codigoAssembler.append("end " + tag);
-                } else    
-                switch (OP) {
-                    case "*":
-                    case "+":
-                    case "-":
-                    case "/":
-                    case "=":
-                    case ">=":
-                    case ">":
-                    case "<=":
-                    case "<":
-                    case "!!":
-                    case "==":
-                        switch (type) {
-                            case TablaTipos.UINT_TYPE:
-                                generarCodigoOperacionesEnterosSinSigno();
-                                break;
-                            case TablaTipos.LONG_TYPE:
-                                generarCodigoOperacionesEnterosConSigno();
-                                break;
-                            case TablaTipos.DOUBLE_TYPE:
-                                generarCodigoOperacionesDouble();
-                                break;
-                            default:
-                                break;
-                        }
-
-                        break;
-                    case "UB": //Salto incondicional.
-                        generarAssemblerSaltoIncondicional();
-                        break;
-
-                    case "CB":
-                        // Nos fijamos a dónde tenemos que saltar en el segundo operando.
-                        // Mirar label de donde saltar, en generarOperando, en teoria lo tendria
-                        generarAssemblerSaltoCondicional();
-                        break;
-
-                    case "CALL":
-                        generarAssemblerInvocacion();
-                        break;
-
-                    case "RETURN":
-                        generarAssemblerReturn();
-                        break;
-
-                    case "TOD":
-                        generarAssemblerTOD();
-                        break;
-
-                    case "PRINT":
-                        generarAssemblerPrint();
-                        break;
-
-                    default:
-                        if (OP.contains(Terceto.LABEL)) {
-                            codigoAssembler.append(tag + "_" + OP + ":").append("\n");
-                        } else {
-                            codigoAssembler
-                                    .append("invoke MessageBoxA, NULL, ADDR _ERROR_POR_PANTALLA, ADDR _ERROR_POR_PANTALLA, MB_OK \n");
-                            codigoAssembler.append("invoke ExitProcess, 0\n");
-                            codigoAssembler.append("end START");
-                        }
-                        break;
-                }
-            }
-            }
-
-    }*/
-
     public static void generarConversionExplicita(String auxiliar) {
-        // El auxiliar es para guardar la conversion del tod
+        // Ver conversión
         codigoAssembler.append("FILD ").append(OP1).append("\n");
     }
 
     public static void generarAssemblerPrint(){
-        auxiliar = "cadena_" + generarVariableAuxiliar();
-        System.out.println("ESTOY ASOCIANDO " + auxiliar + " CON " + OP1);
-        cadenas.put(auxiliar, OP1);
-        codigoAssembler.append("invoke MessageBoxA, NULL, ADDR " + auxiliar + " , ADDR "+ auxiliar + ", MB_OK \n");
+        codigoAssembler.append("invoke MessageBoxA, NULL, ADDR " + OP1 + ", ADDR "+ OP1 + ", MB_OK \n");
     }
 
     public static void generarCodigoOperacionesEnterosConSigno() { 
@@ -523,24 +443,21 @@ public class GeneradorAssembler {
                 break;
             case "-":
                 codigoAssembler.append("FLD ").append(OP2).append("\n");
-                codigoAssembler.append("FLD ").append(OP1).append("\n");
-                codigoAssembler.append("FSUB ").append("\n"); 
+                codigoAssembler.append("FSUB ").append(OP1).append("\n");
                 auxiliar = generarVariableAuxiliar();
                 codigoAssembler.append("FST ").append(auxiliar).append("\n");
                 break;
 
             case "*":
                 codigoAssembler.append("FLD ").append(OP2).append("\n");
-                codigoAssembler.append("FLD ").append(OP1).append("\n");
-                codigoAssembler.append("FMUL ").append("\n"); 
+                codigoAssembler.append("FMUL ").append(OP1).append("\n");
                 auxiliar = generarVariableAuxiliar();
                 codigoAssembler.append("FST ").append(auxiliar).append("\n");
                 break;
 
             case "/":
                 codigoAssembler.append("FLD ").append(OP2).append("\n");
-                codigoAssembler.append("FLD ").append(OP1).append("\n");
-                codigoAssembler.append("FDIV ").append("\n"); 
+                codigoAssembler.append("FDIV ").append(OP1).append("\n");
                 auxiliar = generarVariableAuxiliar();
                 codigoAssembler.append("FST ").append(auxiliar).append("\n");
                 break;
@@ -720,10 +637,6 @@ public class GeneradorAssembler {
 
     }
 
-    public static void asociarDoubles(){
-        doubles.put(ERROR_MSJ_POR_PANTALLA, AUX);
-    }
-
     public static void generarAssemblerReturn() {
         codigoAssembler.append("RET ").append("\n");    
         codigoAssembler.append("\n");
@@ -742,15 +655,9 @@ public class GeneradorAssembler {
                                                      // conversiones y las operaciones
                                                      // aritméticas.
         auxiliar = AUX + number + tag;
-        if(type != null){
-            TablaSimbolos.addIdentificador(auxiliar);
-            TablaSimbolos.addTipo(type, auxiliar);
-            return auxiliar;
-        } else{
-            TablaSimbolos.addIdentificador(auxiliar);
-            TablaSimbolos.addTipo(TablaTipos.STRING, auxiliar);
-            return auxiliar;
-        }
+        TablaSimbolos.addIdentificador(auxiliar);
+        TablaSimbolos.addTipo(type, auxiliar);
+        return auxiliar;
     }
 
     private static boolean esConstante(String s) { // Nos fijamos el uso para ver si es una constante o identificador.

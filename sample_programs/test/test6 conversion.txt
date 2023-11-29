@@ -1,0 +1,7 @@
+{
+    LONG a;b,
+    DOUBLE c,
+    c = TOD(10_ui),
+    a = 10_l,
+    c = TOD(a),
+}
