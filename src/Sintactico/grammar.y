@@ -42,7 +42,7 @@ program : '{' type_declarations '}'
         | '{' '}'
         |
         | '(' ')' {Logger.logError(aLexico.getProgramPosition(), "Un programa debe estar delimitado por llaves '{}'.");} 
-        | error {Logger.logError(aLexico.getProgramPosition(), "No se reconocio el programa.");} 
+        | error 
 ;
 
 /*
@@ -122,7 +122,6 @@ class_member_declaration : field_declaration
 ;
 
 field_declaration : type variable_declarators ',' {
-                      System.out.println("Las variables son las siguientes, estoy en gramatica " + $2.sval);
                       if (!($1.sval.isEmpty() || $2.sval.isEmpty())) {
                         ArrayList<String> ambitos = scope.getAmbitos($2.sval);
                         String _attributes = ambitos.get(0);
@@ -136,11 +135,12 @@ field_declaration : type variable_declarators ',' {
                         
                         if (TablaSimbolos.isClass($1.sval + Scope.getScopeMain())) {
                             TablaClases.addAtributos($1.sval, _attributes, _class);
-                            TablaClases.addInstancia($1.sval, $2.sval);
+                            TablaClases.addInstancia($1.sval, $2.sval, aLexico.getProgramPosition());
                             TablaSimbolos.addUsoInstancia($2.sval);
                         }
                         else {
                             TablaSimbolos.addUsedVariables($2.sval);
+                            TablaSimbolos.addPositions($2.sval, aLexico.getProgramPosition());
                             TablaClases.addAtributos(_attributes, _class);
                         }
                       }
@@ -165,7 +165,6 @@ variable_declarators : variable_declarator
 
 variable_declarator : variable_declarator_id
                     | variable_declarator_id '=' variable_initializer {Logger.logError(aLexico.getProgramPosition(), "No esta permitida la inicialización en la declaracion de variables.");}
-                    | variable_declarator_id error '=' variable_initializer {Logger.logError(aLexico.getProgramPosition(), "No esta permitida la inicialización en la declaracion de variables.");}
                     | variable_declarator_id EQUAL_OPERATOR variable_initializer {Logger.logError(aLexico.getProgramPosition(), "No esta permitida la inicialización en la declaracion de variables.");}
                     | variable_declarator_id NOT_EQUAL_OPERATOR variable_initializer {Logger.logError(aLexico.getProgramPosition(), "No esta permitida la inicialización en la declaracion de variables.");}
                     | variable_declarator_id LESS_THAN_OR_EQUAL_OPERATOR variable_initializer {Logger.logError(aLexico.getProgramPosition(), "No esta permitida la inicialización en la declaracion de variables.");}
@@ -287,18 +286,21 @@ method_body : block
 
 
 
-formal_parameter : type variable_declarator_id {
+formal_parameter : type variable_declarator {
                       if (TablaSimbolos.isClass($1.sval + Scope.getScopeMain())) 
                         Logger.logError(aLexico.getProgramPosition(), "No se permite que un parametro formal sea del tipo de una clase.");
                       
                       if (!$2.sval.isEmpty()) {
                           $$ = new ParserVal($2.sval);
                           TablaSimbolos.addTipoVariable($1.sval, $2.sval);
+                          TablaSimbolos.addUsedVariables($2.sval);
+                          TablaSimbolos.addPositions($2.sval, aLexico.getProgramPosition());
                       } else $$ = new ParserVal(""); 
                   }
 ;
 
 real_parameter : arithmetic_operation
+               | type variable_declarator {Logger.logError(aLexico.getProgramPosition(), "No se permite una declaración de variable en un parametro real.");}
 ;
 
 inheritance_declaration : class_type ',' {
@@ -616,10 +618,10 @@ invocation : reference_function '(' real_parameter ')' {
                     Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una invocacion a una funcion, con pj de parametro.");
                 } 
             }
-            | reference_method '{' error '}' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
-            | reference_function '{' error '}' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
             | reference_function '(' real_parameter error ')' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
+            | reference_function '{' error '}' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
             | reference_method '(' real_parameter error ')' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
+            | reference_method '{' error '}' {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
 ;
 /*
 
@@ -782,10 +784,12 @@ local_variable_declaration : type variable_declarators ',' {
                                 TablaSimbolos.addTipoVariable($1.sval, $2.sval);                      
 
                                 if (TablaSimbolos.isClass($1.sval + Scope.getScopeMain())) {
-                                  TablaClases.addInstancia($1.sval, $2.sval);
+                                  TablaClases.addInstancia($1.sval, $2.sval, aLexico.getProgramPosition());
                                   TablaSimbolos.addUsoInstancia($2.sval);
-                                } else
+                                } else {
                                   TablaSimbolos.addUsedVariables($2.sval);
+                                  TablaSimbolos.addPositions($2.sval, aLexico.getProgramPosition());
+                                }
                                 Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una declaracion de variable local.");
                               } 
                             }
@@ -968,7 +972,7 @@ int yylex() {
 
 // This method is expected by BYACC/J, and is used to provide error messages to be directed to the channels the user desires.
 void yyerror(String msg) {
-    System.out.println("Error en el parser: " + msg + " in " + val_peek(0).sval);
+   {Logger.logError(aLexico.getProgramPosition(), "No se reconocio el programa.");} 
 }
 
 
@@ -1082,23 +1086,18 @@ public static void main (String [] args) throws IOException {
 
     //Borrado de los identificadores que quedan sin ambito
     TablaSimbolos.purge();
-
-    
+    TablaSimbolos.variablesHaventBeenUsed();
 
     if (!Logger.errorsOcurred()){
-      System.out.println("Se generó el Assembler.\n"); //Para la parte 4, generacion de codigo maquina
       tercetos.printRules();
-      GeneradorAssembler.generarCodigoAssembler(tercetos);
-      Logger.dumpASM();
-      System.out.println("ASSEMBLER \n" + GeneradorAssembler.codigoAssembler);
-    } else 
-      System.out.println("Se produjeron errores.\n");
-      
+      /* GeneradorAssembler.generarCodigoAssembler(tercetos); */
+      /* Logger.dumpASM(); */
+      /* System.out.println("ASSEMBLER \n" + GeneradorAssembler.codigoAssembler); */
+    }
+
+
     //aSintactico.dump_stacks(yylval_recognition);
     System.out.println(Logger.dumpLog());
-
-
-
     System.out.println(aLexico.getProgram());
 }
 

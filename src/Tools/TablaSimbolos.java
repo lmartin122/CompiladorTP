@@ -26,15 +26,7 @@ public class TablaSimbolos {
     public static final String USADO = "usada_r";
     public static final String PARAMETRO = "parametro";
     public static final String IMPLEMENTADO = "implementado";
-    // private static int identifierNumber = 0;
-
-    // private static void addTipo(String tipo, String key) {
-    // try {
-    // tablaSimbolos.get(key).put(TIPO, tipo);
-    // } catch (Exception e) {
-    // System.out.println("NO SE ENCONTRO LA KEY EN EL MAPA");
-    // }
-    // };
+    public static final String POSICION = "linea_d";
 
     public static void addTipo(String tipo, String variable) {
         addAtributo(variable, TIPO, tipo);
@@ -239,10 +231,6 @@ public class TablaSimbolos {
                 .removeIf(entry -> Scope.outMain(entry.getKey()) && entry.getValue().containsKey(USO));
     }
 
-    public static void purge(String ref) {
-
-    }
-
     private static boolean hasAttribute(String k, String a) {
         if (containsKey(k)) {
             String uso = tablaSimbolos.get(k).get(USO);
@@ -347,26 +335,50 @@ public class TablaSimbolos {
         tablaSimbolos.get(r).put(USADO, "True");
     }
 
-    // Pense que me iba a funcionar pero no je
-    // public static ArrayList<String> getListAttributes(String lexema, String
-    // scope) {
-    // if (!containsKey(lexema))
-    // return null;
+    private static boolean hasBeenUsed(String r) {
+        if (!tablaSimbolos.get(r).containsKey(USADO))
+            return true;
 
-    // ArrayList<String> out = new ArrayList<>();
+        return tablaSimbolos.get(r).get(USADO).equals("True");
+    }
 
-    // for (String k : getTablaSimbolos()) {
-    // int i = k.indexOf(Scope.SEPARATOR);
-    // String splitL = k.substring(0, i);
-    // String splitR = k.substring(i + 1);
+    public static void addPositions(String r, int p) {
 
-    // if (splitL.contains(lexema + TablaClases.ATTRIBUTE_SEPARATOR) &&
-    // splitR.equals(scope))
-    // out.add(k);
-    // }
+        int i = r.indexOf(Scope.SEPARATOR);
+        String ambito = r.substring(i);
+        r = r.substring(0, i);
+        String[] variables = r.split(";");
 
-    // return out;
-    // }
+        for (String var : variables) {
+            // System.out.println("la variable " + var);
+            addPosition(var + ambito, p);
+        }
+    }
+
+    public static void addPosition(String r, int p) {
+        if (!containsKey(r))
+            return;
+
+        tablaSimbolos.get(r).put(POSICION, String.valueOf(p));
+    }
+
+    private static String getPosition(String r) {
+        return tablaSimbolos.get(r).get(POSICION);
+    }
+
+    public static void variablesHaventBeenUsed() {
+        for (HashMap.Entry<String, TreeMap<String, String>> m : tablaSimbolos.entrySet()) {
+            String key = m.getKey();
+
+            if (!hasBeenUsed(key)) {
+                String pos = getPosition(key);
+                Logger.logWarning(Integer.valueOf(pos),
+                        "La variable " + key + " no fue usada del lado derecho de una asignación.");
+            }
+
+        }
+
+    }
 
     public static ArrayList<String> getTablaSimbolos() {
         return new ArrayList<>(tablaSimbolos.keySet());

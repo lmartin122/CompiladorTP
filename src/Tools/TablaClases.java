@@ -20,7 +20,7 @@ public class TablaClases {
 
     public static final String TYPE_SEPARATOR = ":";
     public static final String ATTRIBUTE_SEPARATOR = ".";
-    public static final String REF_SEPARATOR = "_";
+    public static final String REF_SEPARATOR = "/";
 
     private interface Lambda {
         ArrayList<String> invoke(String _class);
@@ -46,8 +46,13 @@ public class TablaClases {
     private static void acomodarLista(ArrayList<String> methods) {
         for (int i = 0; i < methods.size(); i++) {
             String method_c = methods.get(i);
+
             int j = method_c.indexOf(TYPE_SEPARATOR);
             int k = method_c.indexOf(REF_SEPARATOR);
+
+            // System.out.println("aca es j " + j + " aca k " + k);
+            // System.out.println("El metodo " + method_c);
+
             String method = method_c.substring(0, j);
             String parameter = method_c.substring(j + 1, k);
             String type = TablaSimbolos.getTypeLexema(parameter);
@@ -343,7 +348,8 @@ public class TablaClases {
 
         String _instance = getInstance(r);
 
-        System.out.println("Me quedo la clase " + _instance + " en el scope " + scope);
+        // System.out.println("Me quedo la clase " + _instance + " en el scope " +
+        // scope);
 
         // Clase principal
         String _class = TablaSimbolos.getTypeLexema(_instance + scope);
@@ -466,17 +472,7 @@ public class TablaClases {
         return instance;
     };
 
-    // private void addMetodosInstancia(ArrayList<String> methods, String
-    // instancia23)
-    // {
-    // for (String attribute : methods) {
-    // Tupla<String, String> out = acomodarString(attribute, instancia);
-    // TablaSimbolos.addFunction(out.getSecond());
-    // TablaSimbolos.addParameter(out.getSecond(), out.getFirst());
-    // }
-    // }
-
-    private static void addAtributosInstancia(ArrayList<String> attributes, String _instance) {
+    private static void addAtributosInstancia(ArrayList<String> attributes, String _instance, int line) {
         for (String attribute : attributes) {
             // System.out.println("Viene completito " + attribute);
             String id = getAtributoInstancia(attribute, _instance);
@@ -487,11 +483,12 @@ public class TablaClases {
             TablaSimbolos.addTipo(type, id);
             TablaSimbolos.addRef(ref, id);
             TablaSimbolos.addUsedVariable(id);
+            TablaSimbolos.addPositions(id, line);
         }
 
     }
 
-    public static void addInstancia(String _class, String variable_declarators) {
+    public static void addInstancia(String _class, String variable_declarators, int line) {
 
         int i = variable_declarators.indexOf(Scope.SEPARATOR);
         String ambito = variable_declarators.substring(i);
@@ -503,7 +500,7 @@ public class TablaClases {
         for (String instancia : instancias) {
             // System.out.println("La instancia " + instancia + " de la clase " + _class);
 
-            addAtributosInstancia(getAllAtributos(_class), instancia + ambito);
+            addAtributosInstancia(getAllAtributos(_class), instancia + ambito, line);
 
             // addMetodosInstancia(getAllMetodos(_class), instancia); los metodos no van, se
             // copia cada metodo y este deberia ser unico
