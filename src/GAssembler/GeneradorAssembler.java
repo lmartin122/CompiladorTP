@@ -21,6 +21,7 @@ public class GeneradorAssembler {
     public static HashMap<String, Integer> tercetosAsociados = new HashMap<>();
     
     private static String auxiliar2bytes = "@variable2bytes";
+    private static String Double_MAX = "@doubleMAX";
 
     private static final String AUX = Scope.SEPARATOR + "aux";
     private static String auxiliar = "";
@@ -197,6 +198,7 @@ public class GeneradorAssembler {
                 .append("includelib \\masm32\\lib\\user32.lib\n")
                 .append(".DATA\n") // Empieza la declaración de variables. Primero agregamos las constantes para los errores.
                 .append(auxiliar2bytes).append(" dw ? \n")
+                .append(Double_MAX).append(" dq 1.7976931348623157e308 \n")
                 .append("_OVERFLOW_PRODUCTO_ENTERO_CON_SIGNO db \"" + OVERFLOW_PRODUCTO_ENTERO_CON_SIGNO + "\", 0\n")
                 .append("_OVERFLOW_PRODUCTO_ENTERO_SIN_SIGNO db \"" + OVERFLOW_PRODUCTO_ENTERO_SIN_SIGNO + "\", 0\n")
                 .append("_OVERFLOW_SUMA_PFLOTANTE db \"" + OVERFLOW_SUMA_PFLOTANTE + "\", 0\n")
@@ -427,14 +429,13 @@ public class GeneradorAssembler {
     }
 
     public static void generarCodigoOperacionesDouble() {
-        String auxiliar = "@auxDouble";
         switch (OP) {
             case "+":
                 codigoAssembler.append("FLD ").append(OP2).append("\n");
                 codigoAssembler.append("FADD ").append(OP1).append("\n");
                 auxiliar = generarVariableAuxiliar();
                 codigoAssembler.append("FST ").append(auxiliar).append("\n");
-                codigoAssembler.append("JC ").append("overflow_DOUBLE").append("\n");
+                generarAssemblerOverflowFlotantes();
                 break;
             case "-":
                 codigoAssembler.append("FLD ").append(OP2).append("\n");
@@ -461,76 +462,58 @@ public class GeneradorAssembler {
                 codigoAssembler.append("FST ").append(OP1).append("\n");
                 break;
             case ">=":
-                codigoAssembler.append("FLD ").append(OP2).append("\n");
-                codigoAssembler.append("FCOM ").append(OP1).append("\n");
-                codigoAssembler.append("FSTSW ").append(auxiliar).append("\n");
-                codigoAssembler.append("MOV AX ").append(auxiliar).append("\n");
+                codigoAssembler.append("FLD ").append(OP1).append("\n");
+                codigoAssembler.append("FCOM ").append(OP2).append("\n");
+                codigoAssembler.append("FSTSW ").append(auxiliar2bytes).append("\n");
+                codigoAssembler.append("MOV AX, ").append(auxiliar2bytes).append("\n");
                 codigoAssembler.append("SAHF ").append("\n");
                 auxiliar = generarVariableAuxiliar();
-                codigoAssembler.append("MOV ").append(auxiliar).append(" OFFh\n");
-                codigoAssembler.append("JAE ").append(auxiliar.substring(1)).append("\n");
-                codigoAssembler.append("MOV ").append(auxiliar).append(" 00h\n");
-                codigoAssembler.append(auxiliar.substring(1)).append("\n");
+                salto = "JGE ";
                 break;
             case "<=":
-                codigoAssembler.append("FLD ").append(OP2).append("\n");
-                codigoAssembler.append("FCOM ").append(OP1).append("\n");
-                codigoAssembler.append("FSTSW ").append(auxiliar).append("\n");
-                codigoAssembler.append("MOV AX ").append(auxiliar).append("\n");
+                codigoAssembler.append("FLD ").append(OP1).append("\n");
+                codigoAssembler.append("FCOM ").append(OP2).append("\n");
+                codigoAssembler.append("FSTSW ").append(auxiliar2bytes).append("\n");
+                codigoAssembler.append("MOV AX, ").append(auxiliar2bytes).append("\n");
                 codigoAssembler.append("SAHF ").append("\n");
                 auxiliar = generarVariableAuxiliar();
-                codigoAssembler.append("MOV ").append(auxiliar).append(" OFFh\n");
-                codigoAssembler.append("JBE ").append(auxiliar.substring(1)).append("\n");
-                codigoAssembler.append("MOV ").append(auxiliar).append(" 00h\n");
-                codigoAssembler.append(auxiliar.substring(1)).append("\n");
+                salto = "JLE ";
                 break;
             case ">":
-                codigoAssembler.append("FLD ").append(OP2).append("\n");
-                codigoAssembler.append("FCOM ").append(OP1).append("\n");
-                codigoAssembler.append("FSTSW ").append(auxiliar).append("\n");
-                codigoAssembler.append("MOV AX ").append(auxiliar).append("\n");
+                codigoAssembler.append("FLD ").append(OP1).append("\n");
+                codigoAssembler.append("FCOM ").append(OP2).append("\n");
+                codigoAssembler.append("FSTSW ").append(auxiliar2bytes).append("\n");
+                codigoAssembler.append("MOV AX, ").append(auxiliar2bytes).append("\n");
                 codigoAssembler.append("SAHF ").append("\n");
                 auxiliar = generarVariableAuxiliar();
-                codigoAssembler.append("MOV ").append(auxiliar).append(" OFFh\n");
-                codigoAssembler.append("JA ").append(auxiliar.substring(1)).append("\n");
-                codigoAssembler.append("MOV ").append(auxiliar).append(" 00h\n");
-                codigoAssembler.append(auxiliar.substring(1)).append("\n");
+                salto = "JG ";
                 break;
             case "<":
-                codigoAssembler.append("FLD ").append(OP2).append("\n");
-                codigoAssembler.append("FCOM ").append(OP1).append("\n");
-                codigoAssembler.append("FSTSW ").append(auxiliar).append("\n");
-                codigoAssembler.append("MOV AX ").append(auxiliar).append("\n");
+                codigoAssembler.append("FLD ").append(OP1).append("\n");
+                codigoAssembler.append("FCOM ").append(OP2).append("\n");
+                codigoAssembler.append("FSTSW ").append(auxiliar2bytes).append("\n");
+                codigoAssembler.append("MOV AX, ").append(auxiliar2bytes).append("\n");
                 codigoAssembler.append("SAHF ").append("\n");
                 auxiliar = generarVariableAuxiliar();
-                codigoAssembler.append("MOV ").append(auxiliar).append(" OFFh\n");
-                codigoAssembler.append("JB ").append(auxiliar.substring(1)).append("\n");
-                codigoAssembler.append("MOV ").append(auxiliar).append(" 00h\n");
-                codigoAssembler.append(auxiliar.substring(1)).append("\n");
+                salto = "JL ";
                 break;
             case "!!":
-                codigoAssembler.append("FLD ").append(OP2).append("\n");
-                codigoAssembler.append("FCOM ").append(OP1).append("\n");
-                codigoAssembler.append("FSTSW ").append(auxiliar).append("\n");
-                codigoAssembler.append("MOV AX ").append(auxiliar).append("\n");
+                codigoAssembler.append("FLD ").append(OP1).append("\n");
+                codigoAssembler.append("FCOM ").append(OP2).append("\n");
+                codigoAssembler.append("FSTSW ").append(auxiliar2bytes).append("\n");
+                codigoAssembler.append("MOV AX, ").append(auxiliar2bytes).append("\n");
                 codigoAssembler.append("SAHF ").append("\n");
                 auxiliar = generarVariableAuxiliar();
-                codigoAssembler.append("MOV ").append(auxiliar).append(" OFFh\n");
-                codigoAssembler.append("JNE ").append(auxiliar.substring(1)).append("\n");
-                codigoAssembler.append("MOV ").append(auxiliar).append(" 00h\n");
-                codigoAssembler.append(auxiliar.substring(1)).append("\n");
+                salto = "JNE ";
                 break;
             case "==":
-                codigoAssembler.append("FLD ").append(OP2).append("\n");
-                codigoAssembler.append("FCOM ").append(OP1).append("\n");
-                codigoAssembler.append("FSTSW ").append(auxiliar).append("\n");
-                codigoAssembler.append("MOV AX ").append(auxiliar).append("\n");
+                codigoAssembler.append("FLD ").append(OP1).append("\n");
+                codigoAssembler.append("FCOM ").append(OP2).append("\n");
+                codigoAssembler.append("FSTSW ").append(auxiliar2bytes).append("\n");
+                codigoAssembler.append("MOV AX, ").append(auxiliar2bytes).append("\n");
                 codigoAssembler.append("SAHF ").append("\n");
                 auxiliar = generarVariableAuxiliar();
-                codigoAssembler.append("MOV ").append(auxiliar).append(" OFFh\n");
-                codigoAssembler.append("JE ").append(auxiliar.substring(1)).append("\n");
-                codigoAssembler.append("MOV ").append(auxiliar).append(" 00h\n");
-                codigoAssembler.append(auxiliar.substring(1)).append("\n");
+                salto = "JE ";
                 break;
 
             default:
@@ -543,10 +526,11 @@ public class GeneradorAssembler {
 
     public static void generarAssemblerOverflowFlotantes() {        
         codigoAssembler.append("FLD ").append(auxiliar).append("\n");
+        codigoAssembler.append("FLD ").append(Double_MAX).append("\n");
         codigoAssembler.append("FCOM").append("\n");
-        codigoAssembler.append("FSTSW AX\n"); // Nos fijamos si hay overflow (estado del coprocesador)
-        codigoAssembler.append("SAHF\n"); // Mueve los flags del estado de la palabra al registro de flags
-        codigoAssembler.append("JC ").append("overflow_DOUBLE").append("\n"); // Salta a la etiqueta si no hay overflow.
+        codigoAssembler.append("FSTSW AX\n");
+        codigoAssembler.append("SAHF\n");
+        codigoAssembler.append("JAE ").append("overflow_DOUBLE").append("\n");
     }
 
     public static void generarAssemblerSaltoIncondicional() {
