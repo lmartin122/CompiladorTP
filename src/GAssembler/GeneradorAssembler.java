@@ -317,12 +317,12 @@ public class GeneradorAssembler {
             case ">=":
                     codigoAssembler.append("MOV EAX, ").append(OP1).append("\n");
                     codigoAssembler.append("CMP EAX, ").append(OP2).append("\n");
-                    salto = "JLE ";
+                    salto = "JGE ";
                 break;
             case "<=":
                     codigoAssembler.append("MOV EAX, ").append(OP1).append("\n");
                     codigoAssembler.append("CMP EAX, ").append(OP2).append("\n");
-                    salto = "JGE ";
+                    salto = "JLE ";
                 break;
             case ">":
                     codigoAssembler.append("MOV EAX, ").append(OP1).append("\n");
