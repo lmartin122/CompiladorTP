@@ -279,7 +279,7 @@ public class GeneradorAssembler {
             case "*":
                     codigoAssembler.append("MOV EAX, ").append(OP1).append("\n");
                     codigoAssembler.append("MOV EBX, ").append(OP2).append("\n");
-                    codigoAssembler.append("MUL EBX ").append("\n");
+                    codigoAssembler.append("IMUL EBX ").append("\n");
                     auxiliar = generarVariableAuxiliar();
                     codigoAssembler.append("JO " + TAG_OVERFLOW_LONG + "\n");
                     codigoAssembler.append("MOV ").append(auxiliar).append(", EAX\n");
@@ -292,9 +292,9 @@ public class GeneradorAssembler {
             case "/":
                     auxiliar = generarVariableAuxiliar();
                     codigoAssembler.append("MOV EAX, ").append(OP1).append("\n");
+                    codigoAssembler.append("CDQ").append("\n");  // Extendemos el signo a EDX
                     codigoAssembler.append("MOV EBX, ").append(OP2).append("\n");
-                    codigoAssembler.append("XOR EDX, EDX").append("\n");
-                    codigoAssembler.append("DIV EBX ").append("\n");
+                    codigoAssembler.append("IDIV EBX ").append("\n");
                     codigoAssembler.append("MOV ").append(auxiliar).append(", EAX").append("\n");
                 break;
             case "==":
