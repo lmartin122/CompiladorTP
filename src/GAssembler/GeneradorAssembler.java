@@ -88,7 +88,6 @@ public class GeneradorAssembler {
                 for (Terceto terceto : func.getValue()) {
                 number = terceto.getNumber();
                 type = terceto.getType();
-                System.out.println("EL TIPO ES " + type);
                 OP = terceto.getFirst();
                 OP1 = getOperando(terceto.getSecond());
                 OP2 = getOperando(terceto.getThird());
@@ -526,8 +525,7 @@ public class GeneradorAssembler {
 
     public static void generarAssemblerOverflowFlotantes() {        
         codigoAssembler.append("FLD ").append(auxiliar).append("\n");
-        codigoAssembler.append("FLD ").append(Double_MAX).append("\n");
-        codigoAssembler.append("FCOM").append("\n");
+        codigoAssembler.append("FCOM ").append(Double_MAX).append("\n");
         codigoAssembler.append("FSTSW AX\n");
         codigoAssembler.append("SAHF\n");
         codigoAssembler.append("JAE ").append("overflow_DOUBLE").append("\n");
