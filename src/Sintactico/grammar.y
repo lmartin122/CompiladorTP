@@ -482,7 +482,8 @@ assignment : left_hand_side '=' arithmetic_operation  {
            }
            | left_hand_side MINUS_ASSIGN arithmetic_operation {
                 Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una asignacion de resta.");
-                tercetos.add("=", $1.sval, tercetos.add("-", $1.sval, $3.sval));
+                String ref = tercetos.add("-", $1.sval, $3.sval, tercetos.typeTerceto($1.sval, $3.sval));
+                tercetos.add("=", $1.sval, ref, tercetos.typeTerceto($1.sval, ref));
                 tercetos.declaredFactorsUsed($3.sval);
            }
            | left_hand_side error arithmetic_operation {Logger.logError(aLexico.getProgramPosition(), "Las asignaciones se deben hacer con el caracter '=' o '-='.");}
