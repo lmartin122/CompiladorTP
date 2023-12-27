@@ -267,7 +267,13 @@ public class GeneradorAssembler {
     }
 
     public static void generarConversionExplicita(String auxiliarString) {
-        codigoAssembler.append("FILD ").append(OP1).append("\n");
+        OP1 = OP1.replaceAll("\\_","");
+        String tipo = TablaSimbolos.getTypeLexema(OP1);
+        if(tipo.equals(TablaTipos.DOUBLE_TYPE)){
+            codigoAssembler.append("FLD ").append(OP1).append("\n");
+        } else 
+            codigoAssembler.append("FILD ").append(OP1).append("\n");
+        
     }
 
     public static void generarAssemblerPrint(){

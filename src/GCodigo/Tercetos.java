@@ -296,7 +296,7 @@ public class Tercetos implements PropertyChangeListener {
         if (typeR.equals(Terceto.ERROR)) {
             tod.setType(Terceto.ERROR);
         } else { // Si no tengo error, tengo que propagar que sean dobles
-            TODbacktracking(t_r);
+            //TODbacktracking(t_r);
         }
 
     }
