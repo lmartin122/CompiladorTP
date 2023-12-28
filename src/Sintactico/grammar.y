@@ -8,6 +8,7 @@ import java.io.File;
 import Lexico.AnalizadorLexico;
 
 import GCodigo.Tercetos;
+import GCodigo.Terceto;
 import GCodigo.Scope;
 
 import GAssembler.GeneradorAssembler;
@@ -468,23 +469,35 @@ impl_method_name : ID {
 ;
 
 
-
-
 /*
 
 >>>     EXPRESSIONS
 
 */
 assignment : left_hand_side '=' arithmetic_operation  {
-                Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una asignacion.");
-                tercetos.add("=", $1.sval, $3.sval, tercetos.typeTerceto($1.sval, $3.sval));
-                tercetos.declaredFactorsUsed($3.sval);
+            String type = tercetos.typeTerceto($1.sval, $3.sval);
+            if (type.equals(Terceto.ERROR))
+              Logger.logError(aLexico.getProgramPosition(), "Incompatibilidad de tipos entre " + $1.sval + " y " + $3.sval);
+            else {
+              tercetos.add("=", $1.sval, $3.sval, type);
+              tercetos.declaredFactorsUsed($3.sval);
+            }
            }
            | left_hand_side MINUS_ASSIGN arithmetic_operation {
-                Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una asignacion de resta.");
-                String ref = tercetos.add("-", $1.sval, $3.sval, tercetos.typeTerceto($1.sval, $3.sval));
-                tercetos.add("=", $1.sval, ref, tercetos.typeTerceto($1.sval, ref));
-                tercetos.declaredFactorsUsed($3.sval);
+              String type = tercetos.typeTerceto($1.sval, $3.sval);
+              if (type.equals(Terceto.ERROR))
+                Logger.logError(aLexico.getProgramPosition(), "Incompatibilidad de tipos entre " + $1.sval + " y " + $3.sval);
+              else {
+                String ref = tercetos.add("-", $1.sval, $3.sval, type);
+
+                type = tercetos.typeTerceto($1.sval, ref);
+                if (type.equals(Terceto.ERROR))
+                  Logger.logError(aLexico.getProgramPosition(), "Incompatibilidad de tipos entre " + $1.sval + " y " + $3.sval);
+                else {
+                  tercetos.add("=", $1.sval, ref, type);
+                  tercetos.declaredFactorsUsed($3.sval);
+                }
+              }
            }
            | left_hand_side error arithmetic_operation {Logger.logError(aLexico.getProgramPosition(), "Las asignaciones se deben hacer con el caracter '=' o '-='.");}
            | left_hand_side EQUAL_OPERATOR arithmetic_operation {Logger.logError(aLexico.getProgramPosition(), "Las asignaciones se deben hacer con el caracter '=' o '-='.");}
@@ -507,28 +520,88 @@ primary : ID
 ;
 
 equality_expression : relational_expression {$$ = new ParserVal($1.sval);}
-                    | equality_expression EQUAL_OPERATOR relational_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica."); $$ = new ParserVal(tercetos.add("==", $1.sval, $3.sval, tercetos.typeTerceto($1.sval, $3.sval)));}
-                    | equality_expression NOT_EQUAL_OPERATOR relational_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica."); $$ = new ParserVal(tercetos.add("!!", $1.sval, $3.sval, tercetos.typeTerceto($1.sval, $3.sval)));}
+                    | equality_expression EQUAL_OPERATOR relational_expression {
+                      String type = tercetos.typeTerceto($1.sval, $3.sval);
+                      if (type.equals(Terceto.ERROR))
+                        Logger.logError(aLexico.getProgramPosition(), "Incompatibilidad de tipos entre " + $1.sval + " y " + $3.sval);
+                      else
+                        $$ = new ParserVal(tercetos.add("==", $1.sval, $3.sval, type));
+                    }
+                    | equality_expression NOT_EQUAL_OPERATOR relational_expression {
+                      String type = tercetos.typeTerceto($1.sval, $3.sval);
+                      if (type.equals(Terceto.ERROR))
+                        Logger.logError(aLexico.getProgramPosition(), "Incompatibilidad de tipos entre " + $1.sval + " y " + $3.sval);
+                      else
+                        $$ = new ParserVal(tercetos.add("!!", $1.sval, $3.sval, type));
+                    }
 ;
 
 relational_expression : additive_expression {$$ = new ParserVal($1.sval);}
-                      | relational_expression '<' additive_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica."); $$ = new ParserVal(tercetos.add("<", $1.sval, $3.sval, tercetos.typeTerceto($1.sval, $3.sval)));}
-                      | relational_expression '>' additive_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica."); $$ = new ParserVal(tercetos.add(">", $1.sval, $3.sval, tercetos.typeTerceto($1.sval, $3.sval)));}
-                      | relational_expression GREATER_THAN_OR_EQUAL_OPERATOR additive_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica."); $$ = new ParserVal(tercetos.add(">=", $1.sval, $3.sval, tercetos.typeTerceto($1.sval, $3.sval)));}
-                      | relational_expression LESS_THAN_OR_EQUAL_OPERATOR additive_expression {Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica."); $$ = new ParserVal(tercetos.add("<=", $1.sval, $3.sval, tercetos.typeTerceto($1.sval, $3.sval)));}
+                      | relational_expression '<' additive_expression {
+                        String type = tercetos.typeTerceto($1.sval, $3.sval);
+                        if (type.equals(Terceto.ERROR))
+                          Logger.logError(aLexico.getProgramPosition(), "Incompatibilidad de tipos entre " + $1.sval + " y " + $3.sval);
+                        else
+                          $$ = new ParserVal(tercetos.add("<", $1.sval, $3.sval, type));
+                      }
+                      | relational_expression '>' additive_expression {
+                        String type = tercetos.typeTerceto($1.sval, $3.sval);
+                        if (type.equals(Terceto.ERROR))
+                          Logger.logError(aLexico.getProgramPosition(), "Incompatibilidad de tipos entre " + $1.sval + " y " + $3.sval);
+                        else
+                          $$ = new ParserVal(tercetos.add(">", $1.sval, $3.sval, type));
+                      }
+                      | relational_expression GREATER_THAN_OR_EQUAL_OPERATOR additive_expression {
+                        String type = tercetos.typeTerceto($1.sval, $3.sval);
+                        if (type.equals(Terceto.ERROR))
+                          Logger.logError(aLexico.getProgramPosition(), "Incompatibilidad de tipos entre " + $1.sval + " y " + $3.sval);
+                        else 
+                          $$ = new ParserVal(tercetos.add(">=", $1.sval, $3.sval, type));
+                        }
+                      | relational_expression LESS_THAN_OR_EQUAL_OPERATOR additive_expression {
+                        String type = tercetos.typeTerceto($1.sval, $3.sval);
+                        if (type.equals(Terceto.ERROR))
+                          Logger.logError(aLexico.getProgramPosition(), "Incompatibilidad de tipos entre " + $1.sval + " y " + $3.sval);
+                        else 
+                          $$ = new ParserVal(tercetos.add("<=", $1.sval, $3.sval, type));
+                        }
 ;
 
 arithmetic_operation : additive_expression {$$ = new ParserVal($1.sval);}
 ;
 
 additive_expression : multiplicative_expression {$$ = new ParserVal($1.sval); Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion aritmetica.");}
-                    | additive_expression '+' multiplicative_expression {$$ = new ParserVal(tercetos.add("+", $1.sval, $3.sval, tercetos.typeTerceto($1.sval, $3.sval)));}
-                    | additive_expression '-' multiplicative_expression {$$ = new ParserVal(tercetos.add("-", $1.sval, $3.sval, tercetos.typeTerceto($1.sval, $3.sval)));}
+                    | additive_expression '+' multiplicative_expression {
+                        String type = tercetos.typeTerceto($1.sval, $3.sval);
+                        if (type.equals(Terceto.ERROR))
+                          Logger.logError(aLexico.getProgramPosition(), "Incompatibilidad de tipos entre " + $1.sval + " y " + $3.sval);
+                        else
+                          $$ = new ParserVal(tercetos.add("+", $1.sval, $3.sval, type));
+                    }
+                    | additive_expression '-' multiplicative_expression {
+                        String type = tercetos.typeTerceto($1.sval, $3.sval);
+                        if (type.equals(Terceto.ERROR))
+                          Logger.logError(aLexico.getProgramPosition(), "Incompatibilidad de tipos entre " + $1.sval + " y " + $3.sval);
+                        else
+                          $$ = new ParserVal(tercetos.add("-", $1.sval, $3.sval, type));
+                    }
 ; 
 
 multiplicative_expression : unary_expression {$$ = new ParserVal($1.sval);} 
-                          | multiplicative_expression '*' unary_expression {$$ = new ParserVal(tercetos.add("*", $1.sval, $3.sval, tercetos.typeTerceto($1.sval, $3.sval)));}
-                          | multiplicative_expression '/' unary_expression {$$ = new ParserVal(tercetos.add("/", $1.sval, $3.sval, tercetos.typeTerceto($1.sval, $3.sval)));}
+                          | multiplicative_expression '*' unary_expression {
+                            String type = tercetos.typeTerceto($1.sval, $3.sval);
+                            if (type.equals(Terceto.ERROR))
+                              Logger.logError(aLexico.getProgramPosition(), "Incompatibilidad de tipos entre " + $1.sval + " y " + $3.sval);
+                            else
+                              $$ = new ParserVal(tercetos.add("*", $1.sval, $3.sval, type));
+                          }
+                          | multiplicative_expression '/' unary_expression {
+                            String type = tercetos.typeTerceto($1.sval, $3.sval);
+                            if (type.equals(Terceto.ERROR))
+                              Logger.logError(aLexico.getProgramPosition(), "Incompatibilidad de tipos entre " + $1.sval + " y " + $3.sval);
+                            else
+                              $$ = new ParserVal(tercetos.add("/", $1.sval, $3.sval, type));
+                          }
                           | multiplicative_expression '%' unary_expression {Logger.logError(aLexico.getProgramPosition(), "El operator % no es valido.");}
 ;
 

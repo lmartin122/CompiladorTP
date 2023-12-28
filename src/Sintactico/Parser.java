@@ -27,6 +27,7 @@ import java.io.File;
 import Lexico.AnalizadorLexico;
 
 import GCodigo.Tercetos;
+import GCodigo.Terceto;
 import GCodigo.Scope;
 
 import GAssembler.GeneradorAssembler;
@@ -36,7 +37,7 @@ import Tools.Tupla;
 import Tools.TablaSimbolos;
 import Tools.TablaTipos;
 import Tools.TablaClases;
-//#line 36 "Parser.java"
+//#line 37 "Parser.java"
 
 
 
@@ -1046,7 +1047,7 @@ final static String yyrule[] = {
 "print_statement : PRINT '\\000'",
 };
 
-//#line 953 "grammar.y"
+//#line 1026 "grammar.y"
 
 private static AnalizadorLexico aLexico;
 private static Tercetos tercetos;
@@ -1206,7 +1207,7 @@ public static void main (String [] args) throws IOException {
     System.out.println(aLexico.getProgram());
 }
 
-//#line 1137 "Parser.java"
+//#line 1138 "Parser.java"
 //###############################################################
 // method: yylexdebug : check lexer state
 //###############################################################
@@ -1361,27 +1362,27 @@ boolean doaction;
       {
 //########## USER-SUPPLIED ACTIONS ##########
 case 4:
-//#line 44 "grammar.y"
+//#line 45 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Un programa debe estar delimitado por llaves '{}'.");}
 break;
 case 8:
-//#line 57 "grammar.y"
-{scope.reset(); if (!val_peek(0).sval.isEmpty()) scope.changeScope(val_peek(0).sval);}
-break;
-case 9:
 //#line 58 "grammar.y"
 {scope.reset(); if (!val_peek(0).sval.isEmpty()) scope.changeScope(val_peek(0).sval);}
 break;
-case 10:
+case 9:
 //#line 59 "grammar.y"
-{scope.reset();}
+{scope.reset(); if (!val_peek(0).sval.isEmpty()) scope.changeScope(val_peek(0).sval);}
 break;
-case 11:
+case 10:
 //#line 60 "grammar.y"
 {scope.reset();}
 break;
+case 11:
+//#line 61 "grammar.y"
+{scope.reset();}
+break;
 case 12:
-//#line 63 "grammar.y"
+//#line 64 "grammar.y"
 {
                         yyval = val_peek(1);
                         if (!val_peek(1).sval.isEmpty()){
@@ -1394,7 +1395,7 @@ case 12:
                     }
 break;
 case 13:
-//#line 73 "grammar.y"
+//#line 74 "grammar.y"
 {
                         yyval = val_peek(2);
                         if (!val_peek(2).sval.isEmpty()){
@@ -1415,7 +1416,7 @@ case 13:
                     }
 break;
 case 14:
-//#line 93 "grammar.y"
+//#line 94 "grammar.y"
 {
               if(!scope.isDeclaredInMyScope(val_peek(0).sval)){
                 TablaSimbolos.addClase(val_peek(0).sval); 
@@ -1429,15 +1430,15 @@ case 14:
             }
 break;
 case 17:
-//#line 108 "grammar.y"
-{Logger.logError(aLexico.getProgramPosition(), "La declaracion de una clase debe estar delimitado por llaves \"{...}\".");}
-break;
-case 18:
 //#line 109 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "La declaracion de una clase debe estar delimitado por llaves \"{...}\".");}
 break;
+case 18:
+//#line 110 "grammar.y"
+{Logger.logError(aLexico.getProgramPosition(), "La declaracion de una clase debe estar delimitado por llaves \"{...}\".");}
+break;
 case 25:
-//#line 124 "grammar.y"
+//#line 125 "grammar.y"
 {
                       if (!(val_peek(2).sval.isEmpty() || val_peek(1).sval.isEmpty())) {
                         ArrayList<String> ambitos = scope.getAmbitos(val_peek(1).sval);
@@ -1464,11 +1465,11 @@ case 25:
                    }
 break;
 case 26:
-//#line 148 "grammar.y"
+//#line 149 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' en el final de la sentencia.");}
 break;
 case 28:
-//#line 152 "grammar.y"
+//#line 153 "grammar.y"
 {
                         if (!(val_peek(2).sval.isEmpty() || val_peek(0).sval.isEmpty()))
                           yyval = new ParserVal(val_peek(2).sval.substring(0, val_peek(2).sval.indexOf(Scope.SEPARATOR)) + ";" + val_peek(0).sval);
@@ -1481,27 +1482,27 @@ case 28:
                      }
 break;
 case 30:
-//#line 167 "grammar.y"
-{Logger.logError(aLexico.getProgramPosition(), "No esta permitida la inicialización en la declaracion de variables.");}
-break;
-case 31:
 //#line 168 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "No esta permitida la inicialización en la declaracion de variables.");}
 break;
-case 32:
+case 31:
 //#line 169 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "No esta permitida la inicialización en la declaracion de variables.");}
 break;
-case 33:
+case 32:
 //#line 170 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "No esta permitida la inicialización en la declaracion de variables.");}
 break;
-case 34:
+case 33:
 //#line 171 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "No esta permitida la inicialización en la declaracion de variables.");}
 break;
+case 34:
+//#line 172 "grammar.y"
+{Logger.logError(aLexico.getProgramPosition(), "No esta permitida la inicialización en la declaracion de variables.");}
+break;
 case 35:
-//#line 174 "grammar.y"
+//#line 175 "grammar.y"
 {
                           if (!scope.isDeclaredInMyScope(val_peek(0).sval)) {
                               yyval = new ParserVal(scope.changeScope(val_peek(0).sval));
@@ -1513,7 +1514,7 @@ case 35:
                         }
 break;
 case 37:
-//#line 188 "grammar.y"
+//#line 189 "grammar.y"
 {
                       if (!val_peek(2).sval.isEmpty()) {
                         ArrayList<String> ambitos = scope.getAmbitos(val_peek(2).sval);
@@ -1536,7 +1537,7 @@ case 37:
                    }
 break;
 case 38:
-//#line 208 "grammar.y"
+//#line 209 "grammar.y"
 {
                       if (!val_peek(1).sval.isEmpty()) {
                         ArrayList<String> ambitos = scope.getAmbitos(val_peek(1).sval);
@@ -1560,15 +1561,15 @@ case 38:
                    }
 break;
 case 39:
-//#line 231 "grammar.y"
+//#line 232 "grammar.y"
 {yyval = val_peek(0);}
 break;
 case 40:
-//#line 232 "grammar.y"
+//#line 233 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "No se permite retornar un tipo, el retorno debe ser VOID."); yyval = new ParserVal("");}
 break;
 case 42:
-//#line 238 "grammar.y"
+//#line 239 "grammar.y"
 {
                       String ref = val_peek(3).sval;
                       String par = val_peek(1).sval;
@@ -1582,7 +1583,7 @@ case 42:
                   }
 break;
 case 43:
-//#line 249 "grammar.y"
+//#line 250 "grammar.y"
 {
                       String ref = val_peek(2).sval;
                       if (!ref.isEmpty()) {
@@ -1596,15 +1597,15 @@ case 43:
                   }
 break;
 case 44:
-//#line 260 "grammar.y"
+//#line 261 "grammar.y"
 { Logger.logError(aLexico.getProgramPosition(), "Solo se permite la declaracion de un unico parametro formal.");}
 break;
 case 45:
-//#line 261 "grammar.y"
+//#line 262 "grammar.y"
 { Logger.logError(aLexico.getProgramPosition(), "La declaracion de un metodo debe estar delimitado por parentesis \"(...)\"."); }
 break;
 case 46:
-//#line 264 "grammar.y"
+//#line 265 "grammar.y"
 {
                 if(!scope.isDeclaredInMyScope(val_peek(0).sval)) {
                   yyval = new ParserVal(val_peek(0).sval);
@@ -1623,11 +1624,11 @@ case 46:
               }
 break;
 case 48:
-//#line 284 "grammar.y"
+//#line 285 "grammar.y"
 {yyval = new ParserVal("");}
 break;
 case 49:
-//#line 289 "grammar.y"
+//#line 290 "grammar.y"
 {
                       if (TablaSimbolos.isClass(val_peek(1).sval + Scope.getScopeMain())) 
                         Logger.logError(aLexico.getProgramPosition(), "No se permite que un parametro formal sea del tipo de una clase.");
@@ -1641,11 +1642,11 @@ case 49:
                   }
 break;
 case 51:
-//#line 303 "grammar.y"
+//#line 304 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "No se permite una declaración de variable en un parametro real.");}
 break;
 case 52:
-//#line 306 "grammar.y"
+//#line 307 "grammar.y"
 {
                             Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una herencia compuesta.");
 
@@ -1665,31 +1666,31 @@ case 52:
                         }
 break;
 case 53:
-//#line 323 "grammar.y"
-{Logger.logError(aLexico.getProgramPosition(), "No se permite herencia multiple.");}
-break;
-case 54:
 //#line 324 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "No se permite herencia multiple.");}
 break;
+case 54:
+//#line 325 "grammar.y"
+{Logger.logError(aLexico.getProgramPosition(), "No se permite herencia multiple.");}
+break;
 case 55:
-//#line 327 "grammar.y"
+//#line 328 "grammar.y"
 {yyval = new ParserVal(val_peek(0).sval); if (val_peek(0).sval.contains(";")) Logger.logError(aLexico.getProgramPosition(), "No se permite implementar multiples interfaces.");}
 break;
 case 57:
-//#line 331 "grammar.y"
+//#line 332 "grammar.y"
 {yyval = new ParserVal(val_peek(2).sval + ";" + val_peek(0).sval);}
 break;
 case 58:
-//#line 332 "grammar.y"
+//#line 333 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Las interfaces deben estar separadas por ';'.");}
 break;
 case 59:
-//#line 335 "grammar.y"
+//#line 336 "grammar.y"
 {yyval = val_peek(1);}
 break;
 case 60:
-//#line 338 "grammar.y"
+//#line 339 "grammar.y"
 {
                     if (!scope.isDeclaredInMyScope(val_peek(0).sval)) {
                       TablaClases.addInterface(val_peek(0).sval);
@@ -1703,19 +1704,19 @@ case 60:
                 }
 break;
 case 62:
-//#line 352 "grammar.y"
+//#line 353 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "El cuerpo de la interface debe estar delimitado por llaves \"{...}\".");}
 break;
 case 64:
-//#line 354 "grammar.y"
+//#line 355 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "El cuerpo de la interface debe estar delimitado por llaves \"{...}\".");}
 break;
 case 67:
-//#line 361 "grammar.y"
+//#line 362 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "No se permite la declaracion de constantes en las interfaces.");}
 break;
 case 68:
-//#line 362 "grammar.y"
+//#line 363 "grammar.y"
 {
                                 if (!val_peek(0).sval.isEmpty()) {
                                   ArrayList<String> ambitos = scope.getAmbitos(val_peek(0).sval);
@@ -1729,47 +1730,47 @@ case 68:
                              }
 break;
 case 69:
-//#line 373 "grammar.y"
+//#line 374 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "No esta permitida la herencia en una interface.");}
 break;
 case 73:
-//#line 381 "grammar.y"
+//#line 382 "grammar.y"
 {yyval = new ParserVal(""); Logger.logError(aLexico.getProgramPosition(), "No se puede declarar un bloque dentro de un metodo en una interface.");}
 break;
 case 75:
-//#line 387 "grammar.y"
+//#line 388 "grammar.y"
 {yyval = val_peek(1);}
 break;
 case 76:
-//#line 388 "grammar.y"
+//#line 389 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' en el final de la sentencia.");}
 break;
 case 77:
-//#line 389 "grammar.y"
+//#line 390 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' no \';\'en el final de la sentencia.");}
 break;
 case 79:
-//#line 393 "grammar.y"
+//#line 394 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Es necesario implementar el cuerpo del metodo.");}
 break;
 case 80:
-//#line 394 "grammar.y"
+//#line 395 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Se debe referenciar a una clase.");}
 break;
 case 81:
-//#line 395 "grammar.y"
+//#line 396 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Seguido de la referencia a la clase debe ir el caracter ':'.");}
 break;
 case 84:
-//#line 400 "grammar.y"
-{Logger.logError(aLexico.getProgramPosition(), "El cuerpo de la interface debe estar delimitado por llaves \"{...}\".");}
-break;
-case 85:
 //#line 401 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "El cuerpo de la interface debe estar delimitado por llaves \"{...}\".");}
 break;
+case 85:
+//#line 402 "grammar.y"
+{Logger.logError(aLexico.getProgramPosition(), "El cuerpo de la interface debe estar delimitado por llaves \"{...}\".");}
+break;
 case 88:
-//#line 409 "grammar.y"
+//#line 410 "grammar.y"
 {
 
                                     if (!val_peek(1).sval.isEmpty()){
@@ -1795,23 +1796,23 @@ case 88:
                                   }
 break;
 case 89:
-//#line 432 "grammar.y"
-{Logger.logError(aLexico.getProgramPosition(), "Es necesario implementar el metodo de la clase.");}
-break;
-case 90:
 //#line 433 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Es necesario implementar el metodo de la clase.");}
 break;
+case 90:
+//#line 434 "grammar.y"
+{Logger.logError(aLexico.getProgramPosition(), "Es necesario implementar el metodo de la clase.");}
+break;
 case 91:
-//#line 437 "grammar.y"
+//#line 438 "grammar.y"
 {yyval = val_peek(0);}
 break;
 case 92:
-//#line 438 "grammar.y"
+//#line 439 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "No se permite retornar un tipo, el retorno debe ser VOID."); yyval = new ParserVal("");}
 break;
 case 93:
-//#line 443 "grammar.y"
+//#line 444 "grammar.y"
 {
                                 String ref = val_peek(3).sval;
                                 String par = val_peek(1).sval;
@@ -1824,149 +1825,223 @@ case 93:
                             }
 break;
 case 94:
-//#line 453 "grammar.y"
+//#line 454 "grammar.y"
 {
                                 yyval = new ParserVal(val_peek(2).sval + TablaClases.TYPE_SEPARATOR + TablaSimbolos.SIN_PARAMETRO);
                             }
 break;
 case 95:
-//#line 456 "grammar.y"
+//#line 457 "grammar.y"
 { Logger.logError(aLexico.getProgramPosition(), "Solo se permite la declaracion de un unico parametro formal.");}
 break;
 case 96:
-//#line 457 "grammar.y"
+//#line 458 "grammar.y"
 { Logger.logError(aLexico.getProgramPosition(), "La declaracion de un metodo debe estar delimitado por parentesis \"(...)\"."); }
 break;
 case 97:
-//#line 460 "grammar.y"
+//#line 461 "grammar.y"
 {yyval = val_peek(1);}
 break;
 case 98:
-//#line 464 "grammar.y"
+//#line 465 "grammar.y"
 {
                     scope.stack(val_peek(0).sval);
                     yyval = new ParserVal(scope.getCurrentScope());
                   }
 break;
 case 99:
-//#line 478 "grammar.y"
+//#line 477 "grammar.y"
 {
-                Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una asignacion.");
-                tercetos.add("=", val_peek(2).sval, val_peek(0).sval, tercetos.typeTerceto(val_peek(2).sval, val_peek(0).sval));
-                tercetos.declaredFactorsUsed(val_peek(0).sval);
+            String type = tercetos.typeTerceto(val_peek(2).sval, val_peek(0).sval);
+            if (type.equals(Terceto.ERROR))
+              Logger.logError(aLexico.getProgramPosition(), "Incompatibilidad de tipos entre " + val_peek(2).sval + " y " + val_peek(0).sval);
+            else {
+              tercetos.add("=", val_peek(2).sval, val_peek(0).sval, type);
+              tercetos.declaredFactorsUsed(val_peek(0).sval);
+            }
            }
 break;
 case 100:
-//#line 483 "grammar.y"
+//#line 486 "grammar.y"
 {
-                Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una asignacion de resta.");
-                String ref = tercetos.add("-", val_peek(2).sval, val_peek(0).sval, tercetos.typeTerceto(val_peek(2).sval, val_peek(0).sval));
-                tercetos.add("=", val_peek(2).sval, ref, tercetos.typeTerceto(val_peek(2).sval, ref));
-                tercetos.declaredFactorsUsed(val_peek(0).sval);
+              String type = tercetos.typeTerceto(val_peek(2).sval, val_peek(0).sval);
+              if (type.equals(Terceto.ERROR))
+                Logger.logError(aLexico.getProgramPosition(), "Incompatibilidad de tipos entre " + val_peek(2).sval + " y " + val_peek(0).sval);
+              else {
+                String ref = tercetos.add("-", val_peek(2).sval, val_peek(0).sval, type);
+
+                type = tercetos.typeTerceto(val_peek(2).sval, ref);
+                if (type.equals(Terceto.ERROR))
+                  Logger.logError(aLexico.getProgramPosition(), "Incompatibilidad de tipos entre " + val_peek(2).sval + " y " + val_peek(0).sval);
+                else {
+                  tercetos.add("=", val_peek(2).sval, ref, type);
+                  tercetos.declaredFactorsUsed(val_peek(0).sval);
+                }
+              }
            }
 break;
 case 101:
-//#line 489 "grammar.y"
+//#line 502 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Las asignaciones se deben hacer con el caracter '=' o '-='.");}
 break;
 case 102:
-//#line 490 "grammar.y"
+//#line 503 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Las asignaciones se deben hacer con el caracter '=' o '-='.");}
 break;
 case 103:
-//#line 491 "grammar.y"
+//#line 504 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Las asignaciones se deben hacer con el caracter '=' o '-='.");}
 break;
 case 104:
-//#line 492 "grammar.y"
+//#line 505 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Las asignaciones se deben hacer con el caracter '=' o '-='.");}
 break;
 case 105:
-//#line 493 "grammar.y"
+//#line 506 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Las asignaciones se deben hacer con el caracter '=' o '-='.");}
 break;
 case 107:
-//#line 497 "grammar.y"
+//#line 510 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "No se puede invocar un metodo/funcion en el lado izquierdo de una asignación.");}
 break;
 case 108:
-//#line 498 "grammar.y"
+//#line 511 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "No se puede utilizar constantes en el lado izquierdo de una asignación.");}
 break;
 case 109:
-//#line 502 "grammar.y"
+//#line 515 "grammar.y"
 {yyval = new ParserVal(val_peek(2).sval + "." + val_peek(0).sval);}
 break;
 case 112:
-//#line 509 "grammar.y"
+//#line 522 "grammar.y"
 {yyval = new ParserVal(val_peek(0).sval);}
 break;
 case 113:
-//#line 510 "grammar.y"
-{Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica."); yyval = new ParserVal(tercetos.add("==", val_peek(2).sval, val_peek(0).sval, tercetos.typeTerceto(val_peek(2).sval, val_peek(0).sval)));}
+//#line 523 "grammar.y"
+{
+                      String type = tercetos.typeTerceto(val_peek(2).sval, val_peek(0).sval);
+                      if (type.equals(Terceto.ERROR))
+                        Logger.logError(aLexico.getProgramPosition(), "Incompatibilidad de tipos entre " + val_peek(2).sval + " y " + val_peek(0).sval);
+                      else
+                        yyval = new ParserVal(tercetos.add("==", val_peek(2).sval, val_peek(0).sval, type));
+                    }
 break;
 case 114:
-//#line 511 "grammar.y"
-{Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica."); yyval = new ParserVal(tercetos.add("!!", val_peek(2).sval, val_peek(0).sval, tercetos.typeTerceto(val_peek(2).sval, val_peek(0).sval)));}
+//#line 530 "grammar.y"
+{
+                      String type = tercetos.typeTerceto(val_peek(2).sval, val_peek(0).sval);
+                      if (type.equals(Terceto.ERROR))
+                        Logger.logError(aLexico.getProgramPosition(), "Incompatibilidad de tipos entre " + val_peek(2).sval + " y " + val_peek(0).sval);
+                      else
+                        yyval = new ParserVal(tercetos.add("!!", val_peek(2).sval, val_peek(0).sval, type));
+                    }
 break;
 case 115:
-//#line 514 "grammar.y"
+//#line 539 "grammar.y"
 {yyval = new ParserVal(val_peek(0).sval);}
 break;
 case 116:
-//#line 515 "grammar.y"
-{Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica."); yyval = new ParserVal(tercetos.add("<", val_peek(2).sval, val_peek(0).sval, tercetos.typeTerceto(val_peek(2).sval, val_peek(0).sval)));}
+//#line 540 "grammar.y"
+{
+                        String type = tercetos.typeTerceto(val_peek(2).sval, val_peek(0).sval);
+                        if (type.equals(Terceto.ERROR))
+                          Logger.logError(aLexico.getProgramPosition(), "Incompatibilidad de tipos entre " + val_peek(2).sval + " y " + val_peek(0).sval);
+                        else
+                          yyval = new ParserVal(tercetos.add("<", val_peek(2).sval, val_peek(0).sval, type));
+                      }
 break;
 case 117:
-//#line 516 "grammar.y"
-{Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica."); yyval = new ParserVal(tercetos.add(">", val_peek(2).sval, val_peek(0).sval, tercetos.typeTerceto(val_peek(2).sval, val_peek(0).sval)));}
+//#line 547 "grammar.y"
+{
+                        String type = tercetos.typeTerceto(val_peek(2).sval, val_peek(0).sval);
+                        if (type.equals(Terceto.ERROR))
+                          Logger.logError(aLexico.getProgramPosition(), "Incompatibilidad de tipos entre " + val_peek(2).sval + " y " + val_peek(0).sval);
+                        else
+                          yyval = new ParserVal(tercetos.add(">", val_peek(2).sval, val_peek(0).sval, type));
+                      }
 break;
 case 118:
-//#line 517 "grammar.y"
-{Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica."); yyval = new ParserVal(tercetos.add(">=", val_peek(2).sval, val_peek(0).sval, tercetos.typeTerceto(val_peek(2).sval, val_peek(0).sval)));}
+//#line 554 "grammar.y"
+{
+                        String type = tercetos.typeTerceto(val_peek(2).sval, val_peek(0).sval);
+                        if (type.equals(Terceto.ERROR))
+                          Logger.logError(aLexico.getProgramPosition(), "Incompatibilidad de tipos entre " + val_peek(2).sval + " y " + val_peek(0).sval);
+                        else 
+                          yyval = new ParserVal(tercetos.add(">=", val_peek(2).sval, val_peek(0).sval, type));
+                        }
 break;
 case 119:
-//#line 518 "grammar.y"
-{Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion logica."); yyval = new ParserVal(tercetos.add("<=", val_peek(2).sval, val_peek(0).sval, tercetos.typeTerceto(val_peek(2).sval, val_peek(0).sval)));}
+//#line 561 "grammar.y"
+{
+                        String type = tercetos.typeTerceto(val_peek(2).sval, val_peek(0).sval);
+                        if (type.equals(Terceto.ERROR))
+                          Logger.logError(aLexico.getProgramPosition(), "Incompatibilidad de tipos entre " + val_peek(2).sval + " y " + val_peek(0).sval);
+                        else 
+                          yyval = new ParserVal(tercetos.add("<=", val_peek(2).sval, val_peek(0).sval, type));
+                        }
 break;
 case 120:
-//#line 521 "grammar.y"
+//#line 570 "grammar.y"
 {yyval = new ParserVal(val_peek(0).sval);}
 break;
 case 121:
-//#line 524 "grammar.y"
+//#line 573 "grammar.y"
 {yyval = new ParserVal(val_peek(0).sval); Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una operacion aritmetica.");}
 break;
 case 122:
-//#line 525 "grammar.y"
-{yyval = new ParserVal(tercetos.add("+", val_peek(2).sval, val_peek(0).sval, tercetos.typeTerceto(val_peek(2).sval, val_peek(0).sval)));}
+//#line 574 "grammar.y"
+{
+                        String type = tercetos.typeTerceto(val_peek(2).sval, val_peek(0).sval);
+                        if (type.equals(Terceto.ERROR))
+                          Logger.logError(aLexico.getProgramPosition(), "Incompatibilidad de tipos entre " + val_peek(2).sval + " y " + val_peek(0).sval);
+                        else
+                          yyval = new ParserVal(tercetos.add("+", val_peek(2).sval, val_peek(0).sval, type));
+                    }
 break;
 case 123:
-//#line 526 "grammar.y"
-{yyval = new ParserVal(tercetos.add("-", val_peek(2).sval, val_peek(0).sval, tercetos.typeTerceto(val_peek(2).sval, val_peek(0).sval)));}
+//#line 581 "grammar.y"
+{
+                        String type = tercetos.typeTerceto(val_peek(2).sval, val_peek(0).sval);
+                        if (type.equals(Terceto.ERROR))
+                          Logger.logError(aLexico.getProgramPosition(), "Incompatibilidad de tipos entre " + val_peek(2).sval + " y " + val_peek(0).sval);
+                        else
+                          yyval = new ParserVal(tercetos.add("-", val_peek(2).sval, val_peek(0).sval, type));
+                    }
 break;
 case 124:
-//#line 529 "grammar.y"
+//#line 590 "grammar.y"
 {yyval = new ParserVal(val_peek(0).sval);}
 break;
 case 125:
-//#line 530 "grammar.y"
-{yyval = new ParserVal(tercetos.add("*", val_peek(2).sval, val_peek(0).sval, tercetos.typeTerceto(val_peek(2).sval, val_peek(0).sval)));}
+//#line 591 "grammar.y"
+{
+                            String type = tercetos.typeTerceto(val_peek(2).sval, val_peek(0).sval);
+                            if (type.equals(Terceto.ERROR))
+                              Logger.logError(aLexico.getProgramPosition(), "Incompatibilidad de tipos entre " + val_peek(2).sval + " y " + val_peek(0).sval);
+                            else
+                              yyval = new ParserVal(tercetos.add("*", val_peek(2).sval, val_peek(0).sval, type));
+                          }
 break;
 case 126:
-//#line 531 "grammar.y"
-{yyval = new ParserVal(tercetos.add("/", val_peek(2).sval, val_peek(0).sval, tercetos.typeTerceto(val_peek(2).sval, val_peek(0).sval)));}
+//#line 598 "grammar.y"
+{
+                            String type = tercetos.typeTerceto(val_peek(2).sval, val_peek(0).sval);
+                            if (type.equals(Terceto.ERROR))
+                              Logger.logError(aLexico.getProgramPosition(), "Incompatibilidad de tipos entre " + val_peek(2).sval + " y " + val_peek(0).sval);
+                            else
+                              yyval = new ParserVal(tercetos.add("/", val_peek(2).sval, val_peek(0).sval, type));
+                          }
 break;
 case 127:
-//#line 532 "grammar.y"
+//#line 605 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "El operator % no es valido.");}
 break;
 case 130:
-//#line 537 "grammar.y"
+//#line 610 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "No se puede invocar un metodo/funcion en una expresion.");}
 break;
 case 132:
-//#line 539 "grammar.y"
+//#line 612 "grammar.y"
 {
                     if (tercetos.hasNestingExpressions(val_peek(1).sval)) 
                       Logger.logError(aLexico.getProgramPosition(), "No se permite el anidamiento de expresiones.");
@@ -1974,11 +2049,11 @@ case 132:
                  }
 break;
 case 133:
-//#line 544 "grammar.y"
+//#line 617 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Termino vacio.");}
 break;
 case 134:
-//#line 547 "grammar.y"
+//#line 620 "grammar.y"
 {
                           yyval = new ParserVal(tercetos.add("TOD", val_peek(1).sval, "-"));
                           tercetos.TODtracking(yyval.sval);
@@ -1986,43 +2061,43 @@ case 134:
                       }
 break;
 case 135:
-//#line 552 "grammar.y"
+//#line 625 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "No se puede convertir la expresion declarada.");}
 break;
 case 136:
-//#line 553 "grammar.y"
+//#line 626 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "El metodo TOD debe estar delimitado por parentesis \"(...)\".");}
 break;
 case 137:
-//#line 554 "grammar.y"
+//#line 627 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "El metodo TOD debe estar delimitado por parentesis \"(...)\".");}
 break;
 case 138:
-//#line 555 "grammar.y"
+//#line 628 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Es necesario pasar una expresion aritmetica.");}
 break;
 case 139:
-//#line 556 "grammar.y"
+//#line 629 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "TOD es un operador unario, es necesario pasarle una expresion entre parentesis.");}
 break;
 case 140:
-//#line 559 "grammar.y"
+//#line 632 "grammar.y"
 {yyval = new ParserVal(val_peek(0).sval); }
 break;
 case 141:
-//#line 560 "grammar.y"
+//#line 633 "grammar.y"
 {yyval = new ParserVal(val_peek(0).sval);}
 break;
 case 142:
-//#line 561 "grammar.y"
+//#line 634 "grammar.y"
 {yyval = new ParserVal(TablaTipos.chequearRangoLong(val_peek(0).sval, aLexico.getProgramPosition()));}
 break;
 case 143:
-//#line 562 "grammar.y"
+//#line 635 "grammar.y"
 { yyval = new ParserVal(TablaTipos.negarDouble(val_peek(0).sval));}
 break;
 case 144:
-//#line 563 "grammar.y"
+//#line 636 "grammar.y"
 {
               if(!TablaTipos.chequearRangoLongNegativo(val_peek(0).sval)){
                   Logger.logWarning(aLexico.getProgramPosition(),"LONG NEGATIVO FUERA DE RANGO SE TRUNCA AL MINIMO PERMITIDO");
@@ -2033,11 +2108,11 @@ case 144:
        }
 break;
 case 145:
-//#line 571 "grammar.y"
+//#line 644 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition() ,"Los tipos UINT deben ser sin signo."); yyval = new ParserVal(val_peek(0).sval);}
 break;
 case 146:
-//#line 574 "grammar.y"
+//#line 647 "grammar.y"
 {
                 String ref = val_peek(3).sval;
 
@@ -2052,7 +2127,7 @@ case 146:
             }
 break;
 case 147:
-//#line 586 "grammar.y"
+//#line 659 "grammar.y"
 {
                 String ref = val_peek(2).sval;
 
@@ -2067,7 +2142,7 @@ case 147:
             }
 break;
 case 148:
-//#line 598 "grammar.y"
+//#line 671 "grammar.y"
 {
                 String ref = val_peek(3).sval;
 
@@ -2082,7 +2157,7 @@ case 148:
             }
 break;
 case 149:
-//#line 610 "grammar.y"
+//#line 683 "grammar.y"
 {
                 String ref = val_peek(2).sval;
 
@@ -2097,35 +2172,35 @@ case 149:
             }
 break;
 case 150:
-//#line 622 "grammar.y"
+//#line 695 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
 break;
 case 151:
-//#line 623 "grammar.y"
+//#line 696 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
 break;
 case 152:
-//#line 624 "grammar.y"
+//#line 697 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
 break;
 case 153:
-//#line 625 "grammar.y"
+//#line 698 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Solo se permite el pasaje de un parametro real.");}
 break;
 case 159:
-//#line 644 "grammar.y"
+//#line 717 "grammar.y"
 {yyval = new ParserVal("UINT");}
 break;
 case 160:
-//#line 645 "grammar.y"
+//#line 718 "grammar.y"
 {yyval = new ParserVal("LONG");}
 break;
 case 161:
-//#line 648 "grammar.y"
+//#line 721 "grammar.y"
 {yyval = new ParserVal("DOUBLE");}
 break;
 case 162:
-//#line 652 "grammar.y"
+//#line 725 "grammar.y"
 {
                         String reference = scope.searchInterface(val_peek(0).sval);
                         if (reference == null) {
@@ -2137,7 +2212,7 @@ case 162:
                     }
 break;
 case 163:
-//#line 663 "grammar.y"
+//#line 736 "grammar.y"
 {
               String reference = scope.searchClass(val_peek(0).sval);
 
@@ -2150,7 +2225,7 @@ case 163:
             }
 break;
 case 164:
-//#line 675 "grammar.y"
+//#line 748 "grammar.y"
 {
                     String reference = scope.searchClass(val_peek(0).sval);
                     /*Revisar esto*/
@@ -2164,7 +2239,7 @@ case 164:
                   }
 break;
 case 165:
-//#line 689 "grammar.y"
+//#line 762 "grammar.y"
 {
                       String reference = scope.searchFunc(val_peek(0).sval);
 
@@ -2177,7 +2252,7 @@ case 165:
                }
 break;
 case 166:
-//#line 701 "grammar.y"
+//#line 774 "grammar.y"
 {
                     String instance = TablaClases.getInstance(val_peek(0).sval);
                     String instance_s = scope.searchInstance(instance);
@@ -2197,7 +2272,7 @@ case 166:
                }
 break;
 case 167:
-//#line 721 "grammar.y"
+//#line 794 "grammar.y"
 {
                     String reference = scope.searchVar(val_peek(0).sval);
                     if(reference == null) {
@@ -2209,83 +2284,83 @@ case 167:
                }
 break;
 case 168:
-//#line 737 "grammar.y"
+//#line 810 "grammar.y"
 {tercetos.addReturn();}
 break;
 case 169:
-//#line 738 "grammar.y"
+//#line 811 "grammar.y"
 {tercetos.addReturn(); Logger.logWarning(aLexico.getProgramPosition(), "Se esta declarando un bloque sin utilizar luego de un RETURN.");}
 break;
 case 170:
-//#line 739 "grammar.y"
+//#line 812 "grammar.y"
 {tercetos.addReturn();}
 break;
 case 171:
-//#line 740 "grammar.y"
+//#line 813 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una ',' luego del RETURN");}
 break;
 case 172:
-//#line 741 "grammar.y"
+//#line 814 "grammar.y"
 {tercetos.addReturn(); Logger.logWarning(aLexico.getProgramPosition(), "Se esta declarando un bloque sin utilizar luego de un RETURN");}
 break;
 case 173:
-//#line 742 "grammar.y"
+//#line 815 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Es necesario declarar el retorno del bloque.");}
 break;
 case 174:
-//#line 743 "grammar.y"
+//#line 816 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Un bloque debe estar delimitado por llaves \"{...} y es necesario declarar el retorno del bloque.");}
 break;
 case 175:
-//#line 744 "grammar.y"
+//#line 817 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Un bloque debe estar delimitado por llaves \"{...}\".");}
 break;
 case 176:
-//#line 745 "grammar.y"
+//#line 818 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Es necesario declarar el retorno del bloque.");}
 break;
 case 177:
-//#line 746 "grammar.y"
+//#line 819 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Un bloque debe estar delimitado por llaves \"{...}\".");}
 break;
 case 180:
-//#line 751 "grammar.y"
+//#line 824 "grammar.y"
 {tercetos.addReturn(); Logger.logWarning(aLexico.getProgramPosition(), "Se esta declarando un bloque sin utilizar luego de un RETURN");}
 break;
 case 181:
-//#line 752 "grammar.y"
+//#line 825 "grammar.y"
 {tercetos.addReturn(); Logger.logWarning(aLexico.getProgramPosition(), "Se esta declarando un bloque sin utilizar luego de un RETURN");}
 break;
 case 182:
-//#line 753 "grammar.y"
+//#line 826 "grammar.y"
 {tercetos.addReturn();}
 break;
 case 183:
-//#line 754 "grammar.y"
+//#line 827 "grammar.y"
 {tercetos.addReturn();}
 break;
 case 184:
-//#line 756 "grammar.y"
+//#line 829 "grammar.y"
 {Logger.logWarning(aLexico.getProgramPosition(), "Se esta declarando un bloque sin utilizar luego de un RETURN");}
 break;
 case 197:
-//#line 777 "grammar.y"
+//#line 850 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "No se permite declarar una clase en un bloque ejecutable.");}
 break;
 case 198:
-//#line 778 "grammar.y"
+//#line 851 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "No se permite declarar una interface en un bloque ejecutable.");}
 break;
 case 199:
-//#line 779 "grammar.y"
+//#line 852 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "No se permite declarar un impl for en un bloque ejecutable.");}
 break;
 case 200:
-//#line 780 "grammar.y"
+//#line 853 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "No se permiten sentencias declarativas en un bloque ejecutable.");}
 break;
 case 201:
-//#line 783 "grammar.y"
+//#line 856 "grammar.y"
 {
                               if (!(val_peek(2).sval.isEmpty() || val_peek(1).sval.isEmpty())) {
                                 TablaSimbolos.addTipoVariable(val_peek(2).sval, val_peek(1).sval);                      
@@ -2302,50 +2377,50 @@ case 201:
                             }
 break;
 case 212:
-//#line 815 "grammar.y"
+//#line 888 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' en el final de la sentencia.");}
 break;
 case 216:
-//#line 826 "grammar.y"
+//#line 899 "grammar.y"
 {
                          tercetos.backPatching(0);
                          tercetos.addLabel();
                     }
 break;
 case 217:
-//#line 830 "grammar.y"
+//#line 903 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "La sentencia de control IF debe terminar con ','.");}
 break;
 case 218:
-//#line 831 "grammar.y"
+//#line 904 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "La sentencia de control IF debe terminar con la palabra reservada END_IF.");}
 break;
 case 219:
-//#line 832 "grammar.y"
+//#line 905 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "La sentencia de control IF debe terminar con la palabra reservada END_IF y con finalizar con ','.");}
 break;
 case 220:
-//#line 833 "grammar.y"
+//#line 906 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "La sentencia de control IF debe terminar con ','.");}
 break;
 case 221:
-//#line 834 "grammar.y"
+//#line 907 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "La sentencia de control IF debe terminar con ','.");}
 break;
 case 222:
-//#line 837 "grammar.y"
+//#line 910 "grammar.y"
 {tercetos.addCondBranch(val_peek(1).sval);}
 break;
 case 223:
-//#line 838 "grammar.y"
+//#line 911 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "La condicion de la sentencia de control IF no es correcta.");}
 break;
 case 224:
-//#line 839 "grammar.y"
+//#line 912 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "La condicion debe estar delimitado por parentesis \"(...)\".");}
 break;
 case 228:
-//#line 847 "grammar.y"
+//#line 920 "grammar.y"
 {
                             Logger.logRule(aLexico.getProgramPosition(), "Se reconocio una sentencia IF ELSE.");
                             tercetos.backPatching(0);
@@ -2353,35 +2428,35 @@ case 228:
                           }
 break;
 case 229:
-//#line 852 "grammar.y"
+//#line 925 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "La sentencia de control IF ELSE debe terminar con la palabra reservada END_IF.");}
 break;
 case 230:
-//#line 853 "grammar.y"
+//#line 926 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "La sentencia de control IF ELSE debe terminar con ','.");}
 break;
 case 231:
-//#line 854 "grammar.y"
+//#line 927 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "La sentencia de control IF ELSE debe terminar con la palabra reservada END_IF y con finalizar con ','.");}
 break;
 case 232:
-//#line 855 "grammar.y"
+//#line 928 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "La sentencia de control IF ELSE debe terminar con ','.");}
 break;
 case 233:
-//#line 856 "grammar.y"
+//#line 929 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "La sentencia de control IF ELSE debe terminar con ','.");}
 break;
 case 234:
-//#line 859 "grammar.y"
+//#line 932 "grammar.y"
 {tercetos.backPatching(1); tercetos.addUncondBranch(); tercetos.addLabel();}
 break;
 case 235:
-//#line 860 "grammar.y"
+//#line 933 "grammar.y"
 {tercetos.backPatching(1); tercetos.addUncondBranch(); tercetos.addLabel();}
 break;
 case 239:
-//#line 870 "grammar.y"
+//#line 943 "grammar.y"
 {
                           if (!(val_peek(4).sval.isEmpty() || val_peek(2).sval.isEmpty())){
                             tercetos.add("+", val_peek(4).sval, "-");
@@ -2399,7 +2474,7 @@ case 239:
                          }
 break;
 case 240:
-//#line 887 "grammar.y"
+//#line 960 "grammar.y"
 {
                                if (!val_peek(0).sval.isEmpty()) {
                                 yyval = new ParserVal(val_peek(0).sval);
@@ -2410,11 +2485,11 @@ case 240:
                          }
 break;
 case 241:
-//#line 895 "grammar.y"
+//#line 968 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Error en la signatura del FOR IN RANGE.");}
 break;
 case 242:
-//#line 900 "grammar.y"
+//#line 973 "grammar.y"
 {
                       String msj = TablaTipos.checkTypeCondition(val_peek(5).sval, val_peek(3).sval, val_peek(1).sval);
 
@@ -2433,57 +2508,57 @@ case 242:
                   }
 break;
 case 243:
-//#line 916 "grammar.y"
+//#line 989 "grammar.y"
 {yyval = new ParserVal(""); Logger.logError(aLexico.getProgramPosition(), "Las constantes de actualizacion deben estar separadas por ';'.");}
 break;
 case 244:
-//#line 917 "grammar.y"
+//#line 990 "grammar.y"
 {yyval = new ParserVal(""); Logger.logError(aLexico.getProgramPosition(), "La condicion del FOR IN RANGE debe estar delimitada por parentesis '(...)'.");}
 break;
 case 250:
-//#line 933 "grammar.y"
+//#line 1006 "grammar.y"
 {
                         if (!val_peek(1).sval.isEmpty())
                           scope.deleteLastScope();
                       }
 break;
 case 252:
-//#line 940 "grammar.y"
+//#line 1013 "grammar.y"
 {yyval = new ParserVal(""); Logger.logError(aLexico.getProgramPosition(), "Es necesario definir el cuerpo de la funcion.");}
 break;
 case 253:
-//#line 943 "grammar.y"
+//#line 1016 "grammar.y"
 {tercetos.add("PRINT", val_peek(1).sval, "[-]");}
 break;
 case 254:
-//#line 944 "grammar.y"
+//#line 1017 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' en el final de la sentencia.");}
 break;
 case 255:
-//#line 945 "grammar.y"
+//#line 1018 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Se esperaba una \',\' en el final de la sentencia.");}
 break;
 case 256:
-//#line 946 "grammar.y"
+//#line 1019 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Solo se permite imprimir variables del tipo CADENA.");}
 break;
 case 257:
-//#line 947 "grammar.y"
+//#line 1020 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Solo se permite imprimir variables del tipo CADENA.");}
 break;
 case 258:
-//#line 948 "grammar.y"
+//#line 1021 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Solo se permite imprimir variables del tipo CADENA.");}
 break;
 case 259:
-//#line 949 "grammar.y"
+//#line 1022 "grammar.y"
 {tercetos.add("PRINT", "", "[-]");}
 break;
 case 260:
-//#line 950 "grammar.y"
+//#line 1023 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Se esperaba un % que cierre la cadena.");}
 break;
-//#line 2409 "Parser.java"
+//#line 2484 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####
