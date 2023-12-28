@@ -242,6 +242,7 @@ public class GeneradorAssembler {
                         if (!esConstante(func)) {
                                 librerias.append(getPrefix(func)).append(func.replaceAll("\\.","\\_")).append(" dq ? \n");
                         } else {
+                            func = func.replaceAll("\\+", "");
                             librerias.append("_cte_" + func.replaceAll("[.-]", "")).append(" dq " + func + "\n");
                         }
                         break;
@@ -267,8 +268,7 @@ public class GeneradorAssembler {
     }
 
     public static void generarConversionExplicita(String auxiliarString) {
-        OP1 = OP1.replaceAll("\\_","");
-        String tipo = TablaSimbolos.getTypeLexema(OP1);
+        String tipo = TablaSimbolos.getTypeLexema(OP1.replaceAll("\\_",""));
         if(tipo.equals(TablaTipos.DOUBLE_TYPE)){
             codigoAssembler.append("FLD ").append(OP1).append("\n");
         } else 
@@ -434,6 +434,9 @@ public class GeneradorAssembler {
     }
 
     public static void generarCodigoOperacionesDouble() {
+        OP1 = OP1.replaceAll("\\+", "");
+        OP2 = OP2.replaceAll("\\+", "");
+
         switch (OP) {
             case "+":
                 codigoAssembler.append("FLD ").append(OP2).append("\n");
