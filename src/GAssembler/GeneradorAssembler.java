@@ -431,6 +431,9 @@ public class GeneradorAssembler {
     }
 
     public static void generarCodigoOperacionesDouble() {
+        OP1 = OP1.replaceAll("\\+", "");
+        OP2 = OP2.replaceAll("\\+", "");
+
         switch (OP) {
             case "+":
                 codigoAssembler.append("FLD ").append(OP2).append("\n");
