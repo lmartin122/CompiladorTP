@@ -1165,11 +1165,18 @@ private static String generatePath() {
   return path;
 }
 
+private static String getProgramName(String s){
+  int i = s.lastIndexOf("/") + 1;
+  int j = s.lastIndexOf(".");
+  return (j != -1)? s.substring(i, j) : s.substring(i);
+}
+
 public static void main (String [] args) throws IOException {
     System.out.println("Iniciando compilacion...");
 
     String input = generatePath();
-
+    String program = getProgramName(input);
+    
     aLexico = new AnalizadorLexico(input);
 
     if ( !aLexico.hasReadWell() )
@@ -1188,9 +1195,9 @@ public static void main (String [] args) throws IOException {
 
     if (!Logger.errorsOcurred()){
       tercetos.printRules();
-      GeneradorAssembler.generarCodigoAssembler(tercetos); 
-      /* Logger.dumpASM(); */
-       System.out.println("ASSEMBLER \n" + GeneradorAssembler.codigoAssembler); 
+      GeneradorAssembler.generarCodigoAssembler(tercetos);
+      Logger.dumpASM(program);
+      System.out.println("ASSEMBLER \n" + GeneradorAssembler.codigoAssembler);
     }
 
 
@@ -1199,7 +1206,7 @@ public static void main (String [] args) throws IOException {
     System.out.println(aLexico.getProgram());
 }
 
-//#line 1130 "Parser.java"
+//#line 1137 "Parser.java"
 //###############################################################
 // method: yylexdebug : check lexer state
 //###############################################################
@@ -2476,7 +2483,7 @@ case 260:
 //#line 950 "grammar.y"
 {Logger.logError(aLexico.getProgramPosition(), "Se esperaba un % que cierre la cadena.");}
 break;
-//#line 2402 "Parser.java"
+//#line 2409 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####

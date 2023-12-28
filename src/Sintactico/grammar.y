@@ -1068,11 +1068,18 @@ private static String generatePath() {
   return path;
 }
 
+private static String getProgramName(String s){
+  int i = s.lastIndexOf("/") + 1;
+  int j = s.lastIndexOf(".");
+  return (j != -1)? s.substring(i, j) : s.substring(i);
+}
+
 public static void main (String [] args) throws IOException {
     System.out.println("Iniciando compilacion...");
 
     String input = generatePath();
-
+    String program = getProgramName(input);
+    
     aLexico = new AnalizadorLexico(input);
 
     if ( !aLexico.hasReadWell() )
@@ -1091,9 +1098,9 @@ public static void main (String [] args) throws IOException {
 
     if (!Logger.errorsOcurred()){
       tercetos.printRules();
-      /* GeneradorAssembler.generarCodigoAssembler(tercetos); */
-      /* Logger.dumpASM(); */
-      /* System.out.println("ASSEMBLER \n" + GeneradorAssembler.codigoAssembler); */
+      GeneradorAssembler.generarCodigoAssembler(tercetos);
+      Logger.dumpASM(program);
+      System.out.println("ASSEMBLER \n" + GeneradorAssembler.codigoAssembler);
     }
 
 
